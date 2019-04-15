@@ -1,32 +1,23 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using UnityEngine.TestTools;
 using NUnit.Framework;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace UniPix
 {
-    class EngineTests {
+    class EngineTests
+    {
         [Test]
-        public void EditorSampleTestSimplePasses()
+        public void TestUndo1()
         {
-            // Use the Assert class to test conditions.
-        }
+            var img = UniPixMisc.CreateDummyImg();
+            Undo.RecordObject(img, "Img width");
+            var oldWidth = img.Width;
+            img.Width = 2;
+            Undo.FlushUndoRecordObjects();
 
-        // A UnityTest behaves like a coroutine in PlayMode
-        // and allows you to yield null to skip a frame in EditMode
-        [UnityTest]
-        public IEnumerator EditorSampleTestWithEnumeratorPasses()
-        {
-            // Use the Assert class to test conditions.
-            // yield to skip a frame
-            yield return null;
-        }
-
-        [Test]
-        public void Pow()
-        {
-
+            EditorApplication.ExecuteMenuItem("Edit/Undo");
+            Assert.AreEqual(oldWidth, img.Width);
         }
     }
 }
