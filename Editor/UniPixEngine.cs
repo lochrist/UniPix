@@ -18,7 +18,18 @@ namespace UniPix
 
         public Image()
         {
+            Width = 16;
+            Height = 16;
             Frames = new List<Frame>();
+            Frames.Add(new Frame());
+        }
+
+        public static Image CreateImage(int width, int height)
+        {
+            var img = CreateInstance<Image>();
+            img.Width = width;
+            img.Height = height;
+            return img;
         }
     }
 
@@ -31,7 +42,6 @@ namespace UniPix
         public string Name;
         [SerializeField]
         public bool Visible;
-
         [SerializeField]
         public bool Locked;
 
@@ -48,5 +58,9 @@ namespace UniPix
     {
         [SerializeField]
         public List<Layer> Layers;
+        public Frame()
+        {
+            Layers = new List<Layer>();
+        }
     }
 }

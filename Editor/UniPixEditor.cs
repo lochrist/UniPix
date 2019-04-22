@@ -7,18 +7,20 @@ namespace UniPix
     public class PixEditor : EditorWindow
     {
         Rect m_CanvasRect;
+        Rect m_StatusRect;
         Rect m_ViewportRect;
         Rect m_ScaledImgRect;
         float m_ZoomLevel = 20f;
-        int m_ImageWidth = 16;
-        int m_ImageHeight = 32;
-
         float m_imageOffsetX;
         float m_imageOffsetY;
         Texture2D m_TransparentTex;
 
+        Image m_Image;
+
         private void OnEnable()
         {
+            m_Image = UnixPixOperations.CreateImageFromTexture("Assets/Sprites/archer_1.png");
+
             m_ZoomLevel = 10f;
             Debug.Log(m_ZoomLevel);
 
@@ -37,6 +39,7 @@ namespace UniPix
             ProcessEvents();
             ComputeLayout();
             DrawPixEditor();
+            DrawStatus();
         }
 
         private void ComputeLayout()
@@ -48,6 +51,9 @@ namespace UniPix
             var canvasWidth = position.width - toolPaletteWidth - layerWidth;
 
             m_CanvasRect = new Rect(toolPaletteWidth, toolbarHeight, position.width - toolPaletteWidth - layerWidth, position.height - toolbarHeight - statusbarHeight);
+
+            const float statusHeight = 75;
+            m_StatusRect = new Rect(m_CanvasRect.xMax, position.height - statusbarHeight - statusHeight, layerWidth, statusHeight);
         }
 
         private void ProcessEvents()
@@ -141,8 +147,8 @@ namespace UniPix
             // increase pen size ([)
             // decrease pen size (])
 
-            var xScale = m_ImageWidth * m_ZoomLevel;
-            var yScale = m_ImageHeight * m_ZoomLevel;
+            var xScale = m_Image.Width * m_ZoomLevel;
+            var yScale = m_Image.Height * m_ZoomLevel;
             m_ScaledImgRect = new Rect((m_CanvasRect.width / 2 - xScale / 2) + m_imageOffsetX, m_imageOffsetY, xScale, yScale);
 
             EditorGUI.DrawRect(m_CanvasRect, new Color(0.4f, 0.4f, 0.4f));
@@ -152,13 +158,13 @@ namespace UniPix
 
                 if (m_ZoomLevel > 2)
                 {
-                    for (int x = 0; x <= m_ImageWidth; x += 1)
+                    for (int x = 0; x <= m_Image.Width; x += 1)
                     {
                         float posX = m_ScaledImgRect.xMin + m_ZoomLevel * x/* - 0.2f*/;
                         EditorGUI.DrawRect(new Rect(posX, m_ScaledImgRect.yMin, 1, m_ScaledImgRect.height), Color.black);
                     }
                     // Then x axis
-                    for (int y = 0; y <= m_ImageHeight; y += 1)
+                    for (int y = 0; y <= m_Image.Height; y += 1)
                     {
                         float posY = m_ScaledImgRect.yMin + m_ZoomLevel * y/* - 0.2f*/;
                         EditorGUI.DrawRect(new Rect(m_ScaledImgRect.xMin, posY, m_ScaledImgRect.width, 1), Color.black);
@@ -206,11 +212,25 @@ namespace UniPix
 
         private void DrawStatus()
         {
+            // EditorGUI.DrawRect(m_StatusRect, new Color(1f, 0.4f, 0.4f));
+
+            GUILayout.BeginArea(m_StatusRect);
+            {
+                GUILayout.BeginVertical();
+                GUILayout.Label($"x{m_ZoomLevel}");
+                GUILayout.Label($"[{m_Image.Width}x{m_Image.Height}]");
+                // GUILayout.Label($"x{m_ZoomLevel}");
+                GUILayout.EndVertical();
+            }
+            GUILayout.EndArea();
+
             // Mouse pos
             // Zoom factor
             // image size
             // Frame Index
             // Active layer
+
+
         }
 
         [MenuItem("Window/UniPix")]
@@ -229,18 +249,14 @@ namespace UniPix
             img.Height = 12;
             img.Width = 12;
 
-            img.Frames = new List<UniPix.Frame>();
-
             {
-                var f = new UniPix.Frame();
-                f.Layers = new List<UniPix.Layer>();
                 var l = new UniPix.Layer();
                 l.Name = "Background";
                 l.Opacity = 0.3f;
                 l.Pixels = new Color[16];
                 l.Pixels[0] = Color.black;
                 l.Pixels[1] = Color.green;
-                f.Layers.Add(l);
+                img.Frames[0].Layers.Add(l);
 
                 l = new UniPix.Layer();
                 l.Name = "L1";
@@ -248,9 +264,7 @@ namespace UniPix
                 l.Pixels = new Color[16];
                 l.Pixels[0] = Color.blue;
                 l.Pixels[1] = Color.red;
-                f.Layers.Add(l);
-
-                img.Frames.Add(f);
+                img.Frames[0].Layers.Add(l);
             }
 
             {
