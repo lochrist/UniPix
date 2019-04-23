@@ -51,6 +51,11 @@ namespace UniPix
         {
             Opacity = 1.0f;
         }
+
+        public void Init(int width, int height)
+        {
+            Pixels = new Color[width * height];
+        }
     }
 
     [System.Serializable]
@@ -58,9 +63,22 @@ namespace UniPix
     {
         [SerializeField]
         public List<Layer> Layers;
+        public Layer BlendedLayer;
         public Frame()
         {
             Layers = new List<Layer>();
+        }
+
+        public void AddLayer(int width, int height)
+        {
+            var layer = new Layer();
+            layer.Init(width, height);
+            Layers.Add(layer);
+            if (BlendedLayer == null)
+            {
+                BlendedLayer = new Layer();
+                BlendedLayer.Init(width, height);
+            }
         }
     }
 }

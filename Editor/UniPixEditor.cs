@@ -156,6 +156,9 @@ namespace UniPix
             {
                 EditorGUI.DrawTextureTransparent(m_ScaledImgRect, m_TransparentTex);
 
+                var tex = UnixPixOperations.CreateTextureFromImg(m_Image, 0);
+                GUI.DrawTexture(m_ScaledImgRect, tex);
+
                 if (m_ZoomLevel > 2)
                 {
                     for (int x = 0; x <= m_Image.Width; x += 1)
