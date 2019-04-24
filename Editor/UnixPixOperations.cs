@@ -85,6 +85,7 @@ namespace UniPix
             var frame = img.Frames[frameIndex];
             for(var layerIndex = 0; layerIndex < frame.Layers.Count; ++layerIndex)
             {
+                // TODO: is it possible to make it by modifyng the texture in place instead of using BlendedLayer
                 if (layerIndex == 0)
                 {
                     Blend(frame.Layers[layerIndex], frame.Layers[layerIndex], frame.BlendedLayer);

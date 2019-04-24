@@ -14,8 +14,8 @@ namespace UniPix
         float m_imageOffsetX;
         float m_imageOffsetY;
         Texture2D m_TransparentTex;
-
         Image m_Image;
+        readonly Color kCursorColor = new Color(1, 1, 1, 0.5f);
 
         private void OnEnable()
         {
@@ -27,6 +27,8 @@ namespace UniPix
             m_TransparentTex = new Texture2D(1, 1);
             m_TransparentTex.SetPixel(0, 0, Color.clear);
             m_TransparentTex.Apply();
+
+            wantsMouseMove = true;
         }
 
         private void OnDisable()
@@ -94,6 +96,10 @@ namespace UniPix
                 m_ZoomLevel = Mathf.Max(1, m_ZoomLevel);
                 Repaint();
             }
+            else if (e.type == EventType.MouseMove)
+            {
+                Repaint();
+            }
         }
 
         private void DrawLayers()
@@ -146,7 +152,6 @@ namespace UniPix
             // decrease zoom level (-)
             // increase pen size ([)
             // decrease pen size (])
-
             var xScale = m_Image.Width * m_ZoomLevel;
             var yScale = m_Image.Height * m_ZoomLevel;
             m_ScaledImgRect = new Rect((m_CanvasRect.width / 2 - xScale / 2) + m_imageOffsetX, m_imageOffsetY, xScale, yScale);
@@ -156,8 +161,17 @@ namespace UniPix
             {
                 EditorGUI.DrawTextureTransparent(m_ScaledImgRect, m_TransparentTex);
 
+                // TODO: use current frame.
                 var tex = UnixPixOperations.CreateTextureFromImg(m_Image, 0);
                 GUI.DrawTexture(m_ScaledImgRect, tex);
+
+                if (m_ScaledImgRect.Contains(Event.current.mousePosition))
+                {
+                    var mousePosInImg = Event.current.mousePosition - m_ScaledImgRect.position;
+                    var pixelPos = new Vector2Int((int)(mousePosInImg.x / m_ZoomLevel), (int)(mousePosInImg.y / m_ZoomLevel));
+                    var cursorPos = new Vector2(pixelPos.x * m_ZoomLevel, pixelPos.y * m_ZoomLevel) + m_ScaledImgRect.position;
+                    EditorGUI.DrawRect(new Rect(cursorPos, new Vector2(m_ZoomLevel, m_ZoomLevel)), kCursorColor);
+                }
 
                 if (m_ZoomLevel > 2)
                 {
@@ -173,6 +187,9 @@ namespace UniPix
                         EditorGUI.DrawRect(new Rect(m_ScaledImgRect.xMin, posY, m_ScaledImgRect.width, 1), Color.black);
                     }
                 }
+
+                // var mousePos = Event.current.mousePosition - m_CanvasRect.position;
+                // Debug.Log($"Event.current.mousePosition: {Event.current.mousePosition} mousePos: {mousePos} pos: {m_CanvasRect.position} rec: {m_CanvasRect}");
             }
 
             GUILayout.EndArea();
