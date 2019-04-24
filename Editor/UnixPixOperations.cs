@@ -97,6 +97,7 @@ namespace UniPix
                 
             }
             var tex = new Texture2D(img.Width, img.Height);
+            tex.filterMode = FilterMode.Point;
             tex.SetPixels(frame.BlendedLayer.Pixels);
             tex.Apply();
             return tex;

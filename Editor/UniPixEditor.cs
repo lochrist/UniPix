@@ -15,6 +15,12 @@ namespace UniPix
         float m_imageOffsetY;
         Texture2D m_TransparentTex;
         Image m_Image;
+        
+        int m_CurrentLayer = 0;
+        int m_CurrentFrame = 0;
+        Color m_CurrentColor = new Color(1, 0, 0);
+        Color m_SecondaryColor = new Color(0, 1, 0);
+        // TODO: cursor position uses color swapper
         readonly Color kCursorColor = new Color(1, 1, 1, 0.5f);
 
         private void OnEnable()
@@ -96,8 +102,9 @@ namespace UniPix
                 m_ZoomLevel = Mathf.Max(1, m_ZoomLevel);
                 Repaint();
             }
-            else if (e.type == EventType.MouseMove)
+            else if (e.type == EventType.MouseMove || e.type == EventType.MouseDrag)
             {
+                // Repaint to update cursor position
                 Repaint();
             }
         }
@@ -160,9 +167,7 @@ namespace UniPix
             GUILayout.BeginArea(m_CanvasRect);
             {
                 EditorGUI.DrawTextureTransparent(m_ScaledImgRect, m_TransparentTex);
-
-                // TODO: use current frame.
-                var tex = UnixPixOperations.CreateTextureFromImg(m_Image, 0);
+                var tex = UnixPixOperations.CreateTextureFromImg(m_Image, m_CurrentFrame);
                 GUI.DrawTexture(m_ScaledImgRect, tex);
 
                 if (m_ScaledImgRect.Contains(Event.current.mousePosition))
@@ -171,6 +176,14 @@ namespace UniPix
                     var pixelPos = new Vector2Int((int)(mousePosInImg.x / m_ZoomLevel), (int)(mousePosInImg.y / m_ZoomLevel));
                     var cursorPos = new Vector2(pixelPos.x * m_ZoomLevel, pixelPos.y * m_ZoomLevel) + m_ScaledImgRect.position;
                     EditorGUI.DrawRect(new Rect(cursorPos, new Vector2(m_ZoomLevel, m_ZoomLevel)), kCursorColor);
+
+                    if (Event.current.isMouse && (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag))
+                    {
+                        // TODO: undo + toolhandling
+                        var pixelIndex = pixelPos.x + (m_Image.Height - pixelPos.y - 1) * m_Image.Height;
+                        m_Image.Frames[m_CurrentFrame].Layers[m_CurrentLayer].Pixels[pixelIndex] = m_CurrentColor;
+                        Repaint();
+                    }
                 }
 
                 if (m_ZoomLevel > 2)
