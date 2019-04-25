@@ -4,20 +4,28 @@ using UnityEngine;
 
 namespace UniPix
 {
+    [System.Serializable]
+    public class SessionData
+    {
+        public float ZoomLevel = 20f;
+        public Image Image;
+        public int CurrentLayer = 0;
+        public int CurrentFrame = 0;
+    }
+
     public class PixEditor : EditorWindow
     {
         Rect m_CanvasRect;
         Rect m_StatusRect;
         Rect m_ViewportRect;
         Rect m_ScaledImgRect;
-        float m_ZoomLevel = 20f;
+        Texture2D m_TransparentTex;
+        
         float m_imageOffsetX;
         float m_imageOffsetY;
-        Texture2D m_TransparentTex;
-        Image m_Image;
-        
-        int m_CurrentLayer = 0;
-        int m_CurrentFrame = 0;
+
+        SessionData m_Session;
+
         Color m_CurrentColor = new Color(1, 0, 0);
         Color m_SecondaryColor = new Color(0, 1, 0);
         // TODO: cursor position uses color swapper
@@ -25,10 +33,9 @@ namespace UniPix
 
         private void OnEnable()
         {
-            m_Image = UnixPixOperations.CreateImageFromTexture("Assets/Sprites/archer_1.png");
-
-            m_ZoomLevel = 10f;
-            Debug.Log(m_ZoomLevel);
+            m_Session = new SessionData();
+            m_Session.Image = UnixPixOperations.CreateImageFromTexture("Assets/Sprites/archer_1.png");
+            m_Session.ZoomLevel = 10f;
 
             m_TransparentTex = new Texture2D(1, 1);
             m_TransparentTex.SetPixel(0, 0, Color.clear);
@@ -87,19 +94,19 @@ namespace UniPix
                 }
                 if (e.keyCode == KeyCode.UpArrow)
                 {
-                    m_ZoomLevel += 2f;
+                    m_Session.ZoomLevel += 2f;
                 }
                 if (e.keyCode == KeyCode.DownArrow)
                 {
-                    m_ZoomLevel -= 2f;
-                    m_ZoomLevel = Mathf.Max(1, m_ZoomLevel);
+                    m_Session.ZoomLevel -= 2f;
+                    m_Session.ZoomLevel = Mathf.Max(1, m_Session.ZoomLevel);
                 }
                 Repaint();
             }
             else if (e.type == EventType.ScrollWheel)
             {
-                m_ZoomLevel -= e.delta.y;
-                m_ZoomLevel = Mathf.Max(1, m_ZoomLevel);
+                m_Session.ZoomLevel -= e.delta.y;
+                m_Session.ZoomLevel = Mathf.Max(1, m_Session.ZoomLevel);
                 Repaint();
             }
             else if (e.type == EventType.MouseMove || e.type == EventType.MouseDrag)
@@ -159,44 +166,44 @@ namespace UniPix
             // decrease zoom level (-)
             // increase pen size ([)
             // decrease pen size (])
-            var xScale = m_Image.Width * m_ZoomLevel;
-            var yScale = m_Image.Height * m_ZoomLevel;
+            var xScale = m_Session.Image.Width * m_Session.ZoomLevel;
+            var yScale = m_Session.Image.Height * m_Session.ZoomLevel;
             m_ScaledImgRect = new Rect((m_CanvasRect.width / 2 - xScale / 2) + m_imageOffsetX, m_imageOffsetY, xScale, yScale);
 
             EditorGUI.DrawRect(m_CanvasRect, new Color(0.4f, 0.4f, 0.4f));
             GUILayout.BeginArea(m_CanvasRect);
             {
                 EditorGUI.DrawTextureTransparent(m_ScaledImgRect, m_TransparentTex);
-                var tex = UnixPixOperations.CreateTextureFromImg(m_Image, m_CurrentFrame);
+                var tex = UnixPixOperations.CreateTextureFromImg(m_Session.Image, m_Session.CurrentFrame);
                 GUI.DrawTexture(m_ScaledImgRect, tex);
 
                 if (m_ScaledImgRect.Contains(Event.current.mousePosition))
                 {
                     var mousePosInImg = Event.current.mousePosition - m_ScaledImgRect.position;
-                    var pixelPos = new Vector2Int((int)(mousePosInImg.x / m_ZoomLevel), (int)(mousePosInImg.y / m_ZoomLevel));
-                    var cursorPos = new Vector2(pixelPos.x * m_ZoomLevel, pixelPos.y * m_ZoomLevel) + m_ScaledImgRect.position;
-                    EditorGUI.DrawRect(new Rect(cursorPos, new Vector2(m_ZoomLevel, m_ZoomLevel)), kCursorColor);
+                    var pixelPos = new Vector2Int((int)(mousePosInImg.x / m_Session.ZoomLevel), (int)(mousePosInImg.y / m_Session.ZoomLevel));
+                    var cursorPos = new Vector2(pixelPos.x * m_Session.ZoomLevel, pixelPos.y * m_Session.ZoomLevel) + m_ScaledImgRect.position;
+                    EditorGUI.DrawRect(new Rect(cursorPos, new Vector2(m_Session.ZoomLevel, m_Session.ZoomLevel)), kCursorColor);
 
                     if (Event.current.isMouse && (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag))
                     {
                         // TODO: undo + toolhandling
-                        var pixelIndex = pixelPos.x + (m_Image.Height - pixelPos.y - 1) * m_Image.Height;
-                        m_Image.Frames[m_CurrentFrame].Layers[m_CurrentLayer].Pixels[pixelIndex] = m_CurrentColor;
+                        var pixelIndex = pixelPos.x + (m_Session.Image.Height - pixelPos.y - 1) * m_Session.Image.Height;
+                        m_Session.Image.Frames[m_Session.CurrentFrame].Layers[m_Session.CurrentLayer].Pixels[pixelIndex] = m_CurrentColor;
                         Repaint();
                     }
                 }
 
-                if (m_ZoomLevel > 2)
+                if (m_Session.ZoomLevel > 2)
                 {
-                    for (int x = 0; x <= m_Image.Width; x += 1)
+                    for (int x = 0; x <= m_Session.Image.Width; x += 1)
                     {
-                        float posX = m_ScaledImgRect.xMin + m_ZoomLevel * x/* - 0.2f*/;
+                        float posX = m_ScaledImgRect.xMin + m_Session.ZoomLevel * x/* - 0.2f*/;
                         EditorGUI.DrawRect(new Rect(posX, m_ScaledImgRect.yMin, 1, m_ScaledImgRect.height), Color.black);
                     }
                     // Then x axis
-                    for (int y = 0; y <= m_Image.Height; y += 1)
+                    for (int y = 0; y <= m_Session.Image.Height; y += 1)
                     {
-                        float posY = m_ScaledImgRect.yMin + m_ZoomLevel * y/* - 0.2f*/;
+                        float posY = m_ScaledImgRect.yMin + m_Session.ZoomLevel * y/* - 0.2f*/;
                         EditorGUI.DrawRect(new Rect(m_ScaledImgRect.xMin, posY, m_ScaledImgRect.width, 1), Color.black);
                     }
                 }
@@ -250,8 +257,8 @@ namespace UniPix
             GUILayout.BeginArea(m_StatusRect);
             {
                 GUILayout.BeginVertical();
-                GUILayout.Label($"x{m_ZoomLevel}");
-                GUILayout.Label($"[{m_Image.Width}x{m_Image.Height}]");
+                GUILayout.Label($"x{m_Session.ZoomLevel}");
+                GUILayout.Label($"[{m_Session.Image.Width}x{m_Session.Image.Height}]");
                 // GUILayout.Label($"x{m_ZoomLevel}");
                 GUILayout.EndVertical();
             }
