@@ -6,7 +6,67 @@ using System.Linq;
 
 namespace UniPix
 {
-    class EngineTests
+    public static class UniPixMisc
+    {
+        public static UniPix.Image CreateDummyImg()
+        {
+            var img = ScriptableObject.CreateInstance<UniPix.Image>();
+            img.Height = 12;
+            img.Width = 12;
+
+            {
+                var l = new UniPix.Layer();
+                l.Name = "Background";
+                l.Opacity = 0.3f;
+                l.Pixels = new Color[16];
+                l.Pixels[0] = Color.black;
+                l.Pixels[1] = Color.green;
+                img.Frames[0].Layers.Add(l);
+
+                l = new UniPix.Layer();
+                l.Name = "L1";
+                l.Opacity = 0.3f;
+                l.Pixels = new Color[16];
+                l.Pixels[0] = Color.blue;
+                l.Pixels[1] = Color.red;
+                img.Frames[0].Layers.Add(l);
+            }
+
+            {
+                var f = new UniPix.Frame();
+                f.Layers = new List<UniPix.Layer>();
+                var l = new UniPix.Layer();
+                l.Name = "Background";
+                l.Opacity = 0.3f;
+                l.Pixels = new Color[16];
+                l.Pixels[0] = Color.cyan;
+                l.Pixels[1] = Color.gray;
+                f.Layers.Add(l);
+                img.Frames.Add(f);
+            }
+
+            return img;
+        }
+
+        [MenuItem("Tools/Create and Save Dummy")]
+        static void CreateAndSave()
+        {
+            var img = CreateDummyImg();
+            AssetDatabase.CreateAsset(img, "Assets/Dummy.asset");
+            AssetDatabase.SaveAssets();
+        }
+
+        [MenuItem("Tools/Create Mods")]
+        static void CreateAndMods()
+        {
+            var img = AssetDatabase.LoadAssetAtPath<UniPix.Image>("Assets/Dummy.asset");
+            Undo.RecordObject(img, "Img width");
+            img.Width = 7;
+            Undo.FlushUndoRecordObjects();
+        }
+    }
+
+    public class EngineTests
     {
         [Test]
         public void TestUndoModifyImg()
