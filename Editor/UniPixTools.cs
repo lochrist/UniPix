@@ -1,16 +1,41 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 namespace UniPix
 {
     public class PixTool
     {
+        // TODO: cursor position uses color swapper
+        readonly Color kCursorColor = new Color(1, 1, 1, 0.5f);
+
         public Texture2D Icon;
 
-        public virtual void OnEvent(Event current, Vector2Int cursorImgPos, Vector2 cursorPos, SessionData session)
+        public virtual void DrawCursor(SessionData session)
         {
+            var cursorPosInImg = new Vector2(session.CursorImgCoord.x * session.ZoomLevel, session.CursorImgCoord.y * session.ZoomLevel) + session.ScaledImgRect.position;
+            EditorGUI.DrawRect(new Rect(cursorPosInImg, new Vector2(session.ZoomLevel, session.ZoomLevel)), kCursorColor);
+        }
 
+        public virtual bool OnEvent(Event current, SessionData session)
+        {
+            return false;
+        }
+    }
+
+    public class BrusTool : PixTool
+    {
+        public override bool OnEvent(Event current, SessionData session)
+        {
+            DrawCursor(session);
+            if (Event.current.isMouse && (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag))
+            {
+                // TODO: undo + toolhandling
+                var pixelIndex = session.CursorImgCoord.x + (session.Image.Height - session.CursorImgCoord.y - 1) * session.Image.Height;
+                session.Image.Frames[session.CurrentFrame].Layers[session.CurrentLayer].Pixels[pixelIndex] = session.CurrentColor;
+            }
+            return true;
         }
     }
 }
