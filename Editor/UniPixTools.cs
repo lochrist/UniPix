@@ -24,16 +24,34 @@ namespace UniPix
         }
     }
 
-    public class BrusTool : PixTool
+    public class BrushTool : PixTool
+    {
+        public override bool OnEvent(Event current, SessionData session)
+        {
+            DrawCursor(session);
+            if (Event.current.isMouse && 
+                (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag) &&
+                (Event.current.button == 0 || Event.current.button == 1)
+                )
+            {
+                // TODO: undo
+                var pixelIndex = session.CursorImgCoord.x + (session.Image.Height - session.CursorImgCoord.y - 1) * session.Image.Height;
+                session.Image.Frames[session.CurrentFrame].Layers[session.CurrentLayer].Pixels[pixelIndex] = Event.current.button == 0 ? session.CurrentColor : session.SecondaryColor;
+            }
+            return true;
+        }
+    }
+
+    public class EraseTool : PixTool
     {
         public override bool OnEvent(Event current, SessionData session)
         {
             DrawCursor(session);
             if (Event.current.isMouse && (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag))
             {
-                // TODO: undo + toolhandling
+                // TODO: undo
                 var pixelIndex = session.CursorImgCoord.x + (session.Image.Height - session.CursorImgCoord.y - 1) * session.Image.Height;
-                session.Image.Frames[session.CurrentFrame].Layers[session.CurrentLayer].Pixels[pixelIndex] = session.CurrentColor;
+                session.Image.Frames[session.CurrentFrame].Layers[session.CurrentLayer].Pixels[pixelIndex] = Color.clear;
             }
             return true;
         }

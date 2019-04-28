@@ -36,7 +36,8 @@ namespace UniPix
 
         private void OnEnable()
         {
-            m_CurrentTool = new BrusTool();
+            m_CurrentTool = new BrushTool();
+            // m_CurrentTool = new EraseTool();
 
             m_Session = new SessionData();
             m_Session.Image = UnixPixOperations.CreateImageFromTexture("Assets/Sprites/archer_1.png");
