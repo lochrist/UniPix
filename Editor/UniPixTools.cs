@@ -36,7 +36,7 @@ namespace UniPix
             {
                 // TODO: undo
                 var pixelIndex = session.CursorImgCoord.x + (session.Image.Height - session.CursorImgCoord.y - 1) * session.Image.Height;
-                session.Image.Frames[session.CurrentFrame].Layers[session.CurrentLayer].Pixels[pixelIndex] = Event.current.button == 0 ? session.CurrentColor : session.SecondaryColor;
+                session.CurrentLayer.Pixels[pixelIndex] = Event.current.button == 0 ? session.CurrentColor : session.SecondaryColor;
             }
             return true;
         }
@@ -51,7 +51,7 @@ namespace UniPix
             {
                 // TODO: undo
                 var pixelIndex = session.CursorImgCoord.x + (session.Image.Height - session.CursorImgCoord.y - 1) * session.Image.Height;
-                session.Image.Frames[session.CurrentFrame].Layers[session.CurrentLayer].Pixels[pixelIndex] = Color.clear;
+                session.CurrentLayer.Pixels[pixelIndex] = Color.clear;
             }
             return true;
         }

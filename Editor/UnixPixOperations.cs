@@ -8,6 +8,18 @@ namespace UniPix
 {
     public static class UnixPixOperations
     {
+        public static Image CreateImage(int width, int height, Color baseColor)
+        {
+            var img = Image.CreateImage(width, height);
+            var layer = img.Frames[0].AddLayer(width, height);
+            for (var i = 0; i < layer.Pixels.Length; ++i)
+            {
+                layer.Pixels[i] = baseColor;
+            }
+
+            return img;
+        }
+
         public static Image CreateImageFromTexture(string path)
         {
             var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
@@ -83,16 +95,17 @@ namespace UniPix
         public static Texture2D CreateTextureFromImg(Image img, int frameIndex)
         {
             var frame = img.Frames[frameIndex];
-            for(var layerIndex = 0; layerIndex < frame.Layers.Count; ++layerIndex)
+            SetLayerColor(frame.BlendedLayer, Color.clear);
+            for (var layerIndex = 0; layerIndex < frame.Layers.Count; ++layerIndex)
             {
                 // TODO: is it possible to make it by modifyng the texture in place instead of using BlendedLayer
-                if (layerIndex == 0)
+                if (layerIndex == 0 && frame.Layers[layerIndex].Visible)
                 {
                     Blend(frame.Layers[layerIndex], frame.Layers[layerIndex], frame.BlendedLayer);
                 }
-                else
+                else if (frame.Layers[layerIndex].Visible)
                 {
-                    Blend(frame.BlendedLayer, frame.Layers[layerIndex], frame.BlendedLayer);
+                    Blend(frame.Layers[layerIndex], frame.BlendedLayer, frame.BlendedLayer);
                 }
                 
             }
@@ -103,18 +116,25 @@ namespace UniPix
             return tex;
         }
 
+        public static void SetLayerColor(Layer layer, Color color)
+        {
+            for (var i = 0; i < layer.Pixels.Length; ++i)
+            {
+                layer.Pixels[i] = color;
+            }
+        }
+
         public static void Blend(Layer srcLayer, Layer dstLayer, Layer result)
         {
             // Simple alpha blend: https://en.wikipedia.org/wiki/Alpha_compositing
             // outA = srcA + dstA (1 - srcA)
             // outRGB = (srcRGB * srcA + dstRGB * dstA (1 - srcA)) / outA
-            
             for(var i = 0; i < srcLayer.Pixels.Length; ++i)
             {
                 var src = srcLayer.Pixels[i];
                 var dst = dstLayer.Pixels[i];
                 var srcA = src.a * srcLayer.Opacity;
-                var dstA = src.a * dstLayer.Opacity;
+                var dstA = dst.a * dstLayer.Opacity;
                 var outA = srcA + dstA * (1 - srcA);
                 result.Pixels[i] = new Color(
                     (src.r * srcA + dst.r * dstA * (1 - srcA)) / outA,

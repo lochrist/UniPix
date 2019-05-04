@@ -15,7 +15,6 @@ namespace UniPix
         public int Width;
         [SerializeField]
         public int Height;
-
         public Image()
         {
             Width = 16;
@@ -50,6 +49,8 @@ namespace UniPix
         public Layer()
         {
             Opacity = 1.0f;
+            Visible = true;
+            Locked = false;
         }
 
         public void Init(int width, int height)
@@ -69,16 +70,18 @@ namespace UniPix
             Layers = new List<Layer>();
         }
 
-        public void AddLayer(int width, int height)
+        public Layer AddLayer(int width, int height)
         {
             var layer = new Layer();
             layer.Init(width, height);
+            layer.Name = $"Layer {Layers.Count + 1}";
             Layers.Add(layer);
             if (BlendedLayer == null)
             {
                 BlendedLayer = new Layer();
                 BlendedLayer.Init(width, height);
             }
+            return layer;
         }
     }
 }
