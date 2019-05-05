@@ -140,5 +140,24 @@ namespace UniPix
                 );
             }
         }
+
+        public static void ExtractPaletteFrom(Frame frame, List<Color> colors)
+        {
+            foreach(var layer in frame.Layers)
+            {
+                ExtractPaletteFrom(layer, colors);
+            }
+        }
+
+        public static void ExtractPaletteFrom(Layer layer, List<Color> colors)
+        {
+            foreach(var pixel in layer.Pixels)
+            {
+                if (!colors.Contains(pixel))
+                {
+                    colors.Add(pixel);
+                }
+            }
+        }
     }
 }

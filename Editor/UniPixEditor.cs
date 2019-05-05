@@ -21,6 +21,8 @@ namespace UniPix
         public Rect ScaledImgRect;
         public Vector2Int CursorImgCoord;
         public Vector2 CursorPos;
+
+        public Palette palette;
     }
 
     public class PixEditor : EditorWindow
@@ -28,6 +30,10 @@ namespace UniPix
         Rect m_CanvasRect;
         Rect m_StatusRect;
         Rect m_ViewportRect;
+        Rect m_LayerRect;
+        Rect m_PaletteRect;
+        Rect m_ToolbarRect;
+        Rect m_ColorPaletteRect;
         Texture2D m_TransparentTex;
 
         static class Styles
@@ -36,6 +42,11 @@ namespace UniPix
             public const float kLayerWidth = 200;
             public const float kToolbarHeight = 35;
             public const float kStatusbarHeight = 35;
+            public const float kColorSwatchSize = 40;
+            public const float kPaletteItemSize = 25;
+            public const float kLayerHeight = 25;
+            public const float kLayerRectHeight = 6 * kLayerHeight;
+            public const float kMargin = 2;
 
             public static GUIStyle layerHeader = new GUIStyle(EditorStyles.boldLabel);
             public static GUIStyle layerName = new GUIStyle(EditorStyles.largeLabel);
@@ -101,30 +112,55 @@ namespace UniPix
             for (int i = 0; i < newLayer.Pixels.Length; ++i)
                 newLayer.Pixels[i] = Color.blue;
             newLayer.Opacity = 0.7f;
+
+            m_Session.palette = new Palette();
+            UnixPixOperations.ExtractPaletteFrom(m_Session.CurrentFrame, m_Session.palette.Colors);
         }
 
         private void OnGUI()
         {
             ProcessEvents();
             ComputeLayout();
+
+            DrawDebugArea();
+            /*
             DrawToolbar();
+            DrawColorSwitcher();
             DrawPixEditor();
             DrawLayers();
+            DrawColorPalette();
             DrawStatus();
+            */
         }
 
         private void ComputeLayout()
         {
-            
-            var canvasWidth = position.width - Styles.kToolPaletteWidth - Styles.kLayerWidth;
-
+            m_ToolbarRect = new Rect(Styles.kMargin, Styles.kMargin, position.width - 2*Styles.kMargin, Styles.kToolbarHeight);
             m_CanvasRect = new Rect(Styles.kToolPaletteWidth, 
-                Styles.kToolbarHeight, 
+                m_ToolbarRect.yMax + Styles.kMargin,
                 position.width - Styles.kToolPaletteWidth - Styles.kLayerWidth, 
-                position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight);
+                position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight - 2*Styles.kMargin);
 
-            const float statusHeight = 75;
-            m_StatusRect = new Rect(m_CanvasRect.xMax, position.height - Styles.kStatusbarHeight - statusHeight, Styles.kLayerWidth, statusHeight);
+            m_LayerRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_CanvasRect.y, Styles.kLayerWidth - 2*Styles.kMargin, Styles.kLayerRectHeight);
+
+            m_ColorPaletteRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_LayerRect.yMax + Styles.kMargin, Styles.kLayerWidth - 2*Styles.kMargin, Styles.kLayerRectHeight);
+
+            m_StatusRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, position.height - Styles.kStatusbarHeight - Styles.kStatusbarHeight, Styles.kLayerWidth - 2*Styles.kMargin, Styles.kStatusbarHeight);
+        }
+
+        private void DrawDebugArea()
+        {
+            DrawDebugRect(m_CanvasRect, "canvas", Color.white);
+            DrawDebugRect(m_StatusRect, "status", Color.red);
+            DrawDebugRect(m_LayerRect, "layer", Color.cyan);
+            DrawDebugRect(m_ToolbarRect, "toolbar", Color.green);
+            DrawDebugRect(m_ColorPaletteRect, "palette", Color.gray);
+        }
+
+        private void DrawDebugRect(Rect rect, string title, Color c)
+        {
+            EditorGUI.DrawRect(rect, c);
+            GUI.Label(rect, title);
         }
 
         private void ProcessEvents()
@@ -183,8 +219,7 @@ namespace UniPix
             // Name
             // Merge with layer below
 
-            var layerRect = new Rect(m_CanvasRect.xMax + 2, m_CanvasRect.y, Styles.kLayerWidth, m_CanvasRect.height - m_StatusRect.height);
-            GUILayout.BeginArea(layerRect);
+            GUILayout.BeginArea(m_LayerRect);
             using (new GUILayout.VerticalScope())
             {
                 GUILayout.Label("Layers", Styles.layerHeader);
@@ -255,7 +290,6 @@ namespace UniPix
             // New frame (n)
             // Select previous frame (up arrow)
             // Select next frame (up arrow)
-
         }
 
         private void DrawColorSwitcher()
@@ -264,6 +298,12 @@ namespace UniPix
             // Swap Color
             // Reset default color (d)
             // Open palette creation (alt + p)
+
+            var primaryColorRect = new Rect(10, position.height - Styles.kStatusbarHeight - (2*Styles.kColorSwatchSize), Styles.kColorSwatchSize, Styles.kColorSwatchSize);
+            var secondaryColorRect = new Rect(primaryColorRect.xMax - 15, primaryColorRect.yMax - 15, Styles.kColorSwatchSize, Styles.kColorSwatchSize);
+
+            m_Session.SecondaryColor = EditorGUI.ColorField(secondaryColorRect, new GUIContent(""), m_Session.SecondaryColor, false, false, false);
+            m_Session.CurrentColor = EditorGUI.ColorField(primaryColorRect, new GUIContent(""), m_Session.CurrentColor, false, false, false);
         }
 
         private void DrawPixEditor()
@@ -337,10 +377,11 @@ namespace UniPix
             // Bucket
         }
 
-        private void DrawPalette()
+        private void DrawColorPalette()
         {
             // Draw Tiles with each different colors in image
             // allow save + load of a palette
+            
         }
 
         private void DrawToolbar()
@@ -351,8 +392,8 @@ namespace UniPix
             // New
             // Import
             // Duplicate
-            var toolbarRect = new Rect(0, 0, position.width, Styles.kToolbarHeight);
-            GUILayout.BeginArea(toolbarRect);
+            
+            GUILayout.BeginArea(m_ToolbarRect);
             GUILayout.BeginHorizontal();
 
             if (GUILayout.Button("Reset"))

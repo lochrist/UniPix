@@ -33,6 +33,16 @@ namespace UniPix
     }
 
     [System.Serializable]
+    public class Palette
+    {
+        public List<Color> Colors;
+        public Palette()
+        {
+            Colors = new List<Color>();
+        }
+    }
+
+    [System.Serializable]
     public class Layer
     {
         [SerializeField]
