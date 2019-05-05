@@ -213,7 +213,10 @@ namespace UniPix
                         Repaint();
                     }
 
+                    
                     EditorGUI.BeginChangeCheck();
+                    // Doesn't format well??
+                    // EditorGUILayout.FloatField("Alpha", 0.5f, Styles.layerOpacity);
                     layer.Opacity = Mathf.Clamp(EditorGUILayout.FloatField(layer.Opacity, Styles.layerOpacity), 0f, 1f);
                     if (EditorGUI.EndChangeCheck())
                     {
@@ -229,8 +232,7 @@ namespace UniPix
                         Repaint();
                     }
 
-                    // Doesn't format well??
-                    // EditorGUILayout.FloatField("Alpha", 0.5f, Styles.layerOpacity);
+                    
                     GUILayout.EndHorizontal();
                 }
             }

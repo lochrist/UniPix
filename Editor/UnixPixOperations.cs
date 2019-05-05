@@ -99,11 +99,7 @@ namespace UniPix
             for (var layerIndex = 0; layerIndex < frame.Layers.Count; ++layerIndex)
             {
                 // TODO: is it possible to make it by modifyng the texture in place instead of using BlendedLayer
-                if (layerIndex == 0 && frame.Layers[layerIndex].Visible)
-                {
-                    Blend(frame.Layers[layerIndex], frame.Layers[layerIndex], frame.BlendedLayer);
-                }
-                else if (frame.Layers[layerIndex].Visible)
+                if (frame.Layers[layerIndex].Visible)
                 {
                     Blend(frame.Layers[layerIndex], frame.BlendedLayer, frame.BlendedLayer);
                 }
