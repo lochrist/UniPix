@@ -16,7 +16,7 @@ namespace UniPix
         public Layer CurrentLayer => CurrentFrame.Layers[CurrentLayerIndex];
 
         public Color CurrentColor = new Color(1, 0, 0);
-        public Color SecondaryColor = Color.clear;
+        public Color SecondaryColor = Color.black;
 
         public Rect ScaledImgRect;
         public Vector2Int CursorImgCoord;
@@ -34,6 +34,7 @@ namespace UniPix
         Rect m_PaletteRect;
         Rect m_ToolbarRect;
         Rect m_ColorPaletteRect;
+        Rect m_SettingsRect;
         Texture2D m_TransparentTex;
 
         static class Styles
@@ -46,6 +47,7 @@ namespace UniPix
             public const float kPaletteItemSize = 25;
             public const float kLayerHeight = 25;
             public const float kLayerRectHeight = 6 * kLayerHeight;
+            public const float kSettingsHeight = 200;
             public const float kMargin = 2;
 
             public static GUIStyle layerHeader = new GUIStyle(EditorStyles.boldLabel);
@@ -62,7 +64,6 @@ namespace UniPix
                 fixedHeight = 25
             };
 
-
             static Styles()
             {
                 currentLayerName.normal.textColor = Color.yellow;
@@ -73,6 +74,10 @@ namespace UniPix
         float m_imageOffsetY;
 
         SessionData m_Session;
+
+        bool m_ShowGrid = true;
+        int m_GridSize = 1;
+        Color m_GridColor = Color.black;
 
         PixTool m_CurrentTool;
 
@@ -105,13 +110,15 @@ namespace UniPix
             m_Session.CurrentLayerIndex = 0;
 
             // TODO: Hardcoded for now:
-            // m_Session.Image = UnixPixOperations.CreateImageFromTexture("Assets/Sprites/archer_1.png");
+            m_Session.Image = UnixPixOperations.CreateImageFromTexture("Assets/Sprites/archer_1.png");
+            /*
             m_Session.Image = UnixPixOperations.CreateImage(2, 2, Color.yellow);
             m_Session.CurrentLayer.Pixels[0] = Color.clear;
             var newLayer = m_Session.CurrentFrame.AddLayer(m_Session.Image.Width, m_Session.Image.Height);
             for (int i = 0; i < newLayer.Pixels.Length; ++i)
                 newLayer.Pixels[i] = Color.blue;
             newLayer.Opacity = 0.7f;
+            */
 
             m_Session.palette = new Palette();
             UnixPixOperations.ExtractPaletteFrom(m_Session.CurrentFrame, m_Session.palette.Colors);
@@ -122,15 +129,16 @@ namespace UniPix
             ProcessEvents();
             ComputeLayout();
 
-            DrawDebugArea();
-            /*
+            // DrawDebugArea();
+            
             DrawToolbar();
             DrawColorSwitcher();
             DrawPixEditor();
             DrawLayers();
             DrawColorPalette();
+            DrawSettings();
             DrawStatus();
-            */
+            
         }
 
         private void ComputeLayout()
@@ -141,11 +149,14 @@ namespace UniPix
                 position.width - Styles.kToolPaletteWidth - Styles.kLayerWidth, 
                 position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight - 2*Styles.kMargin);
 
-            m_LayerRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_CanvasRect.y, Styles.kLayerWidth - 2*Styles.kMargin, Styles.kLayerRectHeight);
+            const float kRightPanelWidth = Styles.kLayerWidth - 2 * Styles.kMargin;
+            m_LayerRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_CanvasRect.y, kRightPanelWidth, Styles.kLayerRectHeight);
 
-            m_ColorPaletteRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_LayerRect.yMax + Styles.kMargin, Styles.kLayerWidth - 2*Styles.kMargin, Styles.kLayerRectHeight);
+            m_ColorPaletteRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_LayerRect.yMax + Styles.kMargin, kRightPanelWidth, Styles.kLayerRectHeight);
 
-            m_StatusRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, position.height - Styles.kStatusbarHeight - Styles.kStatusbarHeight, Styles.kLayerWidth - 2*Styles.kMargin, Styles.kStatusbarHeight);
+            m_StatusRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, position.height - Styles.kStatusbarHeight - Styles.kStatusbarHeight, kRightPanelWidth, Styles.kStatusbarHeight);
+
+            m_SettingsRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_ColorPaletteRect.yMax + Styles.kMargin, kRightPanelWidth, Styles.kSettingsHeight);
         }
 
         private void DrawDebugArea()
@@ -155,6 +166,7 @@ namespace UniPix
             DrawDebugRect(m_LayerRect, "layer", Color.cyan);
             DrawDebugRect(m_ToolbarRect, "toolbar", Color.green);
             DrawDebugRect(m_ColorPaletteRect, "palette", Color.gray);
+            DrawDebugRect(m_SettingsRect, "settings", Color.blue);
         }
 
         private void DrawDebugRect(Rect rect, string title, Color c)
@@ -225,14 +237,22 @@ namespace UniPix
                 GUILayout.Label("Layers", Styles.layerHeader);
                 using (new GUILayout.HorizontalScope())
                 {
-                    
+                    // TODO: handle undo
                     if (GUILayout.Button("Cr", Styles.layerToolbarBtn))
                     {
-
+                        UnixPixOperations.CreateLayer(m_Session.Image, m_Session.CurrentFrame);
+                        m_Session.CurrentLayerIndex++;
                     }
-                    GUILayout.Button("Up", Styles.layerToolbarBtn);
-                    GUILayout.Button("Dw", Styles.layerToolbarBtn);
-                    GUILayout.Button("Mer", Styles.layerToolbarBtn);
+
+                    using (new EditorGUI.DisabledScope(m_Session.CurrentLayerIndex == m_Session.CurrentFrame.Layers.Count - 1))
+                        GUILayout.Button("Up", Styles.layerToolbarBtn);
+
+                    using (new EditorGUI.DisabledScope(m_Session.CurrentLayerIndex == 0))
+                    {
+                        GUILayout.Button("Dw", Styles.layerToolbarBtn);
+                        GUILayout.Button("Mer", Styles.layerToolbarBtn);
+                    }
+
                     GUILayout.Button("Del", Styles.layerToolbarBtn);
                 }
 
@@ -302,6 +322,8 @@ namespace UniPix
             var primaryColorRect = new Rect(10, position.height - Styles.kStatusbarHeight - (2*Styles.kColorSwatchSize), Styles.kColorSwatchSize, Styles.kColorSwatchSize);
             var secondaryColorRect = new Rect(primaryColorRect.xMax - 15, primaryColorRect.yMax - 15, Styles.kColorSwatchSize, Styles.kColorSwatchSize);
 
+            // TODO: check if the color is in the current palette or not?
+
             m_Session.SecondaryColor = EditorGUI.ColorField(secondaryColorRect, new GUIContent(""), m_Session.SecondaryColor, false, false, false);
             m_Session.CurrentColor = EditorGUI.ColorField(primaryColorRect, new GUIContent(""), m_Session.CurrentColor, false, false, false);
         }
@@ -338,7 +360,7 @@ namespace UniPix
                     }
                 }
 
-                if (m_Session.ZoomLevel > 2)
+                if (m_ShowGrid && m_Session.ZoomLevel > 2)
                 {
                     DrawGrid();
                 }
@@ -351,16 +373,16 @@ namespace UniPix
 
         private void DrawGrid()
         {
-            for (int x = 0; x <= m_Session.Image.Width; x += 1)
+            for (int x = 0; x <= m_Session.Image.Width; x += m_GridSize)
             {
                 float posX = m_Session.ScaledImgRect.xMin + m_Session.ZoomLevel * x/* - 0.2f*/;
-                EditorGUI.DrawRect(new Rect(posX, m_Session.ScaledImgRect.yMin, 1, m_Session.ScaledImgRect.height), Color.black);
+                EditorGUI.DrawRect(new Rect(posX, m_Session.ScaledImgRect.yMin, 1, m_Session.ScaledImgRect.height), m_GridColor);
             }
             // Then x axis
-            for (int y = 0; y <= m_Session.Image.Height; y += 1)
+            for (int y = 0; y <= m_Session.Image.Height; y += m_GridSize)
             {
                 float posY = m_Session.ScaledImgRect.yMin + m_Session.ZoomLevel * y/* - 0.2f*/;
-                EditorGUI.DrawRect(new Rect(m_Session.ScaledImgRect.xMin, posY, m_Session.ScaledImgRect.width, 1), Color.black);
+                EditorGUI.DrawRect(new Rect(m_Session.ScaledImgRect.xMin, posY, m_Session.ScaledImgRect.width, 1), m_GridColor);
             }
         }
 
@@ -381,7 +403,46 @@ namespace UniPix
         {
             // Draw Tiles with each different colors in image
             // allow save + load of a palette
-            
+            GUILayout.BeginArea(m_ColorPaletteRect);
+            using (new GUILayout.VerticalScope())
+            {
+                GUILayout.Label("Palette", Styles.layerHeader);
+
+                const int nbItemPerRow = 5;
+                var nbRows = (m_Session.palette.Colors.Count / nbItemPerRow) + 1;
+                var colorItemIndex = 0;
+                for(var rowIndex = 0; rowIndex < nbRows; ++rowIndex)
+                {
+                    using (new GUILayout.HorizontalScope())
+                    {
+                        for (var itemIndexInRow = 0; itemIndexInRow < nbItemPerRow; ++itemIndexInRow, ++colorItemIndex)
+                        {
+                            // TODO use a GUIStyle with margin!
+                            var colorRect = GUILayoutUtility.GetRect(Styles.kPaletteItemSize + 2*Styles.kMargin, Styles.kPaletteItemSize + 2*Styles.kMargin);
+
+                            if (colorItemIndex < m_Session.palette.Colors.Count)
+                            {
+                                var contentRect = new Rect(colorRect.x + Styles.kMargin, colorRect.y + Styles.kMargin, colorRect.width - 2 * Styles.kMargin, colorRect.height - 2 * Styles.kMargin);
+                                if (m_Session.palette.Colors[colorItemIndex].a == 0f)
+                                {
+                                    EditorGUI.DrawTextureTransparent(contentRect, m_TransparentTex);
+                                }
+                                else
+                                {
+                                    EditorGUI.DrawRect(contentRect, m_Session.palette.Colors[colorItemIndex]);
+                                }
+
+                                if (Event.current.isMouse && Event.current.type == EventType.MouseDown && contentRect.Contains(Event.current.mousePosition))
+                                {
+                                    m_Session.CurrentColor = m_Session.palette.Colors[colorItemIndex];
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            GUILayout.EndArea();
         }
 
         private void DrawToolbar()
@@ -408,8 +469,14 @@ namespace UniPix
 
         private void DrawSettings()
         {
-            // Toggle grid (alt + g)
+            GUILayout.BeginArea(m_SettingsRect);
 
+            GUILayout.Label("Show", Styles.layerHeader);
+            m_ShowGrid = GUILayout.Toggle(m_ShowGrid, "Grid");
+            m_GridSize = Mathf.Clamp(EditorGUILayout.IntField("Size", m_GridSize), 1, 5);
+            m_GridColor = EditorGUILayout.ColorField("Color", m_GridColor);
+
+            GUILayout.EndArea();
         }
 
         private void DrawStatus()

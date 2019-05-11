@@ -153,11 +153,16 @@ namespace UniPix
         {
             foreach(var pixel in layer.Pixels)
             {
-                if (!colors.Contains(pixel))
+                if (pixel.a == 1f && !colors.Contains(pixel))
                 {
                     colors.Add(pixel);
                 }
             }
+        }
+
+        public static void CreateLayer(Image img, Frame frame)
+        {
+            frame.AddLayer(img.Width, img.Height);
         }
     }
 }

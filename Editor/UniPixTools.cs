@@ -28,6 +28,8 @@ namespace UniPix
     {
         public override bool OnEvent(Event current, SessionData session)
         {
+            // TODO: check if the color is in the current palette or not?
+
             DrawCursor(session);
             if (Event.current.isMouse && 
                 (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag) &&
