@@ -132,10 +132,11 @@ namespace UniPix
                 var srcA = src.a * srcLayer.Opacity;
                 var dstA = dst.a * dstLayer.Opacity;
                 var outA = srcA + dstA * (1 - srcA);
+                var safeOutA = outA == 0.0f ? 1.0f : outA;
                 result.Pixels[i] = new Color(
-                    (src.r * srcA + dst.r * dstA * (1 - srcA)) / outA,
-                    (src.g * srcA + dst.g * dstA * (1 - srcA)) / outA,
-                    (src.b * srcA + dst.b * dstA * (1 - srcA)) / outA,
+                    (src.r * srcA + dst.r * dstA * (1 - srcA)) / safeOutA,
+                    (src.g * srcA + dst.g * dstA * (1 - srcA)) / safeOutA,
+                    (src.b * srcA + dst.b * dstA * (1 - srcA)) / safeOutA,
                     outA
                 );
             }
