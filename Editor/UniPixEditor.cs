@@ -110,7 +110,7 @@ namespace UniPix
             m_Session.CurrentLayerIndex = 0;
 
             // TODO: Hardcoded for now:
-            m_Session.Image = UnixPixOperations.CreateImageFromTexture("Assets/Sprites/archer_1.png");
+            m_Session.Image = UniPixUtils.CreateImageFromTexture("Assets/Sprites/archer_1.png");
             /*
             m_Session.Image = UnixPixOperations.CreateImage(2, 2, Color.yellow);
             m_Session.CurrentLayer.Pixels[0] = Color.clear;
@@ -121,7 +121,7 @@ namespace UniPix
             */
 
             m_Session.palette = new Palette();
-            UnixPixOperations.ExtractPaletteFrom(m_Session.CurrentFrame, m_Session.palette.Colors);
+            UniPixUtils.ExtractPaletteFrom(m_Session.CurrentFrame, m_Session.palette.Colors);
         }
 
         private void OnGUI()
@@ -240,7 +240,7 @@ namespace UniPix
                     // TODO: handle undo
                     if (GUILayout.Button("Cr", Styles.layerToolbarBtn))
                     {
-                        UnixPixOperations.CreateLayer(m_Session.Image, m_Session.CurrentFrame);
+                        UnixPixOperations.CreateLayer(m_Session);
                         m_Session.CurrentLayerIndex++;
                     }
 
@@ -347,7 +347,7 @@ namespace UniPix
             GUILayout.BeginArea(m_CanvasRect);
             {
                 EditorGUI.DrawTextureTransparent(m_Session.ScaledImgRect, m_TransparentTex);
-                var tex = UnixPixOperations.CreateTextureFromImg(m_Session.Image, m_Session.CurrentFrameIndex);
+                var tex = UniPixUtils.CreateTextureFromImg(m_Session.Image, m_Session.CurrentFrameIndex);
                 GUI.DrawTexture(m_Session.ScaledImgRect, tex);
 
                 if (m_Session.ScaledImgRect.Contains(Event.current.mousePosition))
