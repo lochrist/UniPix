@@ -23,6 +23,8 @@ namespace UniPix
             Frames.Add(new Frame());
         }
 
+        public object EditorUtility { get; internal set; }
+
         public static Image CreateImage(int width, int height)
         {
             var img = CreateInstance<Image>();

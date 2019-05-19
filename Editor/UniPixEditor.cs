@@ -37,6 +37,12 @@ namespace UniPix
         Rect m_SettingsRect;
         Texture2D m_TransparentTex;
 
+        public static class Prefs
+        {
+            public static string kPrefix = "unixpix.";
+            public static string kCurrentImg = $"{kPrefix}currentImg";
+        }
+
         static class Styles
         {
             public const float kToolPaletteWidth = 100;
@@ -109,16 +115,25 @@ namespace UniPix
             m_Session.CurrentFrameIndex = 0;
             m_Session.CurrentLayerIndex = 0;
 
-            // TODO: Hardcoded for now:
-            m_Session.Image = UniPixUtils.CreateImageFromTexture("Assets/Sprites/archer_1.png");
-            /*
-            m_Session.Image = UnixPixOperations.CreateImage(2, 2, Color.yellow);
-            m_Session.CurrentLayer.Pixels[0] = Color.clear;
-            var newLayer = m_Session.CurrentFrame.AddLayer(m_Session.Image.Width, m_Session.Image.Height);
-            for (int i = 0; i < newLayer.Pixels.Length; ++i)
-                newLayer.Pixels[i] = Color.blue;
-            newLayer.Opacity = 0.7f;
-            */
+            var currentImg = EditorPrefs.GetString(Prefs.kCurrentImg);
+            if (!string.IsNullOrEmpty(currentImg))
+            {
+                m_Session.Image = UnixPixOperations.LoadPix(currentImg);
+            }
+
+            if (m_Session.Image == null)
+            {
+                // TODO: Hardcoded for now:
+                m_Session.Image = UniPixUtils.CreateImageFromTexture("Assets/Sprites/archer_1.png");
+                /*
+                m_Session.Image = UnixPixOperations.CreateImage(2, 2, Color.yellow);
+                m_Session.CurrentLayer.Pixels[0] = Color.clear;
+                var newLayer = m_Session.CurrentFrame.AddLayer(m_Session.Image.Width, m_Session.Image.Height);
+                for (int i = 0; i < newLayer.Pixels.Length; ++i)
+                    newLayer.Pixels[i] = Color.blue;
+                newLayer.Opacity = 0.7f;
+                */
+            }
 
             m_Session.palette = new Palette();
             UniPixUtils.ExtractPaletteFrom(m_Session.CurrentFrame, m_Session.palette.Colors);
@@ -454,15 +469,33 @@ namespace UniPix
             // Import
             // Duplicate
             
-            GUILayout.BeginArea(m_ToolbarRect);
+            GUILayout.BeginArea(m_ToolbarRect, EditorStyles.toolbar);
             GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button("Reset"))
+            if (GUILayout.Button("New", EditorStyles.toolbarButton))
+            {
+                m_Session.Image = UnixPixOperations.CreatePix(32, 32);
+                Repaint();
+            }
+
+            if (GUILayout.Button("Load", EditorStyles.toolbarButton))
+            {
+                // m_Session.Image = UnixPixOperations.LoadPix(32, 32);
+                Repaint();
+            }
+
+            if (GUILayout.Button("Save", EditorStyles.toolbarButton))
+            {
+                
+            }
+
+            if (GUILayout.Button("Reset", EditorStyles.toolbarButton))
             {
                 ResetImage();
                 Repaint();
             }
 
+            GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
