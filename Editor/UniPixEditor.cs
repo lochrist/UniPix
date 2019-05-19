@@ -118,7 +118,7 @@ namespace UniPix
             var currentImg = EditorPrefs.GetString(Prefs.kCurrentImg);
             if (!string.IsNullOrEmpty(currentImg))
             {
-                m_Session.Image = UnixPixOperations.LoadPix(currentImg);
+                m_Session.Image = UnixPixCommands.LoadPix(currentImg);
             }
 
             if (m_Session.Image == null)
@@ -255,7 +255,7 @@ namespace UniPix
                     // TODO: handle undo
                     if (GUILayout.Button("Cr", Styles.layerToolbarBtn))
                     {
-                        UnixPixOperations.CreateLayer(m_Session);
+                        UnixPixCommands.CreateLayer(m_Session);
                         m_Session.CurrentLayerIndex++;
                     }
 
@@ -474,7 +474,7 @@ namespace UniPix
 
             if (GUILayout.Button("New", EditorStyles.toolbarButton))
             {
-                m_Session.Image = UnixPixOperations.CreatePix(32, 32);
+                m_Session.Image = UnixPixCommands.CreatePix(32, 32);
                 Repaint();
             }
 

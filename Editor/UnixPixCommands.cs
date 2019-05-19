@@ -6,7 +6,7 @@ using System;
 
 namespace UniPix
 {
-    public static class UnixPixOperations
+    public static class UnixPixCommands
     {
         public static Image LoadPix(string path)
         {
