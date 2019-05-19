@@ -118,7 +118,7 @@ namespace UniPix
             var currentImg = EditorPrefs.GetString(Prefs.kCurrentImg);
             if (!string.IsNullOrEmpty(currentImg))
             {
-                m_Session.Image = UnixPixCommands.LoadPix(currentImg);
+                m_Session.Image = UniPixCommands.LoadPix(currentImg);
             }
 
             if (m_Session.Image == null)
@@ -255,7 +255,7 @@ namespace UniPix
                     // TODO: handle undo
                     if (GUILayout.Button("Cr", Styles.layerToolbarBtn))
                     {
-                        UnixPixCommands.CreateLayer(m_Session);
+                        UniPixCommands.CreateLayer(m_Session);
                         m_Session.CurrentLayerIndex++;
                     }
 
@@ -474,19 +474,19 @@ namespace UniPix
 
             if (GUILayout.Button("New", EditorStyles.toolbarButton))
             {
-                m_Session.Image = UnixPixCommands.CreatePix(32, 32);
+                m_Session.Image = UniPixCommands.CreatePix(32, 32);
                 Repaint();
             }
 
             if (GUILayout.Button("Load", EditorStyles.toolbarButton))
             {
-                // m_Session.Image = UnixPixOperations.LoadPix(32, 32);
+                m_Session.Image = UniPixCommands.LoadPix();
                 Repaint();
             }
 
             if (GUILayout.Button("Save", EditorStyles.toolbarButton))
             {
-                
+                UniPixCommands.SavePix(m_Session);
             }
 
             if (GUILayout.Button("Reset", EditorStyles.toolbarButton))
@@ -494,6 +494,13 @@ namespace UniPix
                 ResetImage();
                 Repaint();
             }
+
+            var imgPath = AssetDatabase.GetAssetPath(m_Session.Image);
+            if (string.IsNullOrEmpty(imgPath))
+            {
+                imgPath = "*Untitled*";
+            }
+            GUILayout.Label(imgPath, EditorStyles.toolbarTextField);
 
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
