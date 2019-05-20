@@ -3,30 +3,59 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
+using System.IO;
 
 namespace UniPix
 {
     public static class UniPixCommands
     {
-        public static Image LoadPix()
+        public static bool LoadPix(SessionData session)
         {
-            string path = EditorUtility.OpenFilePanel(
-                "Find Pix (.asset | .png | .jpg)",
-                "Assets/",
-                "Image Files;*.asset;*.jpg;*.png");
-
-            if (path == null)
-                return null;
-            path = FileUtil.GetProjectRelativePath(path);
-            if (path.EndsWith(".asset"))
-            {
-                return LoadPix(path);
-            }
-
-            return UniPixUtils.CreateImageFromTexture(path);
+            var path = EditorUtility.OpenFilePanel(
+                    "Find Pix (.asset | .png | .jpg)",
+                    "Assets/",
+                    "Image Files;*.asset;*.jpg;*.png");
+            return LoadPix(session, path);
         }
 
-        public static Image LoadPix(string path)
+        public static bool LoadPix(SessionData session, string path)
+        {
+            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+            {
+                if (Path.IsPathRooted(path))
+                {
+                    path = FileUtil.GetProjectRelativePath(path);
+                }
+
+                if (path.EndsWith(".asset"))
+                {
+                    session.Image = LoadPix(path);
+                }
+                else
+                {
+                    session.Image = UniPixUtils.CreateImageFromTexture(path);
+                }
+            }
+
+            if (session.Image == null)
+            {
+                Debug.LogError("Cannot load pix: " + path);
+                session.Image = UniPixUtils.CreateImage(32, 32, Color.clear);
+            }
+
+            session.CurrentFrameIndex = 0;
+            session.CurrentLayerIndex = 0;
+
+            session.palette = new Palette();
+            UniPixUtils.ExtractPaletteFrom(session.CurrentFrame, session.palette.Colors);
+
+            session.CurrentColor = session.palette.Colors.Count > 0 ? session.palette.Colors[0] : Color.black;
+            session.SecondaryColor = session.palette.Colors.Count > 1 ? session.palette.Colors[1] : Color.white;
+
+            return true;
+        }
+
+        internal static Image LoadPix(string path)
         {
             var img = AssetDatabase.LoadAssetAtPath<Image>(path);
             if (img == null)
@@ -39,24 +68,23 @@ namespace UniPix
             return img;
         }
 
-        public static Image CreatePix(int w, int h)
+        public static void CreatePix(SessionData session, int w, int h)
         {
             string path = EditorUtility.SaveFilePanel(
                 "Create UniPix",
                 "Assets/", "Pix.asset", "asset");
             if (path == "")
             {
-                return null;
+                return;
             }
 
             path = FileUtil.GetProjectRelativePath(path);
-
             Image img = UniPixUtils.CreateImage(w, h, Color.clear);
             AssetDatabase.CreateAsset(img, path);
             EditorUtility.SetDirty(img);
             AssetDatabase.SaveAssets();
-            EditorPrefs.SetString(PixEditor.Prefs.kCurrentImg, AssetDatabase.GetAssetPath(img));
-            return img;
+
+            LoadPix(session, AssetDatabase.GetAssetPath(img));
         }
 
         public static void SavePix(SessionData session)
