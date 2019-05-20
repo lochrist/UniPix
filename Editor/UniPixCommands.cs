@@ -116,5 +116,10 @@ namespace UniPix
         {
             session.CurrentFrame.AddLayer(session.Image.Width, session.Image.Height);
         }
+
+        public static void SetPixel(SessionData session, int pixelIndex, Color color)
+        {
+
+        }
     }
 }

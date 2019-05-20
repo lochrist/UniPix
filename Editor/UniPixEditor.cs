@@ -21,6 +21,7 @@ namespace UniPix
         public Rect ScaledImgRect;
         public Vector2Int CursorImgCoord;
         public Vector2 CursorPos;
+        public int CursorPixelIndex => CursorImgCoord.x + (Image.Height - CursorImgCoord.y - 1) * Image.Height;
 
         public Palette palette;
     }
