@@ -80,6 +80,8 @@ namespace UniPix
 
         float m_imageOffsetX;
         float m_imageOffsetY;
+        bool m_IsPanning;
+        Vector2 m_PanStart;
 
         SessionData m_Session;
 
@@ -360,8 +362,6 @@ namespace UniPix
                         break;
                 }
             }
-            
-
 
             var xScale = m_Session.Image.Width * m_Session.ZoomLevel;
             var yScale = m_Session.Image.Height * m_Session.ZoomLevel;
@@ -371,6 +371,8 @@ namespace UniPix
             GUILayout.BeginArea(m_CanvasRect);
             {
                 EditorGUI.DrawTextureTransparent(m_Session.ScaledImgRect, m_TransparentTex);
+
+                // TODO: only create texture if the model is actually dirty
                 var tex = UniPixUtils.CreateTextureFromImg(m_Session.Image, m_Session.CurrentFrameIndex);
                 GUI.DrawTexture(m_Session.ScaledImgRect, tex);
 
@@ -381,6 +383,26 @@ namespace UniPix
                     if (m_CurrentTool.OnEvent(Event.current, m_Session))
                     {
                         Repaint();
+                    }
+                    else if (Event.current.isMouse &&
+                            Event.current.button == 2)
+                    {
+                        if (Event.current.type == EventType.MouseDown)
+                        {
+                            m_PanStart = Event.current.mousePosition;
+                            m_IsPanning= true;
+                        }
+                        else if (m_IsPanning && Event.current.type == EventType.MouseUp)
+                        {
+                            m_IsPanning = false;
+                        }
+                        else if (m_IsPanning && Event.current.type == EventType.MouseDrag)
+                        {
+                            var panningDistance = Event.current.mousePosition - m_PanStart;
+                            m_imageOffsetX += panningDistance.x;
+                            m_imageOffsetY += panningDistance.y;
+                            m_PanStart = Event.current.mousePosition;
+                        }
                     }
                 }
 

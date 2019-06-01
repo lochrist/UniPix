@@ -41,8 +41,9 @@ namespace UniPix
                 session.CurrentLayer.Pixels[pixelIndex] = Event.current.button == 0 ? session.CurrentColor : session.SecondaryColor;
 
                 UniPixCommands.SetPixel(session, session.CursorPixelIndex, Color.clear);
+                return true;
             }
-            return true;
+            return false;
         }
     }
 
@@ -55,8 +56,9 @@ namespace UniPix
             {
                 // TODO: undo
                 UniPixCommands.SetPixel(session, session.CursorPixelIndex, Color.clear);
+                return true;
             }
-            return true;
+            return false;
         }
     }
 }
