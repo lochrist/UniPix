@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -326,6 +327,42 @@ namespace UniPix
             // decrease zoom level (-)
             // increase pen size ([)
             // decrease pen size (])
+
+            if (Event.current != null)
+            {
+                switch (Event.current.type)
+                {
+                    case EventType.DragUpdated:
+                    case EventType.DragPerform:
+                        if (!m_CanvasRect.Contains(Event.current.mousePosition))
+                            break;
+
+                        if (DragAndDrop.objectReferences.Length == 1 &&
+                            DragAndDrop.objectReferences[0])
+                        {
+                            var objRef = DragAndDrop.objectReferences[0];
+                            var path = AssetDatabase.GetAssetPath(objRef);
+                            if (!string.IsNullOrEmpty(path) &&
+                                (objRef is UniPix.Image || objRef is Texture2D))
+                            {
+                                DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+                                if (Event.current.type == EventType.DragPerform)
+                                {
+                                    DragAndDrop.AcceptDrag();
+                                    Event.current.Use();
+
+                                    UniPixCommands.LoadPix(m_Session, path);
+
+                                    EditorGUIUtility.ExitGUI();
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+            
+
+
             var xScale = m_Session.Image.Width * m_Session.ZoomLevel;
             var yScale = m_Session.Image.Height * m_Session.ZoomLevel;
             m_Session.ScaledImgRect = new Rect((m_CanvasRect.width / 2 - xScale / 2) + m_imageOffsetX, m_imageOffsetY, xScale, yScale);
