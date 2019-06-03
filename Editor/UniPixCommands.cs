@@ -119,7 +119,20 @@ namespace UniPix
 
         public static void SetPixel(SessionData session, int pixelIndex, Color color)
         {
+            session.CurrentLayer.Pixels[pixelIndex] = color;
+        }
 
+        public static void SetPixelsUnderBrush(SessionData session, Color color)
+        {
+            var brushRect = session.BrushRect;
+            for (var y = brushRect.y; y < brushRect.yMax; ++y)
+            {
+                for (var x = brushRect.x; x < brushRect.xMax; ++x)
+                {
+                    var pixelIndex = session.ImgCoordToPixelIndex(x, y);
+                    SetPixel(session, pixelIndex, color);
+                }
+            }
         }
     }
 }

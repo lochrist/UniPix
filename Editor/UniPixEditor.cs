@@ -22,9 +22,26 @@ namespace UniPix
         public Rect ScaledImgRect;
         public Vector2Int CursorImgCoord;
         public Vector2 CursorPos;
-        public int CursorPixelIndex => CursorImgCoord.x + (Image.Height - CursorImgCoord.y - 1) * Image.Height;
+        public int CursorPixelIndex => ImgCoordToPixelIndex(CursorImgCoord.x, CursorImgCoord.y);
+        public RectInt BrushRect {
+            get
+            {
+                var halfBrush = BrushSize / 2;
+                var reminder = BrushSize % 2;
+                var cursorCoordX = CursorImgCoord.x - halfBrush;
+                var cursorCoordY = CursorImgCoord.y - halfBrush;
+                var cursorSize = BrushSize;
+                return new RectInt(CursorImgCoord.x - halfBrush, CursorImgCoord.y - halfBrush, cursorSize, cursorSize);
+            }
+        }
+        public int BrushSize = 5;
 
         public Palette palette;
+
+        public int ImgCoordToPixelIndex(int imgCoordX, int imgCoordY)
+        {
+            return imgCoordX + (Image.Height - imgCoordY - 1) * Image.Height;
+        }
     }
 
     public class PixEditor : EditorWindow
@@ -37,6 +54,7 @@ namespace UniPix
         Rect m_ToolbarRect;
         Rect m_ColorPaletteRect;
         Rect m_SettingsRect;
+        Rect m_ToolsPaletteRect;
         Texture2D m_TransparentTex;
 
         public static class Prefs
@@ -47,7 +65,7 @@ namespace UniPix
 
         static class Styles
         {
-            public const float kToolPaletteWidth = 100;
+            public const float kToolPaletteWidth = 200;
             public const float kLayerWidth = 200;
             public const float kToolbarHeight = 35;
             public const float kStatusbarHeight = 35;
@@ -57,7 +75,13 @@ namespace UniPix
             public const float kLayerRectHeight = 6 * kLayerHeight;
             public const float kSettingsHeight = 200;
             public const float kMargin = 2;
+            public const float kToolSize = 45;
+            public const int kNbToolsPerRow = (int)kToolPaletteWidth / (int)kToolSize;
 
+            public static GUIStyle brushSizeStyle = new GUIStyle(EditorStyles.numberField)
+            {
+                fixedWidth = 50
+            };
             public static GUIStyle layerHeader = new GUIStyle(EditorStyles.boldLabel);
             public static GUIStyle layerName = new GUIStyle(EditorStyles.largeLabel);
             public static GUIStyle currentLayerName = new GUIStyle(EditorStyles.largeLabel);
@@ -90,11 +114,15 @@ namespace UniPix
         Color m_GridColor = Color.black;
 
         PixTool m_CurrentTool;
+        PixTool[] m_Tools;
 
         private void OnEnable()
         {
-            m_CurrentTool = new BrushTool();
-            // m_CurrentTool = new EraseTool();
+            m_Tools = new PixTool[] {
+                new BrushTool(),
+                new EraseTool()
+            };
+            m_CurrentTool = m_Tools[0];
 
             m_Session = new SessionData();
 
@@ -122,19 +150,20 @@ namespace UniPix
             // DrawDebugArea();
             
             DrawToolbar();
+            DrawToolPalette();
             DrawColorSwitcher();
             DrawPixEditor();
             DrawLayers();
             DrawColorPalette();
             DrawSettings();
             DrawStatus();
-            
         }
 
         private void ComputeLayout()
         {
             m_ToolbarRect = new Rect(Styles.kMargin, Styles.kMargin, position.width - 2*Styles.kMargin, Styles.kToolbarHeight);
-            m_CanvasRect = new Rect(Styles.kToolPaletteWidth, 
+            m_ToolsPaletteRect = new Rect(Styles.kMargin, m_ToolbarRect.yMax + Styles.kMargin, Styles.kToolPaletteWidth, Styles.kLayerRectHeight);
+            m_CanvasRect = new Rect(m_ToolsPaletteRect.xMax + Styles.kMargin, 
                 m_ToolbarRect.yMax + Styles.kMargin,
                 position.width - Styles.kToolPaletteWidth - Styles.kLayerWidth, 
                 position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight - 2*Styles.kMargin);
@@ -152,6 +181,7 @@ namespace UniPix
         private void DrawDebugArea()
         {
             DrawDebugRect(m_CanvasRect, "canvas", Color.white);
+            DrawDebugRect(m_ToolsPaletteRect, "tools", Color.magenta);
             DrawDebugRect(m_StatusRect, "status", Color.red);
             DrawDebugRect(m_LayerRect, "layer", Color.cyan);
             DrawDebugRect(m_ToolbarRect, "toolbar", Color.green);
@@ -289,6 +319,31 @@ namespace UniPix
             // Pencil (p)
             // erase (e)
             // Bucket (b)
+
+            GUILayout.BeginArea(m_ToolsPaletteRect);
+            m_Session.BrushSize = Mathf.Clamp(EditorGUILayout.IntField("Brush", m_Session.BrushSize, Styles.brushSizeStyle), 1, 5);
+            GUILayout.Label("Tools", Styles.layerHeader);
+            
+            var toolsRect = GUILayoutUtility.GetRect(m_ToolsPaletteRect.width, 100);
+            var nbRows = (m_Tools.Length / Styles.kNbToolsPerRow) + 1;
+            var toolIndex = 0;
+            for(var rowIndex = 0; rowIndex < nbRows; ++rowIndex)
+            {
+                var toolY = toolsRect.y + rowIndex * Styles.kToolSize + Styles.kMargin;
+                for (var toolColumn = 0; toolColumn < Styles.kNbToolsPerRow; ++toolColumn, ++toolIndex)
+                {
+                    if (toolIndex >= m_Tools.Length)
+                        break;
+                    var tool = m_Tools[toolIndex];
+                    var toolRect = new Rect(Styles.kMargin + toolColumn * (Styles.kMargin + Styles.kToolSize), toolY, Styles.kToolSize, Styles.kToolSize);
+                    if (GUI.Toggle(toolRect, tool == m_CurrentTool, tool.Name.Substring(0, 2), GUI.skin.button))
+                    {
+                        m_CurrentTool = tool;
+                    }
+                }
+            }
+
+            GUILayout.EndArea();
         }
 
         private void DrawFrames()
@@ -387,22 +442,7 @@ namespace UniPix
                     else if (Event.current.isMouse &&
                             Event.current.button == 2)
                     {
-                        if (Event.current.type == EventType.MouseDown)
-                        {
-                            m_PanStart = Event.current.mousePosition;
-                            m_IsPanning= true;
-                        }
-                        else if (m_IsPanning && Event.current.type == EventType.MouseUp)
-                        {
-                            m_IsPanning = false;
-                        }
-                        else if (m_IsPanning && Event.current.type == EventType.MouseDrag)
-                        {
-                            var panningDistance = Event.current.mousePosition - m_PanStart;
-                            m_imageOffsetX += panningDistance.x;
-                            m_imageOffsetY += panningDistance.y;
-                            m_PanStart = Event.current.mousePosition;
-                        }
+                        Pan();
                     }
                 }
 
@@ -415,6 +455,26 @@ namespace UniPix
             }
 
             GUILayout.EndArea();
+        }
+
+        private void Pan()
+        {
+            if (Event.current.type == EventType.MouseDown)
+            {
+                m_PanStart = Event.current.mousePosition;
+                m_IsPanning = true;
+            }
+            else if (m_IsPanning && Event.current.type == EventType.MouseUp)
+            {
+                m_IsPanning = false;
+            }
+            else if (m_IsPanning && Event.current.type == EventType.MouseDrag)
+            {
+                var panningDistance = Event.current.mousePosition - m_PanStart;
+                m_imageOffsetX += panningDistance.x;
+                m_imageOffsetY += panningDistance.y;
+                m_PanStart = Event.current.mousePosition;
+            }
         }
 
         private void DrawGrid()
@@ -436,13 +496,6 @@ namespace UniPix
         {
             // Preview
             // FPS
-        }
-
-        private void DrawTools()
-        {
-            // PEncil
-            // Eraser
-            // Bucket
         }
 
         private void DrawColorPalette()

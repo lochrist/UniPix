@@ -7,15 +7,23 @@ namespace UniPix
 {
     public class PixTool
     {
-        // TODO: cursor position uses color swapper
+        // TODO: cursor color uses color swapper
         readonly Color kCursorColor = new Color(1, 1, 1, 0.5f);
 
+        public string Name;
         public Texture2D Icon;
+
+        public static bool IsBrushStroke()
+        {
+            return Event.current.isMouse &&
+                (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag);
+        }
 
         public virtual void DrawCursor(SessionData session)
         {
-            var cursorPosInImg = new Vector2(session.CursorImgCoord.x * session.ZoomLevel, session.CursorImgCoord.y * session.ZoomLevel) + session.ScaledImgRect.position;
-            EditorGUI.DrawRect(new Rect(cursorPosInImg, new Vector2(session.ZoomLevel, session.ZoomLevel)), kCursorColor);
+            var brushRect = session.BrushRect;
+            var cursorPosInImg = new Vector2(brushRect.x * session.ZoomLevel, brushRect.y * session.ZoomLevel) + session.ScaledImgRect.position;
+            EditorGUI.DrawRect(new Rect(cursorPosInImg, new Vector2(brushRect.width * session.ZoomLevel, brushRect.height * session.ZoomLevel)), kCursorColor);
         }
 
         public virtual bool OnEvent(Event current, SessionData session)
@@ -26,21 +34,20 @@ namespace UniPix
 
     public class BrushTool : PixTool
     {
+        public BrushTool()
+        {
+            Name = "Brush";
+        }
+
         public override bool OnEvent(Event current, SessionData session)
         {
             // TODO: check if the color is in the current palette or not?
 
             DrawCursor(session);
-            if (Event.current.isMouse && 
-                (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag) &&
-                (Event.current.button == 0 || Event.current.button == 1)
-                )
+            if (IsBrushStroke() &&
+                (Event.current.button == 0 || Event.current.button == 1))
             {
-                // TODO: undo
-                var pixelIndex = session.CursorImgCoord.x + (session.Image.Height - session.CursorImgCoord.y - 1) * session.Image.Height;
-                session.CurrentLayer.Pixels[pixelIndex] = Event.current.button == 0 ? session.CurrentColor : session.SecondaryColor;
-
-                UniPixCommands.SetPixel(session, session.CursorPixelIndex, Color.clear);
+                UniPixCommands.SetPixelsUnderBrush(session, Event.current.button == 0 ? session.CurrentColor : session.SecondaryColor);
                 return true;
             }
             return false;
@@ -49,13 +56,18 @@ namespace UniPix
 
     public class EraseTool : PixTool
     {
+        public EraseTool()
+        {
+            Name = "Erase";
+        }
+
         public override bool OnEvent(Event current, SessionData session)
         {
             DrawCursor(session);
-            if (Event.current.isMouse && (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag))
+            if (IsBrushStroke() &&
+                Event.current.button == 0)
             {
-                // TODO: undo
-                UniPixCommands.SetPixel(session, session.CursorPixelIndex, Color.clear);
+                UniPixCommands.SetPixelsUnderBrush(session, Color.clear);
                 return true;
             }
             return false;
