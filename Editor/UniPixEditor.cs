@@ -55,6 +55,7 @@ namespace UniPix
         Rect m_ColorPaletteRect;
         Rect m_SettingsRect;
         Rect m_ToolsPaletteRect;
+        Rect m_FramePreviewRect;
         Texture2D m_TransparentTex;
 
         public static class Prefs
@@ -65,9 +66,11 @@ namespace UniPix
 
         static class Styles
         {
-            public const float kToolPaletteWidth = 200;
+            public const float kToolPaletteWidth = 100;
+            public const float kFramePreviewWidth = 100;
+            public const float kLeftPanelWidth = kToolPaletteWidth + kFramePreviewWidth;
             public const float kLayerWidth = 200;
-            public const float kToolbarHeight = 35;
+            public const float kToolbarHeight = 25;
             public const float kStatusbarHeight = 35;
             public const float kColorSwatchSize = 40;
             public const float kPaletteItemSize = 25;
@@ -76,7 +79,9 @@ namespace UniPix
             public const float kSettingsHeight = 200;
             public const float kMargin = 2;
             public const float kToolSize = 45;
+            public const float kFramePreviewBtn = 25;
             public const int kNbToolsPerRow = (int)kToolPaletteWidth / (int)kToolSize;
+            public const int kFramePreviewSize = (int)(kFramePreviewWidth - 2 * kMargin);
 
             public static GUIStyle brushSizeStyle = new GUIStyle(EditorStyles.numberField)
             {
@@ -151,37 +156,41 @@ namespace UniPix
             
             DrawToolbar();
             DrawToolPalette();
+            DrawFrames();
             DrawColorSwitcher();
             DrawPixEditor();
             DrawLayers();
             DrawColorPalette();
             DrawSettings();
             DrawStatus();
+            
         }
 
         private void ComputeLayout()
         {
             m_ToolbarRect = new Rect(Styles.kMargin, Styles.kMargin, position.width - 2*Styles.kMargin, Styles.kToolbarHeight);
             m_ToolsPaletteRect = new Rect(Styles.kMargin, m_ToolbarRect.yMax + Styles.kMargin, Styles.kToolPaletteWidth, Styles.kLayerRectHeight);
-            m_CanvasRect = new Rect(m_ToolsPaletteRect.xMax + Styles.kMargin, 
+            m_FramePreviewRect = new Rect(m_ToolsPaletteRect.xMax + Styles.kMargin, m_ToolbarRect.yMax + Styles.kMargin, Styles.kFramePreviewWidth - 2 * Styles.kMargin, position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight - 2 * Styles.kMargin);
+            m_CanvasRect = new Rect(m_FramePreviewRect.xMax + Styles.kMargin, 
                 m_ToolbarRect.yMax + Styles.kMargin,
-                position.width - Styles.kToolPaletteWidth - Styles.kLayerWidth, 
-                position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight - 2*Styles.kMargin);
+                position.width - Styles.kLeftPanelWidth - Styles.kLayerWidth, 
+                position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight - 2 * Styles.kMargin);
 
             const float kRightPanelWidth = Styles.kLayerWidth - 2 * Styles.kMargin;
-            m_LayerRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_CanvasRect.y, kRightPanelWidth, Styles.kLayerRectHeight);
+            m_LayerRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_CanvasRect.y, kRightPanelWidth - Styles.kMargin, Styles.kLayerRectHeight);
 
-            m_ColorPaletteRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_LayerRect.yMax + Styles.kMargin, kRightPanelWidth, Styles.kLayerRectHeight);
+            m_ColorPaletteRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_LayerRect.yMax + Styles.kMargin, kRightPanelWidth - Styles.kMargin, Styles.kLayerRectHeight);
 
-            m_StatusRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, position.height - Styles.kStatusbarHeight - Styles.kStatusbarHeight, kRightPanelWidth, Styles.kStatusbarHeight);
+            m_StatusRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, position.height - Styles.kStatusbarHeight - Styles.kStatusbarHeight, kRightPanelWidth - Styles.kMargin, Styles.kStatusbarHeight);
 
-            m_SettingsRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_ColorPaletteRect.yMax + Styles.kMargin, kRightPanelWidth, Styles.kSettingsHeight);
+            m_SettingsRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_ColorPaletteRect.yMax + Styles.kMargin, kRightPanelWidth - Styles.kMargin, Styles.kSettingsHeight);
         }
 
         private void DrawDebugArea()
         {
             DrawDebugRect(m_CanvasRect, "canvas", Color.white);
             DrawDebugRect(m_ToolsPaletteRect, "tools", Color.magenta);
+            DrawDebugRect(m_FramePreviewRect, "frames", Color.yellow);
             DrawDebugRect(m_StatusRect, "status", Color.red);
             DrawDebugRect(m_LayerRect, "layer", Color.cyan);
             DrawDebugRect(m_ToolbarRect, "toolbar", Color.green);
@@ -355,6 +364,29 @@ namespace UniPix
             // New frame (n)
             // Select previous frame (up arrow)
             // Select next frame (up arrow)
+
+            int frameIndex = 0;
+            foreach(var frame in m_Session.Image.Frames)
+            {
+                var frameRect = new Rect(m_FramePreviewRect.x + Styles.kMargin, 
+                    m_FramePreviewRect.y + Styles.kMargin + (frameIndex * Styles.kFramePreviewSize), 
+                    Styles.kFramePreviewSize, Styles.kFramePreviewSize);
+                var tex = UniPixUtils.CreateTextureFromFrame(frame, m_Session.Image.Width, m_Session.Image.Height);
+                GUI.DrawTexture(frameRect, tex);
+
+                if (frameRect.Contains(Event.current.mousePosition))
+                {
+                    if (GUI.Button(new Rect(frameRect.x + Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), "C", EditorStyles.miniButton))
+                    {
+                        // Copy frame
+                    }
+
+                    if (GUI.Button(new Rect(frameRect.xMax - Styles.kFramePreviewBtn - Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), "D", EditorStyles.miniButton))
+                    {
+                        // Copy frame
+                    }
+                }
+            }
         }
 
         private void DrawColorSwitcher()
@@ -428,7 +460,7 @@ namespace UniPix
                 EditorGUI.DrawTextureTransparent(m_Session.ScaledImgRect, m_TransparentTex);
 
                 // TODO: only create texture if the model is actually dirty
-                var tex = UniPixUtils.CreateTextureFromImg(m_Session.Image, m_Session.CurrentFrameIndex);
+                var tex = UniPixUtils.CreateTextureFromFrame(m_Session.CurrentFrame, m_Session.Image.Width, m_Session.Image.Height);
                 GUI.DrawTexture(m_Session.ScaledImgRect, tex);
 
                 if (m_Session.ScaledImgRect.Contains(Event.current.mousePosition))

@@ -79,33 +79,23 @@ namespace UniPix
 
             img.Frames[0].AddLayer(img.Width, img.Height);
             var layer = img.Frames[0].Layers[img.Frames[0].Layers.Count - 1];
-            layer.Pixels = new Color[img.Width * img.Height];
-            for (var x = 0; x < tex.width; ++x)
-            {
-                for (var y = 0; y < tex.height; ++y)
-                {
-                    var pixIndex = x + y * tex.height;
-                    layer.Pixels[pixIndex] = tex.GetPixel(x, y);
-                }
-            }
-
+            layer.Pixels = tex.GetPixels();
             return layer;
         }
 
-        public static Texture2D CreateTextureFromImg(Image img, int frameIndex)
+        public static Texture2D CreateTextureFromFrame(Frame frame, int width, int height)
         {
-            var frame = img.Frames[frameIndex];
             SetLayerColor(frame.BlendedLayer, Color.clear);
             for (var layerIndex = 0; layerIndex < frame.Layers.Count; ++layerIndex)
             {
-                // TODO: is it possible to make it by modifyng the texture in place instead of using BlendedLayer
+                // TODO: is it possible to make it by modifying the texture in place instead of using BlendedLayer
                 if (frame.Layers[layerIndex].Visible)
                 {
                     Blend(frame.Layers[layerIndex], frame.BlendedLayer, frame.BlendedLayer);
                 }
 
             }
-            var tex = new Texture2D(img.Width, img.Height);
+            var tex = new Texture2D(width, height);
             tex.filterMode = FilterMode.Point;
             tex.SetPixels(frame.BlendedLayer.Pixels);
             tex.Apply();

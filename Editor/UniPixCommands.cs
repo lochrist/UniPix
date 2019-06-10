@@ -14,7 +14,7 @@ namespace UniPix
             var path = EditorUtility.OpenFilePanel(
                     "Find Pix (.asset | .png | .jpg)",
                     "Assets/",
-                    "Image Files;*.asset;*.jpg;*.png");
+                    "Image Files;*.unipix.asset;*.jpg;*.png");
             return LoadPix(session, path);
         }
 
@@ -72,7 +72,7 @@ namespace UniPix
         {
             string path = EditorUtility.SaveFilePanel(
                 "Create UniPix",
-                "Assets/", "Pix.asset", "asset");
+                "Assets/", "Pix.unipix", "asset");
             if (path == "")
             {
                 return;
@@ -97,7 +97,7 @@ namespace UniPix
             {
                 string path = EditorUtility.SaveFilePanel(
                     "Create UniPix",
-                    "Assets/", "Pix.asset", "asset");
+                    "Assets/", "Pix.unipix", "asset");
                 if (path == "")
                 {
                     return;
