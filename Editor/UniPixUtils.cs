@@ -60,7 +60,6 @@ namespace UniPix
             var tImporter = AssetImporter.GetAtPath(path) as TextureImporter;
             if (tImporter != null)
             {
-                tImporter.textureType = TextureImporterType.Default;
                 tImporter.isReadable = true;
                 AssetDatabase.ImportAsset(path);
                 AssetDatabase.Refresh();
