@@ -370,11 +370,11 @@ namespace UniPix
             {
                 var frameRect = new Rect(m_FramePreviewRect.x + Styles.kMargin, 
                     m_FramePreviewRect.y + Styles.kMargin + (frameIndex * Styles.kFramePreviewSize), 
-                    Styles.kFramePreviewSize, Styles.kFramePreviewSize);
+                    Styles.kFramePreviewSize - Styles.kMargin, Styles.kFramePreviewSize - Styles.kMargin);
                 var tex = UniPixUtils.CreateTextureFromFrame(frame, m_Session.Image.Width, m_Session.Image.Height);
                 GUI.DrawTexture(frameRect, tex);
 
-                if (frameRect.Contains(Event.current.mousePosition))
+                if (frameIndex == m_Session.CurrentFrameIndex)
                 {
                     if (GUI.Button(new Rect(frameRect.x + Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), "C", EditorStyles.miniButton))
                     {
@@ -386,6 +386,16 @@ namespace UniPix
                         // Copy frame
                     }
                 }
+
+                ++frameIndex;
+            }
+
+            var addFrameRect = new Rect(m_FramePreviewRect.x + Styles.kMargin,
+                m_FramePreviewRect.y + Styles.kMargin + (frameIndex * Styles.kFramePreviewSize),
+                Styles.kFramePreviewSize - Styles.kMargin, Styles.kFramePreviewSize / 2 - Styles.kMargin);
+            if (GUI.Button(addFrameRect, "New Frame"))
+            {
+                // Create new frame
             }
         }
 

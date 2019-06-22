@@ -39,7 +39,6 @@ namespace UniPix
 
             if (session.Image == null)
             {
-                Debug.LogError("Cannot load pix: " + path);
                 session.Image = UniPixUtils.CreateImage(32, 32, Color.clear);
             }
 
