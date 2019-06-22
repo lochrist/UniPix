@@ -293,7 +293,7 @@ namespace UniPix
                     // TODO: current selected layer update
                     if (GUILayout.Button(layer.Name, i == m_Session.CurrentLayerIndex ? Styles.currentLayerName : Styles.layerName))
                     {
-                        m_Session.CurrentLayerIndex = i;
+                        UniPixCommands.SetCurrentLayer(m_Session, i);
                         Repaint();
                     }
 
@@ -366,6 +366,7 @@ namespace UniPix
             // Select next frame (up arrow)
 
             int frameIndex = 0;
+            bool eventUsed = false;
             foreach(var frame in m_Session.Image.Frames)
             {
                 var frameRect = new Rect(m_FramePreviewRect.x + Styles.kMargin, 
@@ -378,13 +379,21 @@ namespace UniPix
                 {
                     if (GUI.Button(new Rect(frameRect.x + Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), "C", EditorStyles.miniButton))
                     {
+                        eventUsed = true;
+
                         // Copy frame
                     }
 
                     if (GUI.Button(new Rect(frameRect.xMax - Styles.kFramePreviewBtn - Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), "D", EditorStyles.miniButton))
                     {
+                        eventUsed = true;
                         // Copy frame
                     }
+                }
+
+                if (!eventUsed && frameRect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown)
+                {
+                    UniPixCommands.SetCurrentFrame(m_Session, frameIndex);
                 }
 
                 ++frameIndex;
@@ -436,24 +445,20 @@ namespace UniPix
                         if (!m_CanvasRect.Contains(Event.current.mousePosition))
                             break;
 
-                        if (DragAndDrop.objectReferences.Length == 1 &&
-                            DragAndDrop.objectReferences[0])
+                        var paths = 
+                            DragAndDrop.objectReferences
+                                .Where(obj => obj is Image || obj is Texture2D)
+                                .Select(obj => AssetDatabase.GetAssetPath(obj))
+                                .Where(path => !string.IsNullOrEmpty(path)).ToArray();
+                        if (paths.Length > 0)
                         {
-                            var objRef = DragAndDrop.objectReferences[0];
-                            var path = AssetDatabase.GetAssetPath(objRef);
-                            if (!string.IsNullOrEmpty(path) &&
-                                (objRef is UniPix.Image || objRef is Texture2D))
+                            DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+                            if (Event.current.type == EventType.DragPerform)
                             {
-                                DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
-                                if (Event.current.type == EventType.DragPerform)
-                                {
-                                    DragAndDrop.AcceptDrag();
-                                    Event.current.Use();
-
-                                    UniPixCommands.LoadPix(m_Session, path);
-
-                                    EditorGUIUtility.ExitGUI();
-                                }
+                                DragAndDrop.AcceptDrag();
+                                Event.current.Use();
+                                UniPixCommands.LoadPix(m_Session, paths);
+                                EditorGUIUtility.ExitGUI();
                             }
                         }
                         break;

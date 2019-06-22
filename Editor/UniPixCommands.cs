@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace UniPix
 {
@@ -20,20 +21,30 @@ namespace UniPix
 
         public static bool LoadPix(SessionData session, string path)
         {
-            if (!string.IsNullOrEmpty(path) && File.Exists(path))
-            {
-                if (Path.IsPathRooted(path))
-                {
-                    path = FileUtil.GetProjectRelativePath(path);
-                }
+            return LoadPix(session, new [] {path});
+        }
 
-                if (path.EndsWith(".asset"))
+        public static bool LoadPix(SessionData session, string[] paths)
+        {
+            if (paths.Length > 0)
+            {
+                var processedPaths = paths.Select(p =>
                 {
-                    session.Image = LoadPix(path);
+                    if (Path.IsPathRooted(p))
+                    {
+                        return FileUtil.GetProjectRelativePath(p);
+                    }
+
+                    return p;
+                }).Where(p => File.Exists(p)).ToArray();
+
+                if (processedPaths.Length == 1 && processedPaths[0].EndsWith(".asset"))
+                {
+                    session.Image = LoadPix(processedPaths[0]);
                 }
                 else
                 {
-                    session.Image = UniPixUtils.CreateImageFromTexture(path);
+                    session.Image = UniPixUtils.CreateImageFromTexture(processedPaths);
                 }
             }
 
@@ -119,6 +130,16 @@ namespace UniPix
         public static void SetPixel(SessionData session, int pixelIndex, Color color)
         {
             session.CurrentLayer.Pixels[pixelIndex] = color;
+        }
+
+        public static void SetCurrentFrame(SessionData session, int frameIndex)
+        {
+            session.CurrentFrameIndex = frameIndex;
+        }
+
+        public static void SetCurrentLayer(SessionData session, int layerIndex)
+        {
+            session.CurrentLayerIndex = layerIndex;
         }
 
         public static void SetPixelsUnderBrush(SessionData session, Color color)

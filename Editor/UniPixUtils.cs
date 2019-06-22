@@ -11,7 +11,9 @@ namespace UniPix
         public static Image CreateImage(int width, int height, Color baseColor)
         {
             var img = Image.CreateImage(width, height);
-            var layer = img.Frames[0].AddLayer(width, height);
+            var newFrame = new Frame();
+            img.Frames.Add(newFrame);
+            var layer = newFrame.AddLayer(width, height);
             for (var i = 0; i < layer.Pixels.Length; ++i)
             {
                 layer.Pixels[i] = baseColor;
@@ -22,26 +24,26 @@ namespace UniPix
 
         public static Image CreateImageFromTexture(string path)
         {
-            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-            if (tex != null)
-            {
-                MakeReadable(path, tex);
-                var img = Image.CreateImage(tex.width, tex.height);
-                ImportTexture2D(tex, img);
-                return img;
-            }
-            return null;
+            return CreateImageFromTexture(new [] {path});
         }
 
-        public static Layer ImportTexture2D(string path, Image img)
+        public static Image CreateImageFromTexture(string[] paths)
         {
-            var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-            if (tex != null)
+            Image img = null;
+            foreach (var path in paths)
             {
-                MakeReadable(path, tex);
-                return ImportTexture2D(tex, img);
+                var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+                if (tex != null)
+                {
+                    MakeReadable(path, tex);
+                    if (img == null)
+                    {
+                        img = Image.CreateImage(tex.width, tex.height);
+                    }
+                    ImportFrame(tex, img);
+                }
             }
-            return null;
+            return img;
         }
 
         public static bool MakeReadable(Texture2D tex)
@@ -68,7 +70,7 @@ namespace UniPix
             return false;
         }
 
-        public static Layer ImportTexture2D(Texture2D tex, Image img)
+        public static Layer ImportFrame(Texture2D tex, Image img)
         {
             // TODO : Crop
             if (tex.width > img.Width)
@@ -76,8 +78,10 @@ namespace UniPix
             if (tex.height > img.Height)
                 throw new Exception($"Texture doesn't width {tex.height} with img width {img.Height}");
 
-            img.Frames[0].AddLayer(img.Width, img.Height);
-            var layer = img.Frames[0].Layers[img.Frames[0].Layers.Count - 1];
+            var newFrame = new Frame();
+            img.Frames.Add(newFrame);
+            newFrame.AddLayer(img.Width, img.Height);
+            var layer = newFrame.Layers[newFrame.Layers.Count - 1];
             layer.Pixels = tex.GetPixels();
             return layer;
         }

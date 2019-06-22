@@ -20,7 +20,6 @@ namespace UniPix
             Width = 16;
             Height = 16;
             Frames = new List<Frame>();
-            Frames.Add(new Frame());
         }
 
         public object EditorUtility { get; internal set; }
