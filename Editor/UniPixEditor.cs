@@ -32,10 +32,16 @@ namespace UniPix
             {
                 var halfBrush = BrushSize / 2;
                 var reminder = BrushSize % 2;
-                var cursorCoordX = CursorImgCoord.x - halfBrush;
-                var cursorCoordY = CursorImgCoord.y - halfBrush;
+                var cursorCoordX = Mathf.Max(CursorImgCoord.x - halfBrush, 0);
+                var cursorCoordY = Mathf.Max(CursorImgCoord.y - halfBrush, 0);
                 var cursorSize = BrushSize;
-                return new RectInt(CursorImgCoord.x - halfBrush, CursorImgCoord.y - halfBrush, cursorSize, cursorSize);
+                var brushRect = new RectInt(
+                    cursorCoordX,
+                    cursorCoordY,
+                    cursorSize, cursorSize);
+                brushRect.xMax = Mathf.Min(brushRect.xMax, Image.Width);
+                brushRect.yMax = Mathf.Min(brushRect.yMax, Image.Height);
+                return brushRect;
             }
         }
         public int BrushSize = 5;
@@ -306,15 +312,30 @@ namespace UniPix
                     }
 
                     using (new EditorGUI.DisabledScope(m_Session.CurrentLayerIndex == m_Session.CurrentFrame.Layers.Count - 1))
-                        GUILayout.Button("Up", Styles.layerToolbarBtn);
+                    {
+                        if (GUILayout.Button("Up", Styles.layerToolbarBtn))
+                        {
+                            UniPixCommands.SwapLayers(m_Session, m_Session.CurrentLayerIndex, m_Session.CurrentLayerIndex + 1);
+                        }
+                    }
 
                     using (new EditorGUI.DisabledScope(m_Session.CurrentLayerIndex == 0))
                     {
-                        GUILayout.Button("Dw", Styles.layerToolbarBtn);
-                        GUILayout.Button("Mer", Styles.layerToolbarBtn);
+                        if (GUILayout.Button("Dw", Styles.layerToolbarBtn))
+                        {
+                            UniPixCommands.SwapLayers(m_Session, m_Session.CurrentLayerIndex, m_Session.CurrentLayerIndex - 1);
+                        }
+
+                        if (GUILayout.Button("Mer", Styles.layerToolbarBtn))
+                        {
+
+                        }
                     }
 
-                    GUILayout.Button("Del", Styles.layerToolbarBtn);
+                    if (GUILayout.Button("Del", Styles.layerToolbarBtn))
+                    {
+
+                    }
                 }
 
                 for (var i = m_Session.CurrentFrame.Layers.Count - 1; i >= 0; i--)
@@ -333,7 +354,7 @@ namespace UniPix
                     var opacity = Mathf.Clamp(EditorGUILayout.FloatField(layer.Opacity, Styles.layerOpacity), 0f, 1f);
                     if (EditorGUI.EndChangeCheck())
                     {
-                        UniPixCommands.SetLayerOpacity(m_Session, opacity);
+                        UniPixCommands.SetLayerOpacity(m_Session, i, opacity);
                         Repaint();
                     }
 
@@ -341,7 +362,7 @@ namespace UniPix
                     var isLayerVisible = EditorGUILayout.Toggle(layer.Visible, Styles.layerVisible);
                     if (EditorGUI.EndChangeCheck())
                     {
-                        UniPixCommands.SetLayerVisibility(m_Session, isLayerVisible);
+                        UniPixCommands.SetLayerVisibility(m_Session, i, isLayerVisible);
                         Repaint();
                     }
 

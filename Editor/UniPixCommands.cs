@@ -143,15 +143,30 @@ namespace UniPix
             DirtyImage(session);
         }
 
-        public static void SetLayerOpacity(SessionData session, float opacity)
+        public static void SetLayerOpacity(SessionData session, int layerIndex, float opacity)
         {
-            session.CurrentLayer.Opacity = opacity;
+            session.CurrentFrame.Layers[layerIndex].Opacity = opacity;
             DirtyImage(session);
         }
 
-        public static void SetLayerVisibility(SessionData session, bool isVisible)
+        public static void SetLayerVisibility(SessionData session, int layerIndex, bool isVisible)
         {
-            session.CurrentLayer.Visible = isVisible;
+            session.CurrentFrame.Layers[layerIndex].Visible = isVisible;
+            DirtyImage(session);
+        }
+
+        public static void SwapLayers(SessionData session, int layerIndex1, int layerIndex2)
+        {
+            var layer1 = session.CurrentFrame.Layers[layerIndex1];
+            var layer2 = session.CurrentFrame.Layers[layerIndex2];
+            session.CurrentFrame.Layers[layerIndex2] = layer1;
+            session.CurrentFrame.Layers[layerIndex1] = layer2;
+
+            if (session.CurrentLayerIndex == layerIndex1)
+                session.CurrentLayerIndex = layerIndex2;
+            else if (session.CurrentLayerIndex == layerIndex2)
+                session.CurrentLayerIndex = layerIndex1;
+
             DirtyImage(session);
         }
 
