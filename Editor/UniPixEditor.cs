@@ -50,6 +50,8 @@ namespace UniPix
 
         public int PreviewFps = 4;
         public int PreviewFrameIndex = 0;
+        public bool IsPreviewPlaying;
+        public float PreviewTimer;
 
         public Vector2 FrameScroll = new Vector2(0, 0);
         public bool IsDebugDraw;
@@ -568,7 +570,8 @@ namespace UniPix
                 m_AnimPreviewRect.y + Styles.kMargin,
                 Styles.kFramePreviewSize,
                 Styles.kFramePreviewSize);
-            var tex = m_Session.CurrentFrame.Texture;
+
+            var tex = m_Session.Image.Frames[m_Session.PreviewFrameIndex].Texture;
             if (m_Session.IsDebugDraw)
             {
                 DrawDebugRect(frameRect, "frame", new Color(0, 1, 0));
@@ -576,6 +579,12 @@ namespace UniPix
             else
             {
                 GUI.DrawTexture(frameRect, tex);
+                if (Event.current.type == EventType.MouseDown && frameRect.Contains(Event.current.mousePosition))
+                {
+                    Event.current.Use();
+                    m_Session.IsPreviewPlaying = !m_Session.IsPreviewPlaying;
+                    m_Session.PreviewTimer = 0;
+                }
             }
 
             var labelRect = new Rect(frameRect.x, frameRect.yMax, 35, 15);
@@ -698,7 +707,15 @@ namespace UniPix
 
         private void Update()
         {
-            // Debug.Log(Time.deltaTime);
+            if (m_Session.IsPreviewPlaying)
+            {
+                if (m_Session.PreviewFps > 0 && Time.realtimeSinceStartup - m_Session.PreviewTimer >= (1f / m_Session.PreviewFps))
+                {
+                    m_Session.PreviewFrameIndex = (m_Session.PreviewFrameIndex + 1) % m_Session.Image.Frames.Count;
+                    m_Session.PreviewTimer = Time.realtimeSinceStartup;
+                    Repaint();
+                }
+            }
         }
 
         [MenuItem("Window/UniPix")]

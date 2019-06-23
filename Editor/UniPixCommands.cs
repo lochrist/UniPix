@@ -66,6 +66,7 @@ namespace UniPix
             session.CurrentFrameIndex = 0;
             session.CurrentLayerIndex = 0;
             session.IsImageDirty = false;
+            session.PreviewFrameIndex = 0;
 
             session.Palette = new Palette();
             UniPixUtils.ExtractPaletteFrom(session.CurrentFrame, session.Palette.Colors);
