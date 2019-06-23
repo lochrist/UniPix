@@ -1,15 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 namespace UniPix
 {
     public class PixTool
     {
-        // TODO: cursor color uses color swapper
         readonly Color kCursorColor = new Color(1, 1, 1, 0.5f);
-
         public string Name;
         public Texture2D Icon;
 
@@ -41,13 +37,16 @@ namespace UniPix
 
         public override bool OnEvent(Event current, SessionData session)
         {
-            // TODO: check if the color is in the current palette or not?
-
             DrawCursor(session);
             if (IsBrushStroke() &&
                 (Event.current.button == 0 || Event.current.button == 1))
             {
-                UniPixCommands.SetPixelsUnderBrush(session, Event.current.button == 0 ? session.CurrentColor : session.SecondaryColor);
+                var strokeColor = Event.current.button == 0 ? session.CurrentColor : session.SecondaryColor;
+                if (!session.Palette.Colors.Contains(strokeColor))
+                {
+                    UniPixCommands.AddPaletteColor(session, strokeColor);
+                }
+                UniPixCommands.SetPixelsUnderBrush(session, strokeColor);
                 return true;
             }
             return false;

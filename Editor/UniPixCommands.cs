@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
-using System;
 using System.IO;
 using System.Linq;
 
@@ -156,6 +153,11 @@ namespace UniPix
         {
             session.CurrentLayer.Visible = isVisible;
             DirtyImage(session);
+        }
+
+        public static void AddPaletteColor(SessionData session, Color newColor)
+        {
+            session.Palette.Colors.Add(newColor);
         }
 
         public static void SetPixelsUnderBrush(SessionData session, Color color)

@@ -3,6 +3,7 @@
 Pixel Art Editor for Unity
 
 TODO
+* Lots of workflow todos
 * Undo/Redo
     * Add to createAsset menu (See Damian prez)
 * UI beautify:
