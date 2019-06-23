@@ -44,8 +44,9 @@ namespace UniPix
             return imgCoordX + (Image.Height - imgCoordY - 1) * Image.Height;
         }
 
-        public Vector2 frameScroll = new Vector2(0, 0);
+        public int previewFps = 4;
 
+        public Vector2 frameScroll = new Vector2(0, 0);
         public bool isDebugDraw;
     }
 
@@ -56,6 +57,7 @@ namespace UniPix
         Rect m_ViewportRect;
         Rect m_LayerRect;
         Rect m_PaletteRect;
+        Rect m_AnimPreviewRect;
         Rect m_ToolbarRect;
         Rect m_ColorPaletteRect;
         Rect m_SettingsRect;
@@ -165,9 +167,10 @@ namespace UniPix
             {
                 DrawDebugArea();
             }
-            else
+            // else
             {
                 DrawToolPalette();
+                DrawAnimationPreview();
                 DrawFrames();
                 DrawColorSwitcher();
                 DrawPixEditor();
@@ -181,7 +184,8 @@ namespace UniPix
         private void ComputeLayout()
         {
             m_ToolbarRect = new Rect(Styles.kMargin, Styles.kMargin, position.width - 2*Styles.kMargin, Styles.kToolbarHeight);
-            m_ToolsPaletteRect = new Rect(Styles.kMargin, m_ToolbarRect.yMax + Styles.kMargin, Styles.kToolPaletteWidth, Styles.kLayerRectHeight);
+            m_AnimPreviewRect = new Rect(Styles.kMargin, m_ToolbarRect.yMax + Styles.kMargin, Styles.kFramePreviewWidth, Styles.kFramePreviewWidth);
+            m_ToolsPaletteRect = new Rect(Styles.kMargin, m_AnimPreviewRect.yMax + 10 + Styles.kMargin, Styles.kToolPaletteWidth, Styles.kLayerRectHeight);
             m_FramePreviewRect = new Rect(
                 m_ToolsPaletteRect.xMax + Styles.kMargin, 
                 m_ToolbarRect.yMax + Styles.kMargin, 
@@ -205,7 +209,7 @@ namespace UniPix
         private void DrawDebugArea()
         {
             // DrawDebugRect(m_ToolbarRect, "toolbar", Color.green);
-
+            DrawDebugRect(m_AnimPreviewRect, "animPreview", new Color(1, 0, 0.5f));
             DrawDebugRect(m_CanvasRect, "canvas", Color.white);
             DrawDebugRect(m_ToolsPaletteRect, "tools", Color.magenta);
             DrawDebugRect(m_FramePreviewRect, "frames", Color.yellow);
@@ -347,9 +351,9 @@ namespace UniPix
             // Bucket (b)
 
             GUILayout.BeginArea(m_ToolsPaletteRect);
-            m_Session.BrushSize = Mathf.Clamp(EditorGUILayout.IntField("Brush", m_Session.BrushSize, Styles.brushSizeStyle), 1, 5);
             GUILayout.Label("Tools", Styles.layerHeader);
-            
+
+            m_Session.BrushSize = Mathf.Clamp(EditorGUILayout.IntField("Brush", m_Session.BrushSize, Styles.brushSizeStyle), 1, 5);
             var toolsRect = GUILayoutUtility.GetRect(m_ToolsPaletteRect.width, 100);
             var nbRows = (m_Tools.Length / Styles.kNbToolsPerRow) + 1;
             var toolIndex = 0;
@@ -394,7 +398,6 @@ namespace UniPix
             var viewRect = new Rect(0, 0,
                 Styles.kFramePreviewWidth - Styles.scrollbarWidth,
                 framesRect.height + addFrameRect.height + Styles.kMargin);
-
 
             m_Session.frameScroll = GUI.BeginScrollView(m_FramePreviewRect, m_Session.frameScroll, viewRect);
             int frameIndex = 0;
@@ -573,8 +576,29 @@ namespace UniPix
 
         private void DrawAnimationPreview()
         {
-            // Preview
-            // FPS
+            if (m_Session.Image.Frames.Count == 0)
+                return;
+
+            var frameRect = new Rect(
+                m_AnimPreviewRect.x + Styles.kMargin,
+                m_AnimPreviewRect.y + Styles.kMargin,
+                Styles.kFramePreviewSize,
+                Styles.kFramePreviewSize);
+            var tex = UniPixUtils.CreateTextureFromFrame(m_Session.CurrentFrame, m_Session.Image.Width, m_Session.Image.Height);
+            if (m_Session.isDebugDraw)
+            {
+                DrawDebugRect(frameRect, "frame", new Color(0, 1, 0));
+            }
+            else
+            {
+                GUI.DrawTexture(frameRect, tex);
+            }
+
+            var labelRect = new Rect(frameRect.x, frameRect.yMax, 35, 15);
+            GUI.Label(labelRect, $"{m_Session.previewFps}fps");
+            m_Session.previewFps = (int)GUI.HorizontalSlider(new Rect(labelRect.xMax, labelRect.y,
+                    frameRect.width - labelRect.width - Styles.kMargin, labelRect.height), 
+                m_Session.previewFps, 0, 24);
         }
 
         private void DrawColorPalette()
