@@ -268,7 +268,7 @@ namespace UniPix
             }
             else if (e.type == EventType.ScrollWheel && m_CanvasRect.Contains(e.mousePosition))
             {
-                m_Session.ZoomLevel -= e.delta.y;
+                m_Session.ZoomLevel -= e.delta.y > 0 ? 1 : -1;
                 m_Session.ZoomLevel = Mathf.Max(1, m_Session.ZoomLevel);
                 Repaint();
             }
