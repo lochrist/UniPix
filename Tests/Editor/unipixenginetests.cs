@@ -33,16 +33,13 @@ namespace UniPix
             }
 
             {
-                var f = new UniPix.Frame();
-                f.Layers = new List<UniPix.Layer>();
-                var l = new UniPix.Layer();
+                var f = img.AddFrame();
+                var l = f.AddLayer();
                 l.Name = "Background";
                 l.Opacity = 0.3f;
                 l.Pixels = new Color[16];
                 l.Pixels[0] = Color.cyan;
                 l.Pixels[1] = Color.gray;
-                f.Layers.Add(l);
-                img.Frames.Add(f);
             }
 
             return img;
@@ -87,8 +84,7 @@ namespace UniPix
             var img = UniPixMisc.CreateDummyImg();
             Undo.RecordObject(img, "Img width");
             var nbFrame = img.Frames.Count;
-            var newFrame = new Frame();
-            img.Frames.Add(newFrame);
+            var newFrame = img.AddFrame();
             Undo.FlushUndoRecordObjects();
             EditorApplication.ExecuteMenuItem("Edit/Undo");
             Assert.AreEqual(img.Frames.Count, nbFrame);

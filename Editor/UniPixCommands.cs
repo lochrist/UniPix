@@ -124,7 +124,7 @@ namespace UniPix
 
         public static void CreateLayer(SessionData session)
         {
-            session.CurrentFrame.AddLayer(session.Image.Width, session.Image.Height);
+            session.CurrentFrame.AddLayer();
         }
 
         public static void SetPixel(SessionData session, int pixelIndex, Color color)

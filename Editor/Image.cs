@@ -22,7 +22,12 @@ namespace UniPix
             Frames = new List<Frame>();
         }
 
-        public object EditorUtility { get; internal set; }
+        public Frame AddFrame()
+        {
+            var frame = new Frame(Width, Height);
+            Frames.Add(frame);
+            return frame;
+        }
 
         public static Image CreateImage(int width, int height)
         {
@@ -75,22 +80,29 @@ namespace UniPix
     {
         [SerializeField]
         public List<Layer> Layers;
+        [SerializeField]
+        public int Width;
+        [SerializeField]
+        public int Height;
         public Layer BlendedLayer;
-        public Frame()
+
+        public Frame(int width, int height)
         {
             Layers = new List<Layer>();
+            Width = width;
+            Height = height;
         }
 
-        public Layer AddLayer(int width, int height)
+        public Layer AddLayer()
         {
             var layer = new Layer();
-            layer.Init(width, height);
+            layer.Init(Width, Height);
             layer.Name = $"Layer {Layers.Count + 1}";
             Layers.Add(layer);
             if (BlendedLayer == null)
             {
                 BlendedLayer = new Layer();
-                BlendedLayer.Init(width, height);
+                BlendedLayer.Init(Width, Height);
             }
             return layer;
         }

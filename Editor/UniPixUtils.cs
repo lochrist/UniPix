@@ -11,9 +11,8 @@ namespace UniPix
         public static Image CreateImage(int width, int height, Color baseColor)
         {
             var img = Image.CreateImage(width, height);
-            var newFrame = new Frame();
-            img.Frames.Add(newFrame);
-            var layer = newFrame.AddLayer(width, height);
+            var newFrame = img.AddFrame();
+            var layer = newFrame.AddLayer();
             for (var i = 0; i < layer.Pixels.Length; ++i)
             {
                 layer.Pixels[i] = baseColor;
@@ -78,10 +77,8 @@ namespace UniPix
             if (tex.height > img.Height)
                 throw new Exception($"Texture doesn't width {tex.height} with img width {img.Height}");
 
-            var newFrame = new Frame();
-            img.Frames.Add(newFrame);
-            newFrame.AddLayer(img.Width, img.Height);
-            var layer = newFrame.Layers[newFrame.Layers.Count - 1];
+            var newFrame = img.AddFrame();
+            var layer = newFrame.AddLayer();
             layer.Pixels = tex.GetPixels();
             return layer;
         }
