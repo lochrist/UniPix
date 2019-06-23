@@ -6,7 +6,6 @@ Pixel Art Editor for Unity
 TODO
 * Dirty state:
 	* Know when an asset is dirty
-	* Only generate frames when they are dirty
 * Load/Save
     * show name of edited asset (with star if dirty)
 * Optimize to not create 

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -10,7 +9,12 @@ namespace UniPix
     public class SessionData
     {
         public float ZoomLevel = 20f;
+
         public Image Image;
+        public string ImagePath;
+        public string ImageTitle;
+        public bool IsImageDirty;
+
         public int CurrentLayerIndex = 0;
         public int CurrentFrameIndex = 0;
 
@@ -37,17 +41,18 @@ namespace UniPix
         }
         public int BrushSize = 5;
 
-        public Palette palette;
+        public Palette Palette;
 
         public int ImgCoordToPixelIndex(int imgCoordX, int imgCoordY)
         {
             return imgCoordX + (Image.Height - imgCoordY - 1) * Image.Height;
         }
 
-        public int previewFps = 4;
+        public int PreviewFps = 4;
+        public int PreviewFrameIndex = 0;
 
-        public Vector2 frameScroll = new Vector2(0, 0);
-        public bool isDebugDraw;
+        public Vector2 FrameScroll = new Vector2(0, 0);
+        public bool IsDebugDraw;
     }
 
     public class PixEditor : EditorWindow
@@ -64,7 +69,7 @@ namespace UniPix
         Rect m_ToolsPaletteRect;
         Rect m_FramePreviewRect;
         Texture2D m_TransparentTex;
-        Stopwatch m_Timer = new Stopwatch();
+        System.Diagnostics.Stopwatch m_Timer = new System.Diagnostics.Stopwatch();
 
         public static class Prefs
         {
@@ -163,7 +168,7 @@ namespace UniPix
             ProcessEvents();
             ComputeLayout();
             DrawToolbar();
-            if (m_Session.isDebugDraw)
+            if (m_Session.IsDebugDraw)
             {
                 DrawDebugArea();
             }
@@ -320,20 +325,18 @@ namespace UniPix
 
                     
                     EditorGUI.BeginChangeCheck();
-                    // Doesn't format well??
-                    // EditorGUILayout.FloatField("Alpha", 0.5f, Styles.layerOpacity);
-                    layer.Opacity = Mathf.Clamp(EditorGUILayout.FloatField(layer.Opacity, Styles.layerOpacity), 0f, 1f);
+                    var opacity = Mathf.Clamp(EditorGUILayout.FloatField(layer.Opacity, Styles.layerOpacity), 0f, 1f);
                     if (EditorGUI.EndChangeCheck())
                     {
-                        // TODO undo
+                        UniPixCommands.SetLayerOpacity(m_Session, opacity);
                         Repaint();
                     }
 
                     EditorGUI.BeginChangeCheck();
-                    layer.Visible = EditorGUILayout.Toggle(layer.Visible, Styles.layerVisible);
+                    var isLayerVisible = EditorGUILayout.Toggle(layer.Visible, Styles.layerVisible);
                     if (EditorGUI.EndChangeCheck())
                     {
-                        // TODO undo
+                        UniPixCommands.SetLayerVisibility(m_Session, isLayerVisible);
                         Repaint();
                     }
 
@@ -399,7 +402,7 @@ namespace UniPix
                 Styles.kFramePreviewWidth - Styles.scrollbarWidth,
                 framesRect.height + addFrameRect.height + Styles.kMargin);
 
-            m_Session.frameScroll = GUI.BeginScrollView(m_FramePreviewRect, m_Session.frameScroll, viewRect);
+            m_Session.FrameScroll = GUI.BeginScrollView(m_FramePreviewRect, m_Session.FrameScroll, viewRect);
             int frameIndex = 0;
             bool eventUsed = false;
             foreach (var frame in m_Session.Image.Frames)
@@ -585,7 +588,7 @@ namespace UniPix
                 Styles.kFramePreviewSize,
                 Styles.kFramePreviewSize);
             var tex = m_Session.CurrentFrame.Texture;
-            if (m_Session.isDebugDraw)
+            if (m_Session.IsDebugDraw)
             {
                 DrawDebugRect(frameRect, "frame", new Color(0, 1, 0));
             }
@@ -595,10 +598,10 @@ namespace UniPix
             }
 
             var labelRect = new Rect(frameRect.x, frameRect.yMax, 35, 15);
-            GUI.Label(labelRect, $"{m_Session.previewFps}fps");
-            m_Session.previewFps = (int)GUI.HorizontalSlider(new Rect(labelRect.xMax, labelRect.y,
+            GUI.Label(labelRect, $"{m_Session.PreviewFps}fps");
+            m_Session.PreviewFps = (int)GUI.HorizontalSlider(new Rect(labelRect.xMax, labelRect.y,
                     frameRect.width - labelRect.width - Styles.kMargin, labelRect.height), 
-                m_Session.previewFps, 0, 24);
+                m_Session.PreviewFps, 0, 24);
         }
 
         private void DrawColorPalette()
@@ -611,7 +614,7 @@ namespace UniPix
                 GUILayout.Label("Palette", Styles.layerHeader);
 
                 const int nbItemPerRow = 5;
-                var nbRows = (m_Session.palette.Colors.Count / nbItemPerRow) + 1;
+                var nbRows = (m_Session.Palette.Colors.Count / nbItemPerRow) + 1;
                 var colorItemIndex = 0;
                 for(var rowIndex = 0; rowIndex < nbRows; ++rowIndex)
                 {
@@ -622,21 +625,21 @@ namespace UniPix
                             // TODO use a GUIStyle with margin!
                             var colorRect = GUILayoutUtility.GetRect(Styles.kPaletteItemSize + 2*Styles.kMargin, Styles.kPaletteItemSize + 2*Styles.kMargin);
 
-                            if (colorItemIndex < m_Session.palette.Colors.Count)
+                            if (colorItemIndex < m_Session.Palette.Colors.Count)
                             {
                                 var contentRect = new Rect(colorRect.x + Styles.kMargin, colorRect.y + Styles.kMargin, colorRect.width - 2 * Styles.kMargin, colorRect.height - 2 * Styles.kMargin);
-                                if (m_Session.palette.Colors[colorItemIndex].a == 0f)
+                                if (m_Session.Palette.Colors[colorItemIndex].a == 0f)
                                 {
                                     EditorGUI.DrawTextureTransparent(contentRect, m_TransparentTex);
                                 }
                                 else
                                 {
-                                    EditorGUI.DrawRect(contentRect, m_Session.palette.Colors[colorItemIndex]);
+                                    EditorGUI.DrawRect(contentRect, m_Session.Palette.Colors[colorItemIndex]);
                                 }
 
                                 if (Event.current.isMouse && Event.current.type == EventType.MouseDown && contentRect.Contains(Event.current.mousePosition))
                                 {
-                                    m_Session.CurrentColor = m_Session.palette.Colors[colorItemIndex];
+                                    m_Session.CurrentColor = m_Session.Palette.Colors[colorItemIndex];
                                 }
                             }
                         }
@@ -676,16 +679,11 @@ namespace UniPix
                 UniPixCommands.SavePix(m_Session);
             }
 
-            var imgPath = AssetDatabase.GetAssetPath(m_Session.Image);
-            if (string.IsNullOrEmpty(imgPath))
-            {
-                imgPath = "*Untitled*";
-            }
-            GUILayout.Label(imgPath, EditorStyles.toolbarTextField);
+            GUILayout.Label(m_Session.ImageTitle, EditorStyles.toolbarTextField);
 
             GUILayout.FlexibleSpace();
 
-            m_Session.isDebugDraw = GUILayout.Toggle(m_Session.isDebugDraw, "Debug");
+            m_Session.IsDebugDraw = GUILayout.Toggle(m_Session.IsDebugDraw, "Debug");
 
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
@@ -712,7 +710,6 @@ namespace UniPix
                 m_Timer.Stop();
                 GUILayout.Label($"x{m_Session.ZoomLevel} - {m_Timer.ElapsedMilliseconds}ms");
                 GUILayout.Label($"[{m_Session.Image.Width}x{m_Session.Image.Height}]");
-                // GUILayout.Label($"x{m_ZoomLevel}");
                 GUILayout.EndVertical();
             }
             GUILayout.EndArea();
@@ -724,6 +721,11 @@ namespace UniPix
             // Active layer
 
 
+        }
+
+        private void Update()
+        {
+            // Debug.Log(Time.deltaTime);
         }
 
         [MenuItem("Window/UniPix")]

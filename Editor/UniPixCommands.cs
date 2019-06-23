@@ -53,14 +53,25 @@ namespace UniPix
                 session.Image = UniPixUtils.CreateImage(32, 32, Color.clear);
             }
 
+            session.ImagePath = AssetDatabase.GetAssetPath(session.Image);
+            if (string.IsNullOrEmpty(session.ImagePath))
+            {
+                session.ImageTitle = "*Untitled*";
+            }
+            else
+            {
+                session.ImageTitle = session.ImagePath;
+            }
+
             session.CurrentFrameIndex = 0;
             session.CurrentLayerIndex = 0;
+            session.IsImageDirty = false;
 
-            session.palette = new Palette();
-            UniPixUtils.ExtractPaletteFrom(session.CurrentFrame, session.palette.Colors);
+            session.Palette = new Palette();
+            UniPixUtils.ExtractPaletteFrom(session.CurrentFrame, session.Palette.Colors);
 
-            session.CurrentColor = session.palette.Colors.Count > 0 ? session.palette.Colors[0] : Color.black;
-            session.SecondaryColor = session.palette.Colors.Count > 1 ? session.palette.Colors[1] : Color.white;
+            session.CurrentColor = session.Palette.Colors.Count > 0 ? session.Palette.Colors[0] : Color.black;
+            session.SecondaryColor = session.Palette.Colors.Count > 1 ? session.Palette.Colors[1] : Color.white;
 
             return true;
         }
@@ -125,6 +136,18 @@ namespace UniPix
         public static void CreateLayer(SessionData session)
         {
             session.CurrentFrame.AddLayer();
+        }
+
+        public static void SetLayerOpacity(SessionData session, float opacity)
+        {
+            session.CurrentLayer.Opacity = opacity;
+            session.CurrentFrame.UpdateFrame();
+        }
+
+        public static void SetLayerVisibility(SessionData session, bool isVisible)
+        {
+            session.CurrentLayer.Visible = isVisible;
+            session.CurrentFrame.UpdateFrame();
         }
 
         public static void SetPixel(SessionData session, int pixelIndex, Color color)
