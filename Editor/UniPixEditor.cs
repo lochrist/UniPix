@@ -72,6 +72,7 @@ namespace UniPix
 
         static class Styles
         {
+            public const float scrollbarWidth = 13f;
             public const float kToolPaletteWidth = 100;
             public const float kFramePreviewWidth = 100;
             public const float kLeftPanelWidth = kToolPaletteWidth + kFramePreviewWidth;
@@ -87,7 +88,7 @@ namespace UniPix
             public const float kToolSize = 45;
             public const float kFramePreviewBtn = 25;
             public const int kNbToolsPerRow = (int)kToolPaletteWidth / (int)kToolSize;
-            public const int kFramePreviewSize = (int)(kFramePreviewWidth - 2 * kMargin);
+            public const int kFramePreviewSize = (int)(kFramePreviewWidth - 2 * kMargin - scrollbarWidth);
 
             public static GUIStyle brushSizeStyle = new GUIStyle(EditorStyles.numberField)
             {
@@ -181,7 +182,11 @@ namespace UniPix
         {
             m_ToolbarRect = new Rect(Styles.kMargin, Styles.kMargin, position.width - 2*Styles.kMargin, Styles.kToolbarHeight);
             m_ToolsPaletteRect = new Rect(Styles.kMargin, m_ToolbarRect.yMax + Styles.kMargin, Styles.kToolPaletteWidth, Styles.kLayerRectHeight);
-            m_FramePreviewRect = new Rect(m_ToolsPaletteRect.xMax + Styles.kMargin, m_ToolbarRect.yMax + Styles.kMargin, Styles.kFramePreviewWidth - 2 * Styles.kMargin, position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight - 2 * Styles.kMargin);
+            m_FramePreviewRect = new Rect(
+                m_ToolsPaletteRect.xMax + Styles.kMargin, 
+                m_ToolbarRect.yMax + Styles.kMargin, 
+                Styles.kFramePreviewWidth, 
+                position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight - 2 * Styles.kMargin);
             m_CanvasRect = new Rect(m_FramePreviewRect.xMax + Styles.kMargin, 
                 m_ToolbarRect.yMax + Styles.kMargin,
                 position.width - Styles.kLeftPanelWidth - Styles.kLayerWidth, 
@@ -248,7 +253,7 @@ namespace UniPix
                 }
                 Repaint();
             }
-            else if (e.type == EventType.ScrollWheel)
+            else if (e.type == EventType.ScrollWheel && m_CanvasRect.Contains(e.mousePosition))
             {
                 m_Session.ZoomLevel -= e.delta.y;
                 m_Session.ZoomLevel = Mathf.Max(1, m_Session.ZoomLevel);
@@ -376,7 +381,21 @@ namespace UniPix
             // New frame (n)
             // Select previous frame (up arrow)
             // Select next frame (up arrow)
-            var viewRect = new Rect(0, 0, Styles.kFramePreviewSize, Styles.kFramePreviewSize * m_Session.Image.Frames.Count);
+            var framesRect = new Rect(0, 0, 
+                Styles.kFramePreviewWidth - Styles.scrollbarWidth,
+                Styles.kMargin + (Styles.kFramePreviewSize + Styles.kMargin) * m_Session.Image.Frames.Count
+                );
+            
+            var addFrameRect = new Rect(Styles.kMargin,
+                framesRect.yMax + Styles.kMargin,
+                Styles.kFramePreviewSize - Styles.kMargin,
+                Styles.kFramePreviewSize / 2 - Styles.kMargin);
+
+            var viewRect = new Rect(0, 0,
+                Styles.kFramePreviewWidth - Styles.scrollbarWidth,
+                framesRect.height + addFrameRect.height + Styles.kMargin);
+
+
             m_Session.frameScroll = GUI.BeginScrollView(m_FramePreviewRect, m_Session.frameScroll, viewRect);
             int frameIndex = 0;
             bool eventUsed = false;
@@ -384,7 +403,8 @@ namespace UniPix
             {
                 var frameRect = new Rect(Styles.kMargin,
                     Styles.kMargin + (frameIndex * Styles.kFramePreviewSize),
-                    Styles.kFramePreviewSize - Styles.kMargin, Styles.kFramePreviewSize - Styles.kMargin);
+                    Styles.kFramePreviewSize, 
+                    Styles.kFramePreviewSize);
                 var tex = UniPixUtils.CreateTextureFromFrame(frame, m_Session.Image.Width, m_Session.Image.Height);
                 GUI.DrawTexture(frameRect, tex);
 
@@ -412,9 +432,7 @@ namespace UniPix
                 ++frameIndex;
             }
 
-            var addFrameRect = new Rect(Styles.kMargin,
-                Styles.kMargin + (frameIndex * Styles.kFramePreviewSize),
-                Styles.kFramePreviewSize - Styles.kMargin, Styles.kFramePreviewSize / 2 - Styles.kMargin);
+            
             if (GUI.Button(addFrameRect, "New Frame"))
             {
                 // Create new frame
@@ -663,8 +681,6 @@ namespace UniPix
 
         private void DrawStatus()
         {
-            // EditorGUI.DrawRect(m_StatusRect, new Color(1f, 0.4f, 0.4f));
-
             GUILayout.BeginArea(m_StatusRect);
             {
                 GUILayout.BeginVertical();
