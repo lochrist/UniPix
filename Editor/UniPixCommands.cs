@@ -153,6 +153,7 @@ namespace UniPix
                     SetPixel(session, pixelIndex, color);
                 }
             }
+            session.CurrentFrame.UpdateFrame();
         }
     }
 }

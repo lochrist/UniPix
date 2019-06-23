@@ -83,7 +83,7 @@ namespace UniPix
             return layer;
         }
 
-        public static Texture2D CreateTextureFromFrame(Frame frame, int width, int height)
+        public static Texture2D CreateTextureFromFrame(Frame frame)
         {
             SetLayerColor(frame.BlendedLayer, Color.clear);
             for (var layerIndex = 0; layerIndex < frame.Layers.Count; ++layerIndex)
@@ -95,7 +95,7 @@ namespace UniPix
                 }
 
             }
-            var tex = new Texture2D(width, height);
+            var tex = new Texture2D(frame.Width, frame.Height);
             tex.filterMode = FilterMode.Point;
             tex.SetPixels(frame.BlendedLayer.Pixels);
             tex.Apply();

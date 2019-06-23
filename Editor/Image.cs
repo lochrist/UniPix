@@ -86,6 +86,20 @@ namespace UniPix
         public int Height;
         public Layer BlendedLayer;
 
+        Texture2D m_Texture;
+        public Texture2D Texture
+        {
+            get
+            {
+                if (m_Texture == null || !m_Texture)
+                {
+                    m_Texture = UniPixUtils.CreateTextureFromFrame(this);
+                }
+
+                return m_Texture;
+            }
+        }
+
         public Frame(int width, int height)
         {
             Layers = new List<Layer>();
@@ -105,6 +119,11 @@ namespace UniPix
                 BlendedLayer.Init(Width, Height);
             }
             return layer;
+        }
+
+        public void UpdateFrame()
+        {
+            m_Texture = UniPixUtils.CreateTextureFromFrame(this);
         }
     }
 }

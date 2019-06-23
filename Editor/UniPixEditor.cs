@@ -408,7 +408,7 @@ namespace UniPix
                     Styles.kMargin + (frameIndex * Styles.kFramePreviewSize),
                     Styles.kFramePreviewSize, 
                     Styles.kFramePreviewSize);
-                var tex = UniPixUtils.CreateTextureFromFrame(frame, m_Session.Image.Width, m_Session.Image.Height);
+                var tex = frame.Texture;
                 GUI.DrawTexture(frameRect, tex);
 
                 if (frameIndex == m_Session.CurrentFrameIndex)
@@ -510,7 +510,7 @@ namespace UniPix
                 EditorGUI.DrawTextureTransparent(m_Session.ScaledImgRect, m_TransparentTex);
 
                 // TODO: only create texture if the model is actually dirty
-                var tex = UniPixUtils.CreateTextureFromFrame(m_Session.CurrentFrame, m_Session.Image.Width, m_Session.Image.Height);
+                var tex = m_Session.CurrentFrame.Texture;
                 GUI.DrawTexture(m_Session.ScaledImgRect, tex);
 
                 if (m_Session.ScaledImgRect.Contains(Event.current.mousePosition))
@@ -584,7 +584,7 @@ namespace UniPix
                 m_AnimPreviewRect.y + Styles.kMargin,
                 Styles.kFramePreviewSize,
                 Styles.kFramePreviewSize);
-            var tex = UniPixUtils.CreateTextureFromFrame(m_Session.CurrentFrame, m_Session.Image.Width, m_Session.Image.Height);
+            var tex = m_Session.CurrentFrame.Texture;
             if (m_Session.isDebugDraw)
             {
                 DrawDebugRect(frameRect, "frame", new Color(0, 1, 0));
