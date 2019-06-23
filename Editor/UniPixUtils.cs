@@ -83,25 +83,6 @@ namespace UniPix
             return layer;
         }
 
-        public static Texture2D CreateTextureFromFrame(Frame frame)
-        {
-            SetLayerColor(frame.BlendedLayer, Color.clear);
-            for (var layerIndex = 0; layerIndex < frame.Layers.Count; ++layerIndex)
-            {
-                // TODO: is it possible to make it by modifying the texture in place instead of using BlendedLayer
-                if (frame.Layers[layerIndex].Visible)
-                {
-                    Blend(frame.Layers[layerIndex], frame.BlendedLayer, frame.BlendedLayer);
-                }
-
-            }
-            var tex = new Texture2D(frame.Width, frame.Height);
-            tex.filterMode = FilterMode.Point;
-            tex.SetPixels(frame.BlendedLayer.Pixels);
-            tex.Apply();
-            return tex;
-        }
-
         public static void SetLayerColor(Layer layer, Color color)
         {
             for (var i = 0; i < layer.Pixels.Length; ++i)

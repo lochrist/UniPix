@@ -93,7 +93,7 @@ namespace UniPix
             {
                 if (m_Texture == null || !m_Texture)
                 {
-                    m_Texture = UniPixUtils.CreateTextureFromFrame(this);
+                    UpdateTextureFromFrame(this);
                 }
 
                 return m_Texture;
@@ -123,7 +123,28 @@ namespace UniPix
 
         public void UpdateFrame()
         {
-            m_Texture = UniPixUtils.CreateTextureFromFrame(this);
+            UpdateTextureFromFrame(this);
+        }
+
+        private static void UpdateTextureFromFrame(Frame frame)
+        {
+            UniPixUtils.SetLayerColor(frame.BlendedLayer, Color.clear);
+            for (var layerIndex = 0; layerIndex < frame.Layers.Count; ++layerIndex)
+            {
+                if (frame.Layers[layerIndex].Visible)
+                {
+                    UniPixUtils.Blend(frame.Layers[layerIndex], frame.BlendedLayer, frame.BlendedLayer);
+                }
+            }
+
+            if (!frame.m_Texture || frame.m_Texture == null)
+            {
+                frame.m_Texture = new Texture2D(frame.Width, frame.Height);
+                frame.m_Texture.filterMode = FilterMode.Point;
+            }
+
+            frame.m_Texture.SetPixels(frame.BlendedLayer.Pixels);
+            frame.m_Texture.Apply();
         }
     }
 }
