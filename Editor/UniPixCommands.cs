@@ -53,19 +53,13 @@ namespace UniPix
                 session.Image = UniPixUtils.CreateImage(32, 32, Color.clear);
             }
 
-            session.ImagePath = AssetDatabase.GetAssetPath(session.Image);
-            if (string.IsNullOrEmpty(session.ImagePath))
-            {
-                session.ImageTitle = "*Untitled*";
-            }
-            else
-            {
-                session.ImageTitle = session.ImagePath;
-            }
+            session.IsImageDirty = false;
+
+            UpdateImageTitle(session);
 
             session.CurrentFrameIndex = 0;
             session.CurrentLayerIndex = 0;
-            session.IsImageDirty = false;
+            
             session.PreviewFrameIndex = 0;
 
             session.Palette = new Palette();
@@ -132,28 +126,8 @@ namespace UniPix
 
             AssetDatabase.SaveAssets();
             EditorPrefs.SetString(PixEditor.Prefs.kCurrentImg, AssetDatabase.GetAssetPath(session.Image));
-        }
-
-        public static void CreateLayer(SessionData session)
-        {
-            session.CurrentFrame.AddLayer();
-        }
-
-        public static void SetLayerOpacity(SessionData session, float opacity)
-        {
-            session.CurrentLayer.Opacity = opacity;
-            session.CurrentFrame.UpdateFrame();
-        }
-
-        public static void SetLayerVisibility(SessionData session, bool isVisible)
-        {
-            session.CurrentLayer.Visible = isVisible;
-            session.CurrentFrame.UpdateFrame();
-        }
-
-        public static void SetPixel(SessionData session, int pixelIndex, Color color)
-        {
-            session.CurrentLayer.Pixels[pixelIndex] = color;
+            session.IsImageDirty = false;
+            UpdateImageTitle(session);
         }
 
         public static void SetCurrentFrame(SessionData session, int frameIndex)
@@ -166,6 +140,24 @@ namespace UniPix
             session.CurrentLayerIndex = layerIndex;
         }
 
+        public static void CreateLayer(SessionData session)
+        {
+            session.CurrentFrame.AddLayer();
+            DirtyImage(session);
+        }
+
+        public static void SetLayerOpacity(SessionData session, float opacity)
+        {
+            session.CurrentLayer.Opacity = opacity;
+            DirtyImage(session);
+        }
+
+        public static void SetLayerVisibility(SessionData session, bool isVisible)
+        {
+            session.CurrentLayer.Visible = isVisible;
+            DirtyImage(session);
+        }
+
         public static void SetPixelsUnderBrush(SessionData session, Color color)
         {
             var brushRect = session.BrushRect;
@@ -174,10 +166,37 @@ namespace UniPix
                 for (var x = brushRect.x; x < brushRect.xMax; ++x)
                 {
                     var pixelIndex = session.ImgCoordToPixelIndex(x, y);
-                    SetPixel(session, pixelIndex, color);
+                    session.CurrentLayer.Pixels[pixelIndex] = color;
                 }
             }
+            DirtyImage(session);
+        }
+
+        private static void DirtyImage(SessionData session)
+        {
             session.CurrentFrame.UpdateFrame();
+            if (!session.IsImageDirty)
+            {
+                session.IsImageDirty = true;
+                UpdateImageTitle(session);
+            }
+        }
+
+        private static void UpdateImageTitle(SessionData session)
+        {
+            session.ImagePath = AssetDatabase.GetAssetPath(session.Image);
+            if (string.IsNullOrEmpty(session.ImagePath))
+            {
+                session.ImageTitle = "*Untitled*";
+            }
+            else
+            {
+                session.ImageTitle = session.ImagePath;
+                if (session.IsImageDirty)
+                {
+                    session.ImageTitle += "*";
+                }
+            }
         }
     }
 }

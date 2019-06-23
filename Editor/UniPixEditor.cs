@@ -416,7 +416,7 @@ namespace UniPix
                 var tex = frame.Texture;
                 GUI.DrawTexture(frameRect, tex);
 
-                if (frameIndex == m_Session.CurrentFrameIndex)
+                if (frameRect.Contains(Event.current.mousePosition))
                 {
                     if (GUI.Button(new Rect(frameRect.x + Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), "C", EditorStyles.miniButton))
                     {

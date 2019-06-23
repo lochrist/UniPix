@@ -3,10 +3,6 @@
 Pixel Art Editor for Unity
 
 TODO
-* Dirty state:
-	* Know when an asset is dirty
-* Load/Save
-    * show name of edited asset (with star if dirty)
 * Undo/Redo
     * Add to createAsset menu (See Damian prez)
 * UI beautify:
@@ -16,8 +12,6 @@ TODO
     * Color swapper needs border
     * tooltips
 	* Use style with actual margin (is it possible to remove kMargin?)
-* Frame workflow
-    * Preview window for animation
 * Export
     * export as gif
     * export as spritesheet
