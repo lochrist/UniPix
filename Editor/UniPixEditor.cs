@@ -304,11 +304,18 @@ namespace UniPix
                 GUILayout.Label("Layers", Styles.layerHeader);
                 using (new GUILayout.HorizontalScope())
                 {
-                    // TODO: handle undo
                     if (GUILayout.Button("Cr", Styles.layerToolbarBtn))
                     {
                         UniPixCommands.CreateLayer(m_Session);
-                        m_Session.CurrentLayerIndex++;
+                        Repaint();
+                        EditorGUIUtility.ExitGUI();
+                    }
+
+                    if (GUILayout.Button("Cl", Styles.layerToolbarBtn))
+                    {
+                        UniPixCommands.CloneLayer(m_Session);
+                        Repaint();
+                        EditorGUIUtility.ExitGUI();
                     }
 
                     using (new EditorGUI.DisabledScope(m_Session.CurrentLayerIndex == m_Session.CurrentFrame.Layers.Count - 1))
@@ -316,6 +323,8 @@ namespace UniPix
                         if (GUILayout.Button("Up", Styles.layerToolbarBtn))
                         {
                             UniPixCommands.SwapLayers(m_Session, m_Session.CurrentLayerIndex, m_Session.CurrentLayerIndex + 1);
+                            Repaint();
+                            EditorGUIUtility.ExitGUI();
                         }
                     }
 
@@ -324,6 +333,8 @@ namespace UniPix
                         if (GUILayout.Button("Dw", Styles.layerToolbarBtn))
                         {
                             UniPixCommands.SwapLayers(m_Session, m_Session.CurrentLayerIndex, m_Session.CurrentLayerIndex - 1);
+                            Repaint();
+                            EditorGUIUtility.ExitGUI();
                         }
 
                         if (GUILayout.Button("Mer", Styles.layerToolbarBtn))
@@ -334,7 +345,9 @@ namespace UniPix
 
                     if (GUILayout.Button("Del", Styles.layerToolbarBtn))
                     {
-
+                        UniPixCommands.DeleteLayer(m_Session);
+                        Repaint();
+                        EditorGUIUtility.ExitGUI();
                     }
                 }
 

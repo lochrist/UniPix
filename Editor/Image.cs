@@ -107,12 +107,17 @@ namespace UniPix
             Height = height;
         }
 
-        public Layer AddLayer()
+        public Layer AddLayer(int insertionPoint = -1)
         {
             var layer = new Layer();
             layer.Init(Width, Height);
             layer.Name = $"Layer {Layers.Count + 1}";
-            Layers.Add(layer);
+
+            if (insertionPoint == -1)
+                Layers.Add(layer);
+            else
+                Layers.Insert(insertionPoint, layer);
+            
             if (BlendedLayer == null)
             {
                 BlendedLayer = new Layer();

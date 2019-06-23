@@ -139,7 +139,30 @@ namespace UniPix
 
         public static void CreateLayer(SessionData session)
         {
-            session.CurrentFrame.AddLayer();
+            session.CurrentFrame.AddLayer(session.CurrentLayerIndex + 1);
+            session.CurrentLayerIndex = session.CurrentLayerIndex + 1;
+            DirtyImage(session);
+        }
+
+        public static void CloneLayer(SessionData session)
+        {
+            var clonedLayer = session.CurrentFrame.AddLayer(session.CurrentLayerIndex + 1);
+            var currentLayer = session.CurrentLayer;
+            for (int i = 0; i < currentLayer.Pixels.Length; i++)
+            {
+                clonedLayer.Pixels[i] = currentLayer.Pixels[i];
+            }
+            session.CurrentLayerIndex = session.CurrentLayerIndex + 1;
+            DirtyImage(session);
+        }
+
+        public static void DeleteLayer(SessionData session)
+        {
+            session.CurrentFrame.Layers.Remove(session.CurrentLayer);
+            if (session.CurrentFrame.Layers.Count == 0)
+            {
+                session.CurrentFrame.AddLayer();
+            }
             DirtyImage(session);
         }
 
