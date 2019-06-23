@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -42,6 +43,10 @@ namespace UniPix
         {
             return imgCoordX + (Image.Height - imgCoordY - 1) * Image.Height;
         }
+
+        public Vector2 frameScroll = new Vector2(0, 0);
+
+        public bool isDebugDraw;
     }
 
     public class PixEditor : EditorWindow
@@ -57,6 +62,7 @@ namespace UniPix
         Rect m_ToolsPaletteRect;
         Rect m_FramePreviewRect;
         Texture2D m_TransparentTex;
+        Stopwatch m_Timer = new Stopwatch();
 
         public static class Prefs
         {
@@ -76,7 +82,7 @@ namespace UniPix
             public const float kPaletteItemSize = 25;
             public const float kLayerHeight = 25;
             public const float kLayerRectHeight = 6 * kLayerHeight;
-            public const float kSettingsHeight = 200;
+            public const float kSettingsHeight = 75;
             public const float kMargin = 2;
             public const float kToolSize = 45;
             public const float kFramePreviewBtn = 25;
@@ -123,6 +129,7 @@ namespace UniPix
 
         private void OnEnable()
         {
+            titleContent = new GUIContent("UniPix");
             m_Tools = new PixTool[] {
                 new BrushTool(),
                 new EraseTool()
@@ -149,21 +156,25 @@ namespace UniPix
 
         private void OnGUI()
         {
+            m_Timer.Restart();
             ProcessEvents();
             ComputeLayout();
-
-            // DrawDebugArea();
-            
             DrawToolbar();
-            DrawToolPalette();
-            DrawFrames();
-            DrawColorSwitcher();
-            DrawPixEditor();
-            DrawLayers();
-            DrawColorPalette();
-            DrawSettings();
-            DrawStatus();
-            
+            if (m_Session.isDebugDraw)
+            {
+                DrawDebugArea();
+            }
+            else
+            {
+                DrawToolPalette();
+                DrawFrames();
+                DrawColorSwitcher();
+                DrawPixEditor();
+                DrawLayers();
+                DrawColorPalette();
+                DrawSettings();
+                DrawStatus();
+            }
         }
 
         private void ComputeLayout()
@@ -188,12 +199,13 @@ namespace UniPix
 
         private void DrawDebugArea()
         {
+            // DrawDebugRect(m_ToolbarRect, "toolbar", Color.green);
+
             DrawDebugRect(m_CanvasRect, "canvas", Color.white);
             DrawDebugRect(m_ToolsPaletteRect, "tools", Color.magenta);
             DrawDebugRect(m_FramePreviewRect, "frames", Color.yellow);
             DrawDebugRect(m_StatusRect, "status", Color.red);
             DrawDebugRect(m_LayerRect, "layer", Color.cyan);
-            DrawDebugRect(m_ToolbarRect, "toolbar", Color.green);
             DrawDebugRect(m_ColorPaletteRect, "palette", Color.gray);
             DrawDebugRect(m_SettingsRect, "settings", Color.blue);
         }
@@ -364,13 +376,14 @@ namespace UniPix
             // New frame (n)
             // Select previous frame (up arrow)
             // Select next frame (up arrow)
-
+            var viewRect = new Rect(0, 0, Styles.kFramePreviewSize, Styles.kFramePreviewSize * m_Session.Image.Frames.Count);
+            m_Session.frameScroll = GUI.BeginScrollView(m_FramePreviewRect, m_Session.frameScroll, viewRect);
             int frameIndex = 0;
             bool eventUsed = false;
-            foreach(var frame in m_Session.Image.Frames)
+            foreach (var frame in m_Session.Image.Frames)
             {
-                var frameRect = new Rect(m_FramePreviewRect.x + Styles.kMargin, 
-                    m_FramePreviewRect.y + Styles.kMargin + (frameIndex * Styles.kFramePreviewSize), 
+                var frameRect = new Rect(Styles.kMargin,
+                    Styles.kMargin + (frameIndex * Styles.kFramePreviewSize),
                     Styles.kFramePreviewSize - Styles.kMargin, Styles.kFramePreviewSize - Styles.kMargin);
                 var tex = UniPixUtils.CreateTextureFromFrame(frame, m_Session.Image.Width, m_Session.Image.Height);
                 GUI.DrawTexture(frameRect, tex);
@@ -399,13 +412,14 @@ namespace UniPix
                 ++frameIndex;
             }
 
-            var addFrameRect = new Rect(m_FramePreviewRect.x + Styles.kMargin,
-                m_FramePreviewRect.y + Styles.kMargin + (frameIndex * Styles.kFramePreviewSize),
+            var addFrameRect = new Rect(Styles.kMargin,
+                Styles.kMargin + (frameIndex * Styles.kFramePreviewSize),
                 Styles.kFramePreviewSize - Styles.kMargin, Styles.kFramePreviewSize / 2 - Styles.kMargin);
             if (GUI.Button(addFrameRect, "New Frame"))
             {
                 // Create new frame
             }
+            GUI.EndScrollView();
         }
 
         private void DrawColorSwitcher()
@@ -628,6 +642,9 @@ namespace UniPix
             GUILayout.Label(imgPath, EditorStyles.toolbarTextField);
 
             GUILayout.FlexibleSpace();
+
+            m_Session.isDebugDraw = GUILayout.Toggle(m_Session.isDebugDraw, "Debug");
+
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
@@ -651,7 +668,9 @@ namespace UniPix
             GUILayout.BeginArea(m_StatusRect);
             {
                 GUILayout.BeginVertical();
-                GUILayout.Label($"x{m_Session.ZoomLevel}");
+
+                m_Timer.Stop();
+                GUILayout.Label($"x{m_Session.ZoomLevel} - {m_Timer.ElapsedMilliseconds}ms");
                 GUILayout.Label($"[{m_Session.Image.Width}x{m_Session.Image.Height}]");
                 // GUILayout.Label($"x{m_ZoomLevel}");
                 GUILayout.EndVertical();

@@ -4,12 +4,13 @@ Pixel Art Editor for Unity
 
 
 TODO
-* Verifier quand on save par dessus un png? est-ce nous?
+* Dirty state:
+	* Know when an asset is dirty
+	* Only generate frames when they are dirty
 * Load/Save
     * show name of edited asset (with star if dirty)
+* Optimize to not create 
 * Tools:
-    * Brush
-    * Erase
     * Bucket filler
     * Mirror?
     * Shape:
@@ -48,12 +49,6 @@ TODO
     * How to "bind" to a sprite?
     * Generate the spritesheet on import of the asset?
     * 
-
-
-
-
-
-
 
 Features:
 * Advance deployment:
