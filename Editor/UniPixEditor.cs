@@ -467,6 +467,8 @@ namespace UniPix
                 if (!eventUsed && frameRect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown)
                 {
                     UniPixCommands.SetCurrentFrame(m_Session, frameIndex);
+                    Repaint();
+                    EditorGUIUtility.ExitGUI();
                 }
 
                 ++frameIndex;
