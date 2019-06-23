@@ -2,13 +2,45 @@
 
 Pixel Art Editor for Unity
 
-
 TODO
 * Dirty state:
 	* Know when an asset is dirty
 * Load/Save
     * show name of edited asset (with star if dirty)
-* Optimize to not create 
+* Undo/Redo
+    * Add to createAsset menu (See Damian prez)
+* UI beautify:
+    * Proper background/border for BeginArea
+    * USS for styling
+    * Use icons
+    * Color swapper needs border
+    * tooltips
+	* Use style with actual margin (is it possible to remove kMargin?)
+* Frame workflow
+    * Preview window for animation
+* Export
+    * export as gif
+    * export as spritesheet
+* Import
+* Workflow with sprites:
+    * How to "bind" to a sprite?
+    * Generate the spritesheet on import of the asset?
+* Palette:
+	* Do we want to have palette as a separate asset?
+	* See https://worms2d.info/Palette_file
+* Mode:
+    * Its own menu
+    * its own layout? or single window?
+        * layout with a projectBrowser
+	* Shortcuts: ensure all actions are mapped on shortcut
+* UMPE:
+    * with a mode
+    * Open in isolation
+	* validate drag and drop from another project
+	* Add Right click on asset: open in UniPix
+* UIElements:
+	* create ui with uielements and benchmark
+	* benchmark current ui code
 * Tools:
     * Bucket filler
     * Mirror?
@@ -21,33 +53,7 @@ TODO
         * copy + paste
     * Palette switcher:
         * switch palette and apply palette to image: all colors are replaced with colors from the other palette?
-* Group undoable actions in UniPixActions
-    * Must be registered as command with a validator
-* Mode:
-    * Its own menu
-    * its own layout? or single window?
-        * layout with a projectBrowser
-	* validate drag and drop from another project
-* UMPE:
-    * with a mode
-    * Open in isolation
-* Add Right click on asset: open in UniPix
-* UI beautify:
-    * Proper background/border for BeginArea
-    * USS for styling
-    * Use icons
-    * Color swapper needs border
-    * tooltips
-* Frame workflow
-    * Preview window for animation
-* Export
-    * export as gif
-    * export as spritesheet
-* Import
-* Workflow with sprites:
-    * How to "bind" to a sprite?
-    * Generate the spritesheet on import of the asset?
-    * 
+
 
 Features:
 * Advance deployment:
@@ -80,10 +86,6 @@ Things to might do or share for Copenhagen:
 * Add a shortcut to open the quicksearch tool with only texture and image visible!
 * 
 
-
-
-
-
 Good inspirations
 
 
@@ -99,5 +101,3 @@ Good inspirations
 
 
 ou Pixel Art drawing app, created as a unity game that runs on ipad and that uses the Eventservice to communicate with the different instances?
-
-

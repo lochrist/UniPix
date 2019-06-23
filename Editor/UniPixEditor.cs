@@ -115,6 +115,11 @@ namespace UniPix
                 fixedHeight = 25
             };
 
+            public static GUIStyle statusLabel = new GUIStyle(EditorStyles.label)
+            {
+                richText = true
+            };
+
             static Styles()
             {
                 currentLayerName.normal.textColor = Color.yellow;
@@ -200,13 +205,12 @@ namespace UniPix
                 m_ToolbarRect.yMax + Styles.kMargin,
                 position.width - Styles.kLeftPanelWidth - Styles.kLayerWidth, 
                 position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight - 2 * Styles.kMargin);
+            m_StatusRect = new Rect(m_CanvasRect.x, m_CanvasRect.yMax + Styles.kMargin, m_CanvasRect.width, Styles.kStatusbarHeight);
 
             const float kRightPanelWidth = Styles.kLayerWidth - 2 * Styles.kMargin;
             m_LayerRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_CanvasRect.y, kRightPanelWidth - Styles.kMargin, Styles.kLayerRectHeight);
 
             m_ColorPaletteRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_LayerRect.yMax + Styles.kMargin, kRightPanelWidth - Styles.kMargin, Styles.kLayerRectHeight);
-
-            m_StatusRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, position.height - Styles.kStatusbarHeight - Styles.kStatusbarHeight, kRightPanelWidth - Styles.kMargin, Styles.kStatusbarHeight);
 
             m_SettingsRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_ColorPaletteRect.yMax + Styles.kMargin, kRightPanelWidth - Styles.kMargin, Styles.kSettingsHeight);
         }
@@ -277,6 +281,7 @@ namespace UniPix
 
         private void DrawLayers()
         {
+            // TODO: missing layer functs
             // Add
             // Delete
             // Move
@@ -323,7 +328,6 @@ namespace UniPix
                         Repaint();
                     }
 
-                    
                     EditorGUI.BeginChangeCheck();
                     var opacity = Mathf.Clamp(EditorGUILayout.FloatField(layer.Opacity, Styles.layerOpacity), 0f, 1f);
                     if (EditorGUI.EndChangeCheck())
@@ -340,7 +344,6 @@ namespace UniPix
                         Repaint();
                     }
 
-                    
                     GUILayout.EndHorizontal();
                 }
             }
@@ -349,10 +352,6 @@ namespace UniPix
 
         private void DrawToolPalette()
         {
-            // Pencil (p)
-            // erase (e)
-            // Bucket (b)
-
             GUILayout.BeginArea(m_ToolsPaletteRect);
             GUILayout.Label("Tools", Styles.layerHeader);
 
@@ -376,18 +375,19 @@ namespace UniPix
                 }
             }
 
+            // TODO : indicate which colors corresponds to which MouseButton
+            // TODO: PAlette editing: remove from palette. Add new color??
+
             GUILayout.EndArea();
         }
 
         private void DrawFrames()
         {
+            // TODO
             // Add frames
             // Clone frames (shift + N)
             // reorder frames
 
-            // New frame (n)
-            // Select previous frame (up arrow)
-            // Select next frame (up arrow)
             var framesRect = new Rect(0, 0, 
                 Styles.kFramePreviewWidth - Styles.scrollbarWidth,
                 Styles.kMargin + (Styles.kFramePreviewSize + Styles.kMargin) * m_Session.Image.Frames.Count
@@ -419,14 +419,13 @@ namespace UniPix
                     if (GUI.Button(new Rect(frameRect.x + Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), "C", EditorStyles.miniButton))
                     {
                         eventUsed = true;
-
                         // Copy frame
                     }
 
                     if (GUI.Button(new Rect(frameRect.xMax - Styles.kFramePreviewBtn - Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), "D", EditorStyles.miniButton))
                     {
                         eventUsed = true;
-                        // Copy frame
+                        // Delete frame
                     }
                 }
 
@@ -441,18 +440,13 @@ namespace UniPix
             
             if (GUI.Button(addFrameRect, "New Frame"))
             {
-                // Create new frame
+                // TODO Create new frame
             }
             GUI.EndScrollView();
         }
 
         private void DrawColorSwitcher()
         {
-            // Similar to Paint : current color + secondary color (on right click) (X)
-            // Swap Color
-            // Reset default color (d)
-            // Open palette creation (alt + p)
-
             var primaryColorRect = new Rect(10, position.height - Styles.kStatusbarHeight - (2*Styles.kColorSwatchSize), Styles.kColorSwatchSize, Styles.kColorSwatchSize);
             var secondaryColorRect = new Rect(primaryColorRect.xMax - 15, primaryColorRect.yMax - 15, Styles.kColorSwatchSize, Styles.kColorSwatchSize);
 
@@ -464,16 +458,6 @@ namespace UniPix
 
         private void DrawPixEditor()
         {
-            // Draw the image itself
-            // Grid
-
-            // Zoom
-            // reset zoom level (0)
-            // increase zoom level (+)
-            // decrease zoom level (-)
-            // increase pen size ([)
-            // decrease pen size (])
-
             if (Event.current != null)
             {
                 switch (Event.current.type)
@@ -511,8 +495,6 @@ namespace UniPix
             GUILayout.BeginArea(m_CanvasRect);
             {
                 EditorGUI.DrawTextureTransparent(m_Session.ScaledImgRect, m_TransparentTex);
-
-                // TODO: only create texture if the model is actually dirty
                 var tex = m_Session.CurrentFrame.Texture;
                 GUI.DrawTexture(m_Session.ScaledImgRect, tex);
 
@@ -535,10 +517,7 @@ namespace UniPix
                 {
                     DrawGrid();
                 }
-                // var mousePos = Event.current.mousePosition - m_CanvasRect.position;
-                // Debug.Log($"Event.current.mousePosition: {Event.current.mousePosition} mousePos: {mousePos} pos: {m_CanvasRect.position} rec: {m_CanvasRect}");
             }
-
             GUILayout.EndArea();
         }
 
@@ -564,15 +543,17 @@ namespace UniPix
 
         private void DrawGrid()
         {
+            // TODO: is it possible to have a trasnparent texture that maps with the grid.
+
             for (int x = 0; x <= m_Session.Image.Width; x += m_GridSize)
             {
-                float posX = m_Session.ScaledImgRect.xMin + m_Session.ZoomLevel * x/* - 0.2f*/;
+                float posX = m_Session.ScaledImgRect.xMin + m_Session.ZoomLevel * x;
                 EditorGUI.DrawRect(new Rect(posX, m_Session.ScaledImgRect.yMin, 1, m_Session.ScaledImgRect.height), m_GridColor);
             }
             // Then x axis
             for (int y = 0; y <= m_Session.Image.Height; y += m_GridSize)
             {
-                float posY = m_Session.ScaledImgRect.yMin + m_Session.ZoomLevel * y/* - 0.2f*/;
+                float posY = m_Session.ScaledImgRect.yMin + m_Session.ZoomLevel * y;
                 EditorGUI.DrawRect(new Rect(m_Session.ScaledImgRect.xMin, posY, m_Session.ScaledImgRect.width, 1), m_GridColor);
             }
         }
@@ -703,24 +684,16 @@ namespace UniPix
 
         private void DrawStatus()
         {
-            GUILayout.BeginArea(m_StatusRect);
-            {
-                GUILayout.BeginVertical();
-
-                m_Timer.Stop();
-                GUILayout.Label($"x{m_Session.ZoomLevel} - {m_Timer.ElapsedMilliseconds}ms");
-                GUILayout.Label($"[{m_Session.Image.Width}x{m_Session.Image.Height}]");
-                GUILayout.EndVertical();
-            }
-            GUILayout.EndArea();
-
-            // Mouse pos
-            // Zoom factor
-            // image size
-            // Frame Index
-            // Active layer
-
-
+            var status = $"<b>Zoom:</b>{m_Session.ZoomLevel}  ";
+            status += $"<b>Size:</b>[{m_Session.Image.Width}x{m_Session.Image.Height}]  ";
+            if (m_Session.CurrentFrameIndex != -1)
+                status += $"<b>Frame:</b> {m_Session.CurrentFrameIndex + 1} / {m_Session.Image.Frames.Count + 1}  ";
+            if (m_Session.CurrentLayerIndex != -1)
+                status += $"<b>Layer:</b> {m_Session.CurrentLayer.Name}  ";
+            status += $"<b>Mouse:</b>[{m_Session.CursorImgCoord.x}, {m_Session.CursorImgCoord.y}]  ";
+            m_Timer.Stop();
+            status += $"<b>Fps:</b>{m_Timer.ElapsedMilliseconds} ";
+            GUI.Label(m_StatusRect, status, Styles.statusLabel);
         }
 
         private void Update()
