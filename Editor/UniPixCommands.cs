@@ -216,6 +216,9 @@ namespace UniPix
             {
                 session.CurrentFrame.AddLayer();
             }
+
+            if (session.CurrentLayerIndex >= session.CurrentFrame.Layers.Count)
+                session.CurrentLayerIndex = session.CurrentFrame.Layers.Count - 1;
             DirtyImage(session);
         }
 
