@@ -159,7 +159,16 @@ namespace UniPix
 
             public static GUIStyle pixBox = new GUIStyle()
             {
-                name = "pixbox"
+                name = "pixbox",
+                margin = new RectOffset(2, 2, 2, 2),
+                padding = new RectOffset(2, 2, 2, 2)
+            };
+
+            public static GUIStyle selectedPixBox = new GUIStyle()
+            {
+                name = "selected-pixbox",
+                margin = new RectOffset(2, 2, 2, 2),
+                padding = new RectOffset(2, 2, 2, 2)
             };
 
             static Styles()
@@ -452,32 +461,16 @@ namespace UniPix
         private void DrawFrames()
         {
             // TODO: reorder frames
-            var framesRect = new Rect(0, 0, 
-                Styles.kFramePreviewWidth - Styles.scrollbarWidth,
-                Styles.kMargin + (Styles.kFramePreviewSize + Styles.kMargin) * m_Session.Image.Frames.Count
-                );
-            
-            var addFrameRect = new Rect(Styles.kMargin,
-                framesRect.yMax + Styles.kMargin,
-                Styles.kFramePreviewSize - Styles.kMargin,
-                Styles.kFramePreviewSize / 2 - Styles.kMargin);
-
-            var viewRect = new Rect(0, 0,
-                Styles.kFramePreviewWidth - Styles.scrollbarWidth,
-                framesRect.height + addFrameRect.height + Styles.kMargin);
-
-            m_Session.FrameScroll = GUI.BeginScrollView(m_FramePreviewRect, m_Session.FrameScroll, viewRect);
+            GUILayout.BeginArea(m_FramePreviewRect);
+            m_Session.FrameScroll = GUILayout.BeginScrollView(m_Session.FrameScroll);
             var frameIndex = 0;
             var eventUsed = false;
             foreach (var frame in m_Session.Image.Frames)
             {
-                var frameRect = new Rect(Styles.kMargin,
-                    Styles.kMargin + (frameIndex * Styles.kFramePreviewSize),
-                    Styles.kFramePreviewSize, 
-                    Styles.kFramePreviewSize);
                 var tex = frame.Texture;
-                GUI.Box(frameRect, "", Styles.pixBox);
-                GUI.DrawTexture(frameRect, tex);
+                var frameRect = GUILayoutUtility.GetRect(Styles.kFramePreviewSize, Styles.kFramePreviewWidth, Styles.pixBox, GUILayout.Height(Styles.kFramePreviewSize));
+                GUI.Box(frameRect, "", frameIndex == m_Session.CurrentFrameIndex ? Styles.selectedPixBox : Styles.pixBox);
+                GUI.DrawTexture(frameRect, tex, ScaleMode.ScaleToFit);
 
                 if (frameRect.Contains(Event.current.mousePosition))
                 {
@@ -510,13 +503,14 @@ namespace UniPix
                 ++frameIndex;
             }
 
-            if (GUI.Button(addFrameRect, "New Frame"))
+            if (GUILayout.Button("New Frame"))
             {
                 UniPixCommands.NewFrame(m_Session);
                 Repaint();
                 GUIUtility.ExitGUI();
             }
-            GUI.EndScrollView();
+            GUILayout.EndScrollView();
+            GUILayout.EndArea();
         }
 
         private void DrawColorSwitcher()
@@ -652,7 +646,7 @@ namespace UniPix
             else
             {
                 GUI.Box(frameRect, "", Styles.pixBox);
-                GUI.DrawTexture(frameRect, tex);
+                GUI.DrawTexture(frameRect, tex, ScaleMode.ScaleToFit);
                 if (Event.current.type == EventType.MouseDown && frameRect.Contains(Event.current.mousePosition))
                 {
                     Event.current.Use();
@@ -834,15 +828,13 @@ namespace UniPix
             GetWindow<PixEditor>();
         }
 
-        [MenuItem("Tools/Reload Editor Asset Bundle", false, 17000)]
-        static void ReloadEditorResourcesBundle()
+        [MenuItem("Tools/Refresh Styles &r")]
+        internal static void RefreshStyles()
         {
-            Console.Clear();
-            AssetDatabase.Refresh();
             Unsupported.ClearSkinCache();
-            InternalEditorUtility.RepaintAllViews();
             InternalEditorUtility.RequestScriptReload();
-            Debug.Log("I feel refreshed Jim!");
+            InternalEditorUtility.RepaintAllViews();
+            Debug.Log("Style refreshed");
         }
     }
 }

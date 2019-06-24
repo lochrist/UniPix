@@ -1,5 +1,7 @@
 .pixbox {
 	border: 2px solid rgb(175, 175, 175);
-	padding: 2px 2px 2px 2px;
-	margin: 5px 5px 5px 5px;
+}
+
+.selected-pixbox {
+	border: 2px solid rgb(255, 215, 0);
 }

@@ -3,6 +3,10 @@
 Pixel Art Editor for Unity
 
 TODO
+* Size of the right area is not right
+* Proper UI for Brush size + opacity
+* Redo all ui with proper styles and margin and layout
+* Ensure creation of image allows speciying the size of the image + allow resize of image
 * Undo/Redo
     * Add to createAsset menu (See Damian prez)
 * UI beautify:
@@ -12,16 +16,12 @@ TODO
     * Color swapper needs border
     * tooltips
 	* Use style with actual margin (is it possible to remove kMargin?)
-* Export
+* Import/Export : to clarify goals. should at least make editing of game assets possible
     * export as gif
     * export as spritesheet
-* Import
-* Workflow with sprites:
-    * How to "bind" to a sprite?
-    * Generate the spritesheet on import of the asset?
-* Palette:
-	* Do we want to have palette as a separate asset?
-	* See https://worms2d.info/Palette_file
+    * Workflow with sprites:
+        * How to "bind" to a sprite?
+        * Generate the spritesheet on import of the asset?
 * Mode:
     * Its own menu
     * its own layout? or single window?
@@ -32,9 +32,6 @@ TODO
     * Open in isolation
 	* validate drag and drop from another project
 	* Add Right click on asset: open in UniPix
-* UIElements:
-	* create ui with uielements and benchmark
-	* benchmark current ui code
 * Tools:
     * Bucket filler
     * Mirror?
@@ -47,6 +44,17 @@ TODO
         * copy + paste
     * Palette switcher:
         * switch palette and apply palette to image: all colors are replaced with colors from the other palette?
+
+If time:
+* UIElements:
+	* create ui with uielements and benchmark
+	* benchmark current ui code
+
+
+Not for hackweek:
+* Palette:
+	* Do we want to have palette as a separate asset?
+	* See https://worms2d.info/Palette_file
 
 
 Features:
