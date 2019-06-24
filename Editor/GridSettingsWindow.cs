@@ -45,12 +45,15 @@ namespace UniPix
                     s_Editor.Repaint();
                 }
 
+                GUILayout.BeginHorizontal();
+                GUILayout.Label($"Size {s_Editor.Session.GridSize}", GUILayout.ExpandWidth(false));
                 EditorGUI.BeginChangeCheck();
-                s_Editor.Session.GridSize = Mathf.Clamp(EditorGUILayout.IntField("Size", s_Editor.Session.GridSize), 1, 5);
+                s_Editor.Session.GridSize = (int)GUILayout.HorizontalSlider(s_Editor.Session.GridSize, 1, 6, GUILayout.ExpandWidth(true));
                 if (EditorGUI.EndChangeCheck())
                 {
                     s_Editor.Repaint();
                 }
+                GUILayout.EndHorizontal();
 
                 EditorGUI.BeginChangeCheck();
                 s_Editor.Session.GridColor = EditorGUILayout.ColorField("Color", s_Editor.Session.GridColor);
@@ -58,6 +61,7 @@ namespace UniPix
                 {
                     s_Editor.Repaint();
                 }
+
                 EditorGUIUtility.labelWidth = oldLabelWidth;
                 EditorGUIUtility.fieldWidth = oldFieldWidth;
                 GUILayout.FlexibleSpace();

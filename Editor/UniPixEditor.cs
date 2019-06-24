@@ -407,27 +407,31 @@ namespace UniPix
                     }
                 }
 
+                using (new GUILayout.HorizontalScope())
+                {
+                    GUILayout.Label($"Opacity {(int)(Session.CurrentLayer.Opacity * 100)}%", GUILayout.ExpandWidth(false));
+                    EditorGUI.BeginChangeCheck();
+                    var opacity = GUILayout.HorizontalSlider(Session.CurrentLayer.Opacity, 0, 1, GUILayout.ExpandWidth(true));
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        UniPixCommands.SetLayerOpacity(Session, Session.CurrentLayerIndex, opacity);
+                        Repaint();
+                    }
+                }
+
                 for (var i = Session.CurrentFrame.Layers.Count - 1; i >= 0; i--)
                 {
                     var layer = Session.CurrentFrame.Layers[i];
                     GUILayout.BeginHorizontal();
 
-                    if (GUILayout.Button(layer.Name, i == Session.CurrentLayerIndex ? Styles.currentLayerName : Styles.layerName))
+                    if (GUILayout.Button(layer.Name, i == Session.CurrentLayerIndex ? Styles.currentLayerName : Styles.layerName, GUILayout.ExpandWidth(true)))
                     {
                         UniPixCommands.SetCurrentLayer(Session, i);
                         Repaint();
                     }
 
                     EditorGUI.BeginChangeCheck();
-                    var opacity = Mathf.Clamp(EditorGUILayout.FloatField(layer.Opacity, Styles.layerOpacity), 0f, 1f);
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        UniPixCommands.SetLayerOpacity(Session, i, opacity);
-                        Repaint();
-                    }
-
-                    EditorGUI.BeginChangeCheck();
-                    var isLayerVisible = EditorGUILayout.Toggle(layer.Visible, Styles.layerVisible);
+                    var isLayerVisible = GUILayout.Toggle(layer.Visible, "", Styles.layerVisible);
                     if (EditorGUI.EndChangeCheck())
                     {
                         UniPixCommands.SetLayerVisibility(Session, i, isLayerVisible);
@@ -444,9 +448,15 @@ namespace UniPix
         private void DrawToolPalette()
         {
             GUILayout.BeginArea(m_ToolsPaletteRect);
+
+            GUILayout.Label("Brush Size", Styles.layerHeader);
+            GUILayout.BeginHorizontal();
+            GUILayout.Label($"{Session.BrushSize}", GUILayout.ExpandWidth(false));
+            Session.BrushSize = (int)GUILayout.HorizontalSlider(Session.BrushSize, 1, 6, GUILayout.ExpandWidth(true));
+            GUILayout.EndHorizontal();
+
             GUILayout.Label("Tools", Styles.layerHeader);
 
-            Session.BrushSize = Mathf.Clamp(EditorGUILayout.IntField("Brush", Session.BrushSize, Styles.brushSizeStyle), 1, 5);
             var toolsRect = GUILayoutUtility.GetRect(m_ToolsPaletteRect.width, 100);
             var nbRows = (m_Tools.Length / Styles.kNbToolsPerRow) + 1;
             var toolIndex = 0;
@@ -672,8 +682,7 @@ namespace UniPix
             var labelRect = new Rect(frameRect.x, frameRect.yMax, 35, 15);
             GUI.Label(labelRect, $"{Session.PreviewFps}fps");
             Session.PreviewFps = (int)GUI.HorizontalSlider(new Rect(labelRect.xMax, labelRect.y,
-                    frameRect.width - labelRect.width - Styles.kMargin, labelRect.height), 
-                Session.PreviewFps, 0, 24);
+                    frameRect.width - labelRect.width - Styles.kMargin, labelRect.height), Session.PreviewFps, 0, 24);
         }
 
         private void DrawColorPalette()
@@ -762,40 +771,6 @@ namespace UniPix
             Session.IsDebugDraw = GUILayout.Toggle(Session.IsDebugDraw, "Debug");
 
             GUILayout.EndHorizontal();
-            GUILayout.EndArea();
-        }
-
-        private void DrawDebugStuff()
-        {
-            GUILayout.BeginArea(m_DebugAreaRect);
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Pow");
-            Session.CurrentLayer.Opacity = EditorGUILayout.FloatField(Session.CurrentLayer.Opacity);
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            var oldLabelWidth = EditorGUIUtility.labelWidth;
-            var oldFieldWidth = EditorGUIUtility.fieldWidth;
-            EditorGUIUtility.labelWidth = 45;
-            EditorGUIUtility.fieldWidth = 45;
-            Session.CurrentLayer.Opacity = EditorGUILayout.FloatField("field", Session.CurrentLayer.Opacity);
-            EditorGUIUtility.labelWidth = oldLabelWidth;
-            EditorGUIUtility.fieldWidth = oldFieldWidth;
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-
-
-            oldLabelWidth = EditorGUIUtility.labelWidth;
-            oldFieldWidth = EditorGUIUtility.fieldWidth;
-            EditorGUIUtility.labelWidth = 45;
-            EditorGUIUtility.fieldWidth = 75;
-            Session.CurrentLayer.Opacity = EditorGUILayout.Slider(new GUIContent("ping"), Session.CurrentLayer.Opacity, 0, 1);
-            EditorGUIUtility.labelWidth = oldLabelWidth;
-            EditorGUIUtility.fieldWidth = oldFieldWidth;
-
-            Session.CurrentLayer.Opacity = GUILayout.HorizontalSlider(Session.CurrentLayer.Opacity, 0, 1);
-
             GUILayout.EndArea();
         }
 
