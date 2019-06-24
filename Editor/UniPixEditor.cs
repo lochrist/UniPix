@@ -61,6 +61,7 @@ namespace UniPix
         public float PreviewTimer;
 
         public Vector2 FrameScroll = new Vector2(0, 0);
+        public Vector2 RightPanelScroll = new Vector2(0, 0);
         public bool IsDebugDraw;
     }
 
@@ -81,6 +82,7 @@ namespace UniPix
         Rect m_ToolsPaletteRect;
         Rect m_FramePreviewRect;
         Rect m_DebugAreaRect;
+        Rect m_RightPanelRect;
         Texture2D m_TransparentTex;
         System.Diagnostics.Stopwatch m_Timer = new System.Diagnostics.Stopwatch();
 
@@ -96,7 +98,7 @@ namespace UniPix
             public const float kToolPaletteWidth = 100;
             public const float kFramePreviewWidth = 100;
             public const float kLeftPanelWidth = kToolPaletteWidth + kFramePreviewWidth;
-            public const float kLayerWidth = 200;
+            public const float kRightPanelWidth = 200;
             public const float kToolbarHeight = 25;
             public const float kStatusbarHeight = 35;
             public const float kColorSwatchSize = 40;
@@ -245,28 +247,43 @@ namespace UniPix
 
         private void ComputeLayout()
         {
-            m_ToolbarRect = new Rect(Styles.kMargin, Styles.kMargin, position.width - 2*Styles.kMargin, Styles.kToolbarHeight);
-            m_AnimPreviewRect = new Rect(Styles.kMargin, m_ToolbarRect.yMax + Styles.kMargin, Styles.kFramePreviewWidth, Styles.kFramePreviewWidth);
-            m_ToolsPaletteRect = new Rect(Styles.kMargin, m_AnimPreviewRect.yMax + 10 + Styles.kMargin, Styles.kToolPaletteWidth, Styles.kLayerRectHeight);
-            m_FramePreviewRect = new Rect(
-                m_ToolsPaletteRect.xMax + Styles.kMargin, 
-                m_ToolbarRect.yMax + Styles.kMargin, 
-                Styles.kFramePreviewWidth, 
-                position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight - 2 * Styles.kMargin);
-            m_CanvasRect = new Rect(m_FramePreviewRect.xMax + Styles.kMargin, 
-                m_ToolbarRect.yMax + Styles.kMargin,
-                position.width - Styles.kLeftPanelWidth - Styles.kLayerWidth, 
-                position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight - 2 * Styles.kMargin);
-            m_StatusRect = new Rect(m_CanvasRect.x, m_CanvasRect.yMax + Styles.kMargin, m_CanvasRect.width, Styles.kStatusbarHeight);
+            var verticalMaxHeight = position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight;
 
-            const float kRightPanelWidth = Styles.kLayerWidth - 2 * Styles.kMargin;
-            m_LayerRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_CanvasRect.y, kRightPanelWidth - Styles.kMargin, Styles.kLayerRectHeight);
+            m_ToolbarRect = new Rect(0, 0, position.width, Styles.kToolbarHeight);
+            { // Column 1
+                m_AnimPreviewRect = new Rect(0, m_ToolbarRect.yMax, Styles.kFramePreviewWidth, Styles.kFramePreviewWidth);
+                const int kToolsSpacing = 10;
+                m_ToolsPaletteRect = new Rect(0, m_AnimPreviewRect.yMax + kToolsSpacing, Styles.kToolPaletteWidth, Styles.kLayerRectHeight);
+            }
 
-            m_ColorPaletteRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_LayerRect.yMax + Styles.kMargin, kRightPanelWidth - Styles.kMargin, Styles.kLayerRectHeight);
+            { // Column 2
+                m_FramePreviewRect = new Rect(
+                    m_ToolsPaletteRect.xMax,
+                    m_ToolbarRect.yMax,
+                    Styles.kFramePreviewWidth,
+                    verticalMaxHeight);
+            }
 
-            m_SettingsRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_ColorPaletteRect.yMax + Styles.kMargin, kRightPanelWidth - Styles.kMargin, Styles.kSettingsHeight);
+            { // Column 3
+                m_CanvasRect = new Rect(m_FramePreviewRect.xMax + Styles.kMargin,
+                    m_ToolbarRect.yMax + Styles.kMargin,
+                    position.width - Styles.kLeftPanelWidth - Styles.kRightPanelWidth - 2*Styles.kMargin,
+                    verticalMaxHeight);
 
-            m_DebugAreaRect = new Rect(m_SettingsRect.x, m_SettingsRect.yMax + Styles.kMargin, m_SettingsRect.width, position.height - m_SettingsRect.yMax);
+                m_StatusRect = new Rect(m_CanvasRect.x, m_CanvasRect.yMax, m_CanvasRect.width, Styles.kStatusbarHeight);
+            }
+
+            { // Column 4
+                m_RightPanelRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_CanvasRect.y, Styles.kRightPanelWidth, verticalMaxHeight);
+
+                m_LayerRect = new Rect(m_RightPanelRect.x, m_RightPanelRect.y, m_RightPanelRect.width, Styles.kLayerRectHeight);
+
+                m_ColorPaletteRect = new Rect(m_RightPanelRect.x, m_LayerRect.yMax, m_RightPanelRect.width, Styles.kLayerRectHeight);
+
+                m_SettingsRect = new Rect(m_RightPanelRect.x, m_ColorPaletteRect.yMax, m_RightPanelRect.width, Styles.kSettingsHeight);
+
+                m_DebugAreaRect = new Rect(m_RightPanelRect.x, m_SettingsRect.yMax, m_RightPanelRect.width, verticalMaxHeight - m_SettingsRect.yMax);
+            }
         }
 
         private void DrawDebugArea()

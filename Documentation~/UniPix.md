@@ -3,10 +3,10 @@
 Pixel Art Editor for Unity
 
 TODO
-* Size of the right area is not right
-* Proper UI for Brush size + opacity
 * Redo all ui with proper styles and margin and layout
+* Proper UI for Brush size + opacity
 * Ensure creation of image allows speciying the size of the image + allow resize of image
+* Rename layers
 * Undo/Redo
     * Add to createAsset menu (See Damian prez)
 * UI beautify:
