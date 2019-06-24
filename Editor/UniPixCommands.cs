@@ -56,14 +56,9 @@ namespace UniPix
 
             session.CurrentFrameIndex = 0;
             session.CurrentLayerIndex = 0;
-            
             session.PreviewFrameIndex = 0;
 
-            session.Palette = new Palette();
-            UniPixUtils.ExtractPaletteFrom(session.CurrentFrame, session.Palette.Colors);
-
-            session.CurrentColor = session.Palette.Colors.Count > 0 ? session.Palette.Colors[0] : Color.black;
-            session.SecondaryColor = session.Palette.Colors.Count > 1 ? session.Palette.Colors[1] : Color.white;
+            OnNewFrame(session);
 
             return true;
         }
@@ -131,6 +126,7 @@ namespace UniPix
         public static void SetCurrentFrame(SessionData session, int frameIndex)
         {
             session.CurrentFrameIndex = frameIndex;
+            OnNewFrame(session);
         }
 
         public static void SetCurrentLayer(SessionData session, int layerIndex)
@@ -318,6 +314,16 @@ namespace UniPix
                     session.ImageTitle += "*";
                 }
             }
+        }
+
+        private static void OnNewFrame(SessionData session)
+        {
+            session.CurrentLayerIndex = 0;
+            session.Palette = new Palette();
+            UniPixUtils.ExtractPaletteFrom(session.CurrentFrame, session.Palette.Colors);
+
+            session.CurrentColor = session.Palette.Colors.Count > 0 ? session.Palette.Colors[0] : Color.black;
+            session.SecondaryColor = session.Palette.Colors.Count > 1 ? session.Palette.Colors[1] : Color.white;
         }
         #endregion
     }

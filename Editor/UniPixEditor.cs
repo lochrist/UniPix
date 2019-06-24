@@ -239,14 +239,13 @@ namespace UniPix
                 DrawPixEditor();
 
                 GUILayout.BeginArea(m_RightPanelRect);
-                GUILayout.BeginScrollView(m_Session.RightPanelScroll);
+                m_Session.RightPanelScroll = GUILayout.BeginScrollView(m_Session.RightPanelScroll);
                 DrawLayers();
                 DrawColorPalette();
                 DrawSettings();
+                // DrawDebugStuff();
                 GUILayout.EndScrollView();
                 GUILayout.EndArea();
-
-                // DrawDebugStuff();
                 DrawStatus();
             }
         }
@@ -767,14 +766,19 @@ namespace UniPix
 
         private void DrawSettings()
         {
-            GUILayout.BeginArea(m_SettingsRect, Styles.pixBox);
-
-            GUILayout.Label("Show", Styles.layerHeader);
-            m_ShowGrid = GUILayout.Toggle(m_ShowGrid, "Grid");
-            m_GridSize = Mathf.Clamp(EditorGUILayout.IntField("Size", m_GridSize), 1, 5);
-            m_GridColor = EditorGUILayout.ColorField("Color", m_GridColor);
-
-            GUILayout.EndArea();
+            using (new EditorGUILayout.VerticalScope(Styles.pixBox))
+            {
+                GUILayout.Label("Show", Styles.layerHeader);
+                var oldLabelWidth = EditorGUIUtility.labelWidth;
+                var oldFieldWidth = EditorGUIUtility.fieldWidth;
+                EditorGUIUtility.labelWidth = 45;
+                EditorGUIUtility.fieldWidth = 45;
+                m_ShowGrid = GUILayout.Toggle(m_ShowGrid, "Grid");
+                m_GridSize = Mathf.Clamp(EditorGUILayout.IntField("Size", m_GridSize), 1, 5);
+                m_GridColor = EditorGUILayout.ColorField("Color", m_GridColor);
+                EditorGUIUtility.labelWidth = oldLabelWidth;
+                EditorGUIUtility.fieldWidth = oldFieldWidth;
+            }
         }
 
         private void DrawDebugStuff()
