@@ -170,6 +170,26 @@ namespace UniPix
             DirtyImage(session);
         }
 
+        public static void CloneFrame(SessionData session, int frameIndex)
+        {
+            var toClone = session.Image.Frames[frameIndex];
+            var clone = session.Image.AddFrame(frameIndex + 1);
+            for (int i = 0; i < toClone.Layers.Count; i++)
+            {
+                if (i >= clone.Layers.Count)
+                {
+                    clone.AddLayer();
+                }
+
+                var srcLayer = toClone.Layers[i];
+                var dstLayer = clone.Layers[i];
+                CopyLayer(srcLayer, dstLayer);
+            }
+
+            session.CurrentFrameIndex = frameIndex + 1;
+            DirtyImage(session);
+        }
+
         public static void CreateLayer(SessionData session)
         {
             session.CurrentFrame.AddLayer(session.CurrentLayerIndex + 1);
@@ -180,11 +200,11 @@ namespace UniPix
         public static void CloneLayer(SessionData session)
         {
             var clonedLayer = session.CurrentFrame.AddLayer(session.CurrentLayerIndex + 1);
+            var clonedLayerName = clonedLayer.Name;
             var currentLayer = session.CurrentLayer;
-            for (int i = 0; i < currentLayer.Pixels.Length; i++)
-            {
-                clonedLayer.Pixels[i] = currentLayer.Pixels[i];
-            }
+            CopyLayer(currentLayer, clonedLayer);
+            clonedLayer.Name = clonedLayerName;
+
             session.CurrentLayerIndex = session.CurrentLayerIndex + 1;
             DirtyImage(session);
         }
@@ -257,6 +277,19 @@ namespace UniPix
         #endregion
 
         #region Impl
+
+        private static void CopyLayer(Layer srcLayer, Layer dstLayer)
+        {
+            dstLayer.Locked = srcLayer.Locked;
+            dstLayer.Visible = srcLayer.Visible;
+            dstLayer.Name = srcLayer.Name;
+            dstLayer.Opacity = srcLayer.Opacity;
+            for (int i = 0; i < srcLayer.Pixels.Length; i++)
+            {
+                dstLayer.Pixels[i] = srcLayer.Pixels[i];
+            }
+        }
+
         private static void DirtyImage(SessionData session)
         {
             session.CurrentFrame.UpdateFrame();

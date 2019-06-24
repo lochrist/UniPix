@@ -22,10 +22,13 @@ namespace UniPix
             Frames = new List<Frame>();
         }
 
-        public Frame AddFrame()
+        public Frame AddFrame(int insertionPoint = -1)
         {
             var frame = new Frame(Width, Height);
-            Frames.Add(frame);
+            if (insertionPoint == -1)
+                Frames.Add(frame);
+            else
+                Frames.Insert(insertionPoint, frame);
             return frame;
         }
 

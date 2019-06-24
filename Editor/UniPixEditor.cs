@@ -298,14 +298,14 @@ namespace UniPix
                     {
                         UniPixCommands.CreateLayer(m_Session);
                         Repaint();
-                        EditorGUIUtility.ExitGUI();
+                        GUIUtility.ExitGUI();
                     }
 
                     if (GUILayout.Button("Cl", Styles.layerToolbarBtn))
                     {
                         UniPixCommands.CloneLayer(m_Session);
                         Repaint();
-                        EditorGUIUtility.ExitGUI();
+                        GUIUtility.ExitGUI();
                     }
 
                     using (new EditorGUI.DisabledScope(m_Session.CurrentLayerIndex == m_Session.CurrentFrame.Layers.Count - 1))
@@ -314,7 +314,7 @@ namespace UniPix
                         {
                             UniPixCommands.SwapLayers(m_Session, m_Session.CurrentLayerIndex, m_Session.CurrentLayerIndex + 1);
                             Repaint();
-                            EditorGUIUtility.ExitGUI();
+                            GUIUtility.ExitGUI();
                         }
                     }
 
@@ -324,14 +324,14 @@ namespace UniPix
                         {
                             UniPixCommands.SwapLayers(m_Session, m_Session.CurrentLayerIndex, m_Session.CurrentLayerIndex - 1);
                             Repaint();
-                            EditorGUIUtility.ExitGUI();
+                            GUIUtility.ExitGUI();
                         }
 
                         if (GUILayout.Button("Mer", Styles.layerToolbarBtn))
                         {
                             UniPixCommands.MergeLayers(m_Session, m_Session.CurrentLayerIndex, m_Session.CurrentLayerIndex - 1);
                             Repaint();
-                            EditorGUIUtility.ExitGUI();
+                            GUIUtility.ExitGUI();
                         }
                     }
 
@@ -339,7 +339,7 @@ namespace UniPix
                     {
                         UniPixCommands.DeleteLayer(m_Session);
                         Repaint();
-                        EditorGUIUtility.ExitGUI();
+                        GUIUtility.ExitGUI();
                     }
                 }
 
@@ -411,11 +411,7 @@ namespace UniPix
 
         private void DrawFrames()
         {
-            // TODO
-            // Add frames
-            // Clone frames (shift + N)
-            // reorder frames
-
+            // TODO: reorder frames
             var framesRect = new Rect(0, 0, 
                 Styles.kFramePreviewWidth - Styles.scrollbarWidth,
                 Styles.kMargin + (Styles.kFramePreviewSize + Styles.kMargin) * m_Session.Image.Frames.Count
@@ -431,8 +427,8 @@ namespace UniPix
                 framesRect.height + addFrameRect.height + Styles.kMargin);
 
             m_Session.FrameScroll = GUI.BeginScrollView(m_FramePreviewRect, m_Session.FrameScroll, viewRect);
-            int frameIndex = 0;
-            bool eventUsed = false;
+            var frameIndex = 0;
+            var eventUsed = false;
             foreach (var frame in m_Session.Image.Frames)
             {
                 var frameRect = new Rect(Styles.kMargin,
@@ -446,17 +442,18 @@ namespace UniPix
                 {
                     if (GUI.Button(new Rect(frameRect.x + Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), "C", EditorStyles.miniButton))
                     {
+                        UniPixCommands.CloneFrame(m_Session, frameIndex);
+                        Repaint();
+                        GUIUtility.ExitGUI();
                         eventUsed = true;
-                        // Copy frame
                     }
 
                     if (GUI.Button(new Rect(frameRect.xMax - Styles.kFramePreviewBtn - Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), "D", EditorStyles.miniButton))
                     {
                         UniPixCommands.DeleteFrame(m_Session, frameIndex);
                         Repaint();
-                        EditorGUIUtility.ExitGUI();
+                        GUIUtility.ExitGUI();
                         eventUsed = true;
-                        // Delete frame
                     }
                 }
 
@@ -464,18 +461,17 @@ namespace UniPix
                 {
                     UniPixCommands.SetCurrentFrame(m_Session, frameIndex);
                     Repaint();
-                    EditorGUIUtility.ExitGUI();
+                    GUIUtility.ExitGUI();
                 }
 
                 ++frameIndex;
             }
 
-            
             if (GUI.Button(addFrameRect, "New Frame"))
             {
                 UniPixCommands.NewFrame(m_Session);
                 Repaint();
-                EditorGUIUtility.ExitGUI();
+                GUIUtility.ExitGUI();
             }
             GUI.EndScrollView();
         }
@@ -484,8 +480,6 @@ namespace UniPix
         {
             var primaryColorRect = new Rect(10, position.height - Styles.kStatusbarHeight - (2*Styles.kColorSwatchSize), Styles.kColorSwatchSize, Styles.kColorSwatchSize);
             var secondaryColorRect = new Rect(primaryColorRect.xMax - 15, primaryColorRect.yMax - 15, Styles.kColorSwatchSize, Styles.kColorSwatchSize);
-
-            // TODO: check if the color is in the current palette or not?
 
             m_Session.SecondaryColor = EditorGUI.ColorField(secondaryColorRect, new GUIContent(""), m_Session.SecondaryColor, false, false, false);
             m_Session.CurrentColor = EditorGUI.ColorField(primaryColorRect, new GUIContent(""), m_Session.CurrentColor, false, false, false);
@@ -515,7 +509,7 @@ namespace UniPix
                                 DragAndDrop.AcceptDrag();
                                 Event.current.Use();
                                 UniPixCommands.LoadPix(m_Session, paths);
-                                EditorGUIUtility.ExitGUI();
+                                GUIUtility.ExitGUI();
                             }
                         }
                         break;
@@ -578,7 +572,7 @@ namespace UniPix
 
         private void DrawGrid()
         {
-            // TODO: is it possible to have a trasnparent texture that maps with the grid.
+            // TODO: is it possible to have a transparent texture that maps pixel perfect to the grid with the grid.
 
             for (int x = 0; x <= m_Session.Image.Width; x += m_GridSize)
             {
