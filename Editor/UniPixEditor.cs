@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 namespace UniPix
@@ -523,7 +525,10 @@ namespace UniPix
             var secondaryColorRect = new Rect(primaryColorRect.xMax - 15, primaryColorRect.yMax - 15, Styles.kColorSwatchSize, Styles.kColorSwatchSize);
 
             m_Session.SecondaryColor = EditorGUI.ColorField(secondaryColorRect, new GUIContent(""), m_Session.SecondaryColor, false, false, false);
+            GUI.Box(secondaryColorRect, "", Styles.pixBox);
+
             m_Session.CurrentColor = EditorGUI.ColorField(primaryColorRect, new GUIContent(""), m_Session.CurrentColor, false, false, false);
+            GUI.Box(primaryColorRect, "", Styles.pixBox);
         }
 
         private void DrawPixEditor()
@@ -828,6 +833,16 @@ namespace UniPix
         {
             GetWindow<PixEditor>();
         }
-    }
 
+        [MenuItem("Tools/Reload Editor Asset Bundle", false, 17000)]
+        static void ReloadEditorResourcesBundle()
+        {
+            Console.Clear();
+            AssetDatabase.Refresh();
+            Unsupported.ClearSkinCache();
+            InternalEditorUtility.RepaintAllViews();
+            InternalEditorUtility.RequestScriptReload();
+            Debug.Log("I feel refreshed Jim!");
+        }
+    }
 }
