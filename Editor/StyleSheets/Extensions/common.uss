@@ -1,0 +1,4 @@
+.pixbox {
+	border: 2px solid rgb(175, 175, 175);
+	padding: 2px 2px 2px 2px;
+}

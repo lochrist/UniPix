@@ -8,6 +8,7 @@ namespace UniPix
         readonly Color kCursorColor = new Color(1, 1, 1, 0.5f);
         public string Name;
         public Texture2D Icon;
+        public GUIContent Content;
 
         public static bool IsBrushStroke()
         {
@@ -33,6 +34,7 @@ namespace UniPix
         public BrushTool()
         {
             Name = "Brush";
+            Content = new GUIContent(Icons.pencil, "Brush tool");
         }
 
         public override bool OnEvent(Event current, SessionData session)
@@ -58,6 +60,7 @@ namespace UniPix
         public EraseTool()
         {
             Name = "Erase";
+            Content = new GUIContent(Icons.eraser, "Eraser");
         }
 
         public override bool OnEvent(Event current, SessionData session)

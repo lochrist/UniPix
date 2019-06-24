@@ -64,6 +64,9 @@ namespace UniPix
 
     public class PixEditor : EditorWindow
     {
+        public static string packageName = "com.unity.unipix";
+        public static string packageFolderName = $"Packages/{packageName}";
+
         Rect m_CanvasRect;
         Rect m_StatusRect;
         Rect m_ViewportRect;
@@ -75,6 +78,7 @@ namespace UniPix
         Rect m_SettingsRect;
         Rect m_ToolsPaletteRect;
         Rect m_FramePreviewRect;
+        Rect m_DebugAreaRect;
         Texture2D m_TransparentTex;
         System.Diagnostics.Stopwatch m_Timer = new System.Diagnostics.Stopwatch();
 
@@ -104,6 +108,22 @@ namespace UniPix
             public const int kNbToolsPerRow = (int)kToolPaletteWidth / (int)kToolSize;
             public const int kFramePreviewSize = (int)(kFramePreviewWidth - 2 * kMargin - scrollbarWidth);
 
+            public static GUIContent newLayer = new GUIContent(Icons.plus, "Create new layer");
+            public static GUIContent cloneLayer = new GUIContent(Icons.duplicateLayer, "Duplicate layer");
+            public static GUIContent moveLayerUp = new GUIContent(Icons.arrowUp, "Move layer up");
+            public static GUIContent moveLayerDown = new GUIContent(Icons.arrowDown, "Move layer down");
+            public static GUIContent mergeLayer = new GUIContent(Icons.mergeLayer, "Merge layer");
+            public static GUIContent deleteLayer = new GUIContent(Icons.x, "Delete layer");
+
+            public static GUIContent cloneFrame = new GUIContent(Icons.duplicateLayer, "Clone frame");
+            public static GUIContent deleteFrame = new GUIContent(Icons.x, "Delete frame");
+
+            public static GUIContent brushTool = new GUIContent(Icons.pencil, "Brush");
+            public static GUIContent eraserTool = new GUIContent(Icons.eraser, "Eraser");
+
+            // public static GUIContent layerVisible = new GUIContent(Icons.eye, "Layer Visibility");
+            // public static GUIContent layerNotVisible = new GUIContent(Icons.eyeClosed, "Layer Visibility");
+
             public static GUIStyle brushSizeStyle = new GUIStyle(EditorStyles.numberField)
             {
                 fixedWidth = 50
@@ -116,15 +136,28 @@ namespace UniPix
             public static GUIStyle layerLocked = new GUIStyle(EditorStyles.toggle);
             public static GUIStyle layerToolbarBtn = new GUIStyle(EditorStyles.miniButton)
             {
+                // name = "layerToolbarBtn",
                 margin = new RectOffset(0, 0, 0, 0),
                 padding = new RectOffset(0, 0, 0, 0),
                 fixedWidth = 25,
                 fixedHeight = 25
             };
 
+            public static GUIStyle frameBtn = new GUIStyle(EditorStyles.miniButton)
+            {
+                // name = "fameBtn",
+                margin = new RectOffset(0, 0, 0, 0),
+                padding = new RectOffset(2, 2, 2, 2)
+            };
+
             public static GUIStyle statusLabel = new GUIStyle(EditorStyles.label)
             {
                 richText = true
+            };
+
+            public static GUIStyle pixBox = new GUIStyle()
+            {
+                name = "pixbox"
             };
 
             static Styles()
@@ -194,6 +227,7 @@ namespace UniPix
                 DrawLayers();
                 DrawColorPalette();
                 DrawSettings();
+                DrawDebugStuff();
                 DrawStatus();
             }
         }
@@ -220,6 +254,8 @@ namespace UniPix
             m_ColorPaletteRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_LayerRect.yMax + Styles.kMargin, kRightPanelWidth - Styles.kMargin, Styles.kLayerRectHeight);
 
             m_SettingsRect = new Rect(m_CanvasRect.xMax + Styles.kMargin, m_ColorPaletteRect.yMax + Styles.kMargin, kRightPanelWidth - Styles.kMargin, Styles.kSettingsHeight);
+
+            m_DebugAreaRect = new Rect(m_SettingsRect.x, m_SettingsRect.yMax + Styles.kMargin, m_SettingsRect.width, position.height - m_SettingsRect.yMax);
         }
 
         private void DrawDebugArea()
@@ -233,9 +269,11 @@ namespace UniPix
             DrawDebugRect(m_LayerRect, "layer", Color.cyan);
             DrawDebugRect(m_ColorPaletteRect, "palette", Color.gray);
             DrawDebugRect(m_SettingsRect, "settings", Color.blue);
+
+            DrawDebugRect(m_DebugAreaRect, "debug", Color.green);
         }
 
-        private void DrawDebugRect(Rect rect, string title, Color c)
+        private static void DrawDebugRect(Rect rect, string title, Color c)
         {
             EditorGUI.DrawRect(rect, c);
             GUI.Label(rect, title);
@@ -288,20 +326,20 @@ namespace UniPix
 
         private void DrawLayers()
         {
-            GUILayout.BeginArea(m_LayerRect);
+            GUILayout.BeginArea(m_LayerRect, Styles.pixBox);
             using (new GUILayout.VerticalScope())
             {
                 GUILayout.Label("Layers", Styles.layerHeader);
                 using (new GUILayout.HorizontalScope())
                 {
-                    if (GUILayout.Button("Cr", Styles.layerToolbarBtn))
+                    if (GUILayout.Button(Styles.newLayer, Styles.layerToolbarBtn))
                     {
                         UniPixCommands.CreateLayer(m_Session);
                         Repaint();
                         GUIUtility.ExitGUI();
                     }
 
-                    if (GUILayout.Button("Cl", Styles.layerToolbarBtn))
+                    if (GUILayout.Button(Styles.cloneLayer, Styles.layerToolbarBtn))
                     {
                         UniPixCommands.CloneLayer(m_Session);
                         Repaint();
@@ -310,7 +348,7 @@ namespace UniPix
 
                     using (new EditorGUI.DisabledScope(m_Session.CurrentLayerIndex == m_Session.CurrentFrame.Layers.Count - 1))
                     {
-                        if (GUILayout.Button("Up", Styles.layerToolbarBtn))
+                        if (GUILayout.Button(Styles.moveLayerUp, Styles.layerToolbarBtn))
                         {
                             UniPixCommands.SwapLayers(m_Session, m_Session.CurrentLayerIndex, m_Session.CurrentLayerIndex + 1);
                             Repaint();
@@ -320,14 +358,14 @@ namespace UniPix
 
                     using (new EditorGUI.DisabledScope(m_Session.CurrentLayerIndex == 0))
                     {
-                        if (GUILayout.Button("Dw", Styles.layerToolbarBtn))
+                        if (GUILayout.Button(Styles.moveLayerDown, Styles.layerToolbarBtn))
                         {
                             UniPixCommands.SwapLayers(m_Session, m_Session.CurrentLayerIndex, m_Session.CurrentLayerIndex - 1);
                             Repaint();
                             GUIUtility.ExitGUI();
                         }
 
-                        if (GUILayout.Button("Mer", Styles.layerToolbarBtn))
+                        if (GUILayout.Button(Styles.mergeLayer, Styles.layerToolbarBtn))
                         {
                             UniPixCommands.MergeLayers(m_Session, m_Session.CurrentLayerIndex, m_Session.CurrentLayerIndex - 1);
                             Repaint();
@@ -335,7 +373,7 @@ namespace UniPix
                         }
                     }
 
-                    if (GUILayout.Button("Del", Styles.layerToolbarBtn))
+                    if (GUILayout.Button(Styles.deleteLayer, Styles.layerToolbarBtn))
                     {
                         UniPixCommands.DeleteLayer(m_Session);
                         Repaint();
@@ -396,7 +434,7 @@ namespace UniPix
                         break;
                     var tool = m_Tools[toolIndex];
                     var toolRect = new Rect(Styles.kMargin + toolColumn * (Styles.kMargin + Styles.kToolSize), toolY, Styles.kToolSize, Styles.kToolSize);
-                    if (GUI.Toggle(toolRect, tool == m_CurrentTool, tool.Name.Substring(0, 2), GUI.skin.button))
+                    if (GUI.Toggle(toolRect, tool == m_CurrentTool, tool.Content, GUI.skin.button))
                     {
                         m_CurrentTool = tool;
                     }
@@ -436,11 +474,13 @@ namespace UniPix
                     Styles.kFramePreviewSize, 
                     Styles.kFramePreviewSize);
                 var tex = frame.Texture;
+                GUI.Box(frameRect, "", Styles.pixBox);
                 GUI.DrawTexture(frameRect, tex);
 
                 if (frameRect.Contains(Event.current.mousePosition))
                 {
-                    if (GUI.Button(new Rect(frameRect.x + Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), "C", EditorStyles.miniButton))
+                    if (GUI.Button(new Rect(frameRect.x + Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, 
+                        Styles.kFramePreviewBtn), Styles.cloneFrame, Styles.frameBtn))
                     {
                         UniPixCommands.CloneFrame(m_Session, frameIndex);
                         Repaint();
@@ -448,7 +488,8 @@ namespace UniPix
                         eventUsed = true;
                     }
 
-                    if (GUI.Button(new Rect(frameRect.xMax - Styles.kFramePreviewBtn - Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), "D", EditorStyles.miniButton))
+                    if (GUI.Button(new Rect(frameRect.xMax - Styles.kFramePreviewBtn - Styles.kMargin, frameRect.y + Styles.kMargin, 
+                        Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), Styles.deleteFrame, Styles.frameBtn))
                     {
                         UniPixCommands.DeleteFrame(m_Session, frameIndex);
                         Repaint();
@@ -605,6 +646,7 @@ namespace UniPix
             }
             else
             {
+                GUI.Box(frameRect, "", Styles.pixBox);
                 GUI.DrawTexture(frameRect, tex);
                 if (Event.current.type == EventType.MouseDown && frameRect.Contains(Event.current.mousePosition))
                 {
@@ -625,7 +667,7 @@ namespace UniPix
         {
             // Draw Tiles with each different colors in image
             // allow save + load of a palette
-            GUILayout.BeginArea(m_ColorPaletteRect);
+            GUILayout.BeginArea(m_ColorPaletteRect, Styles.pixBox);
             using (new GUILayout.VerticalScope())
             {
                 GUILayout.Label("Palette", Styles.layerHeader);
@@ -708,12 +750,48 @@ namespace UniPix
 
         private void DrawSettings()
         {
-            GUILayout.BeginArea(m_SettingsRect);
+            GUILayout.BeginArea(m_SettingsRect, Styles.pixBox);
 
             GUILayout.Label("Show", Styles.layerHeader);
             m_ShowGrid = GUILayout.Toggle(m_ShowGrid, "Grid");
             m_GridSize = Mathf.Clamp(EditorGUILayout.IntField("Size", m_GridSize), 1, 5);
             m_GridColor = EditorGUILayout.ColorField("Color", m_GridColor);
+
+            GUILayout.EndArea();
+        }
+
+        private void DrawDebugStuff()
+        {
+            GUILayout.BeginArea(m_DebugAreaRect);
+
+            // 
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Pow");
+            m_Session.CurrentLayer.Opacity = EditorGUILayout.FloatField(m_Session.CurrentLayer.Opacity);
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            var oldLabelWidth = EditorGUIUtility.labelWidth;
+            var oldFieldWidth = EditorGUIUtility.fieldWidth;
+            EditorGUIUtility.labelWidth = 45;
+            EditorGUIUtility.fieldWidth = 45;
+            m_Session.CurrentLayer.Opacity = EditorGUILayout.FloatField("field", m_Session.CurrentLayer.Opacity);
+            EditorGUIUtility.labelWidth = oldLabelWidth;
+            EditorGUIUtility.fieldWidth = oldFieldWidth;
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+
+
+            oldLabelWidth = EditorGUIUtility.labelWidth;
+            oldFieldWidth = EditorGUIUtility.fieldWidth;
+            EditorGUIUtility.labelWidth = 45;
+            EditorGUIUtility.fieldWidth = 75;
+            m_Session.CurrentLayer.Opacity = EditorGUILayout.Slider(new GUIContent("ping"), m_Session.CurrentLayer.Opacity, 0, 1);
+            EditorGUIUtility.labelWidth = oldLabelWidth;
+            EditorGUIUtility.fieldWidth = oldFieldWidth;
+
+            m_Session.CurrentLayer.Opacity = GUILayout.HorizontalSlider(m_Session.CurrentLayer.Opacity, 0, 1);
 
             GUILayout.EndArea();
         }
