@@ -288,16 +288,6 @@ namespace UniPix
 
         private void DrawLayers()
         {
-            // TODO: missing layer functs
-            // Add
-            // Delete
-            // Move
-            // Opacity
-            // Hide
-            // Lock
-            // Name
-            // Merge with layer below
-
             GUILayout.BeginArea(m_LayerRect);
             using (new GUILayout.VerticalScope())
             {
@@ -339,7 +329,9 @@ namespace UniPix
 
                         if (GUILayout.Button("Mer", Styles.layerToolbarBtn))
                         {
-
+                            UniPixCommands.MergeLayers(m_Session, m_Session.CurrentLayerIndex, m_Session.CurrentLayerIndex - 1);
+                            Repaint();
+                            EditorGUIUtility.ExitGUI();
                         }
                     }
 
@@ -356,7 +348,6 @@ namespace UniPix
                     var layer = m_Session.CurrentFrame.Layers[i];
                     GUILayout.BeginHorizontal();
 
-                    // TODO: current selected layer update
                     if (GUILayout.Button(layer.Name, i == m_Session.CurrentLayerIndex ? Styles.currentLayerName : Styles.layerName))
                     {
                         UniPixCommands.SetCurrentLayer(m_Session, i);
@@ -378,6 +369,8 @@ namespace UniPix
                         UniPixCommands.SetLayerVisibility(m_Session, i, isLayerVisible);
                         Repaint();
                     }
+
+                    // TODO Handle layer lock
 
                     GUILayout.EndHorizontal();
                 }
@@ -459,6 +452,9 @@ namespace UniPix
 
                     if (GUI.Button(new Rect(frameRect.xMax - Styles.kFramePreviewBtn - Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), "D", EditorStyles.miniButton))
                     {
+                        UniPixCommands.DeleteFrame(m_Session, frameIndex);
+                        Repaint();
+                        EditorGUIUtility.ExitGUI();
                         eventUsed = true;
                         // Delete frame
                     }
@@ -477,7 +473,9 @@ namespace UniPix
             
             if (GUI.Button(addFrameRect, "New Frame"))
             {
-                // TODO Create new frame
+                UniPixCommands.NewFrame(m_Session);
+                Repaint();
+                EditorGUIUtility.ExitGUI();
             }
             GUI.EndScrollView();
         }
@@ -731,7 +729,7 @@ namespace UniPix
             var status = $"<b>Zoom:</b>{m_Session.ZoomLevel}  ";
             status += $"<b>Size:</b>[{m_Session.Image.Width}x{m_Session.Image.Height}]  ";
             if (m_Session.CurrentFrameIndex != -1)
-                status += $"<b>Frame:</b> {m_Session.CurrentFrameIndex + 1} / {m_Session.Image.Frames.Count + 1}  ";
+                status += $"<b>Frame:</b> {m_Session.CurrentFrameIndex + 1} / {m_Session.Image.Frames.Count}  ";
             if (m_Session.CurrentLayerIndex != -1)
                 status += $"<b>Layer:</b> {m_Session.CurrentLayer.Name}  ";
             status += $"<b>Mouse:</b>[{m_Session.CursorImgCoord.x}, {m_Session.CursorImgCoord.y}]  ";

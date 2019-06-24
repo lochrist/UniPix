@@ -127,6 +127,7 @@ namespace UniPix
             UpdateImageTitle(session);
         }
 
+        #region UI
         public static void SetCurrentFrame(SessionData session, int frameIndex)
         {
             session.CurrentFrameIndex = frameIndex;
@@ -135,6 +136,38 @@ namespace UniPix
         public static void SetCurrentLayer(SessionData session, int layerIndex)
         {
             session.CurrentLayerIndex = layerIndex;
+        }
+        #endregion
+
+        // TODO: should it be part of the model?
+        public static void AddPaletteColor(SessionData session, Color newColor)
+        {
+            session.Palette.Colors.Add(newColor);
+        }
+
+        #region ModelChanged
+        public static void NewFrame(SessionData session)
+        {
+            var newFrame = session.Image.AddFrame();
+            newFrame.AddLayer();
+            session.CurrentFrameIndex = session.Image.Frames.Count - 1;
+            DirtyImage(session);
+        }
+
+        public static void DeleteFrame(SessionData session, int frameIndex)
+        {
+            session.Image.Frames.RemoveAt(frameIndex);
+            if (session.Image.Frames.Count == 0)
+            {
+                var newFrame = session.Image.AddFrame();
+                newFrame.AddLayer();
+            }
+            if (session.CurrentFrameIndex > session.Image.Frames.Count - 1)
+            {
+                session.CurrentFrameIndex = session.Image.Frames.Count - 1;
+            }
+            
+            DirtyImage(session);
         }
 
         public static void CreateLayer(SessionData session)
@@ -193,9 +226,19 @@ namespace UniPix
             DirtyImage(session);
         }
 
-        public static void AddPaletteColor(SessionData session, Color newColor)
+        public static void MergeLayers(SessionData session, int src1, int dst2)
         {
-            session.Palette.Colors.Add(newColor);
+            var srcLayer1 = session.CurrentFrame.Layers[src1];
+            var dstLayer2 = session.CurrentFrame.Layers[dst2];
+            
+            UniPixUtils.Blend(srcLayer1, dstLayer2, dstLayer2);
+
+            session.CurrentFrame.Layers.Remove(srcLayer1);
+
+            if (session.CurrentLayerIndex == src1)
+                session.CurrentLayerIndex = dst2;
+
+            DirtyImage(session);
         }
 
         public static void SetPixelsUnderBrush(SessionData session, Color color)
@@ -211,7 +254,9 @@ namespace UniPix
             }
             DirtyImage(session);
         }
+        #endregion
 
+        #region Impl
         private static void DirtyImage(SessionData session)
         {
             session.CurrentFrame.UpdateFrame();
@@ -238,5 +283,6 @@ namespace UniPix
                 }
             }
         }
+        #endregion
     }
 }
