@@ -237,10 +237,16 @@ namespace UniPix
                 DrawFrames();
                 DrawColorSwitcher();
                 DrawPixEditor();
+
+                GUILayout.BeginArea(m_RightPanelRect);
+                GUILayout.BeginScrollView(m_Session.RightPanelScroll);
                 DrawLayers();
                 DrawColorPalette();
                 DrawSettings();
-                DrawDebugStuff();
+                GUILayout.EndScrollView();
+                GUILayout.EndArea();
+
+                // DrawDebugStuff();
                 DrawStatus();
             }
         }
@@ -354,8 +360,7 @@ namespace UniPix
 
         private void DrawLayers()
         {
-            GUILayout.BeginArea(m_LayerRect, Styles.pixBox);
-            using (new GUILayout.VerticalScope())
+            using (new GUILayout.VerticalScope(Styles.pixBox))
             {
                 GUILayout.Label("Layers", Styles.layerHeader);
                 using (new GUILayout.HorizontalScope())
@@ -441,7 +446,6 @@ namespace UniPix
                     GUILayout.EndHorizontal();
                 }
             }
-            GUILayout.EndArea();
         }
 
         private void DrawToolPalette()
@@ -683,8 +687,7 @@ namespace UniPix
         {
             // Draw Tiles with each different colors in image
             // allow save + load of a palette
-            GUILayout.BeginArea(m_ColorPaletteRect, Styles.pixBox);
-            using (new GUILayout.VerticalScope())
+            using (new GUILayout.VerticalScope(Styles.pixBox))
             {
                 GUILayout.Label("Palette", Styles.layerHeader);
 
@@ -721,8 +724,6 @@ namespace UniPix
                     }
                 }
             }
-
-            GUILayout.EndArea();
         }
 
         private void DrawToolbar()
@@ -779,8 +780,6 @@ namespace UniPix
         private void DrawDebugStuff()
         {
             GUILayout.BeginArea(m_DebugAreaRect);
-
-            // 
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Pow");
