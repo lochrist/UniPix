@@ -16,64 +16,48 @@ namespace UniPix
             return LoadPix(session, path);
         }
 
-        public static bool LoadPix(SessionData session, string path)
+        public static bool LoadPix(SessionData session, UnityEngine.Object[] pixSources)
         {
-            return LoadPix(session, new [] {path});
-        }
+            session.Image = null;
 
-        public static bool LoadPix(SessionData session, string[] paths)
-        {
-            if (paths.Length > 0)
+            if (pixSources.Length == 1 && pixSources[0] is Image image)
             {
-                var processedPaths = paths.Select(p =>
+                session.Image = image;
+            }
+            else
+            {
+                foreach (var pixSource in pixSources)
                 {
-                    if (Path.IsPathRooted(p))
+                    if (pixSource is Texture2D tex)
                     {
-                        return FileUtil.GetProjectRelativePath(p);
+                        UniPixUtils.MakeReadable(tex);
+                        var texPath = AssetDatabase.GetAssetPath(tex);
+                        var sprites = AssetDatabase.LoadAllAssetsAtPath(texPath).Select(a => a as Sprite).Where(s => s != null).ToArray();                        
+                        if (sprites.Length > 0)
+                        {
+                            UniPixUtils.ImportFrames(ref session.Image, sprites);
+                        }
+                        else
+                        {
+                            UniPixUtils.ImportFrame(ref session.Image, tex);
+                        }
                     }
-
-                    return p;
-                }).Where(p => File.Exists(p)).ToArray();
-
-                if (processedPaths.Length == 1 && processedPaths[0].EndsWith(".asset"))
-                {
-                    session.Image = LoadPix(processedPaths[0]);
-                }
-                else
-                {
-                    session.Image = UniPixUtils.CreateImageFromTexture(processedPaths);
+                    else if (pixSource is Sprite sprite)
+                    {
+                        UniPixUtils.ImportFrame(ref session.Image, sprite);
+                    }
                 }
             }
 
-            if (session.Image == null)
-            {
-                session.Image = UniPixUtils.CreateImage(32, 32, Color.clear);
-            }
-
-            session.IsImageDirty = false;
-
-            UpdateImageTitle(session);
-
-            session.CurrentFrameIndex = 0;
-            session.CurrentLayerIndex = 0;
-            session.PreviewFrameIndex = 0;
-
-            OnNewFrame(session);
-
+            InitImageSession(session);
             return true;
         }
 
-        internal static Image LoadPix(string path)
+        public static bool LoadPix(SessionData session, string path)
         {
-            var img = AssetDatabase.LoadAssetAtPath<Image>(path);
-            if (img == null)
-            {
-                EditorPrefs.SetString(PixEditor.Prefs.kCurrentImg, "");
-                return null;
-            }
-
-            EditorPrefs.SetString(PixEditor.Prefs.kCurrentImg, path);
-            return img;
+            session.Image = AssetDatabase.LoadAssetAtPath<Image>(path);
+            InitImageSession(session);
+            return true;
         }
 
         public static void CreatePix(SessionData session, int w, int h)
@@ -291,6 +275,27 @@ namespace UniPix
         #endregion
 
         #region Impl
+
+        private static void InitImageSession(SessionData session)
+        {
+            EditorPrefs.SetString(PixEditor.Prefs.kCurrentImg, 
+                session.Image == null || string.IsNullOrEmpty(session.ImagePath) ? "" : session.ImagePath);
+
+            if (session.Image == null)
+            {
+                session.Image = UniPixUtils.CreateImage(32, 32, Color.clear);
+            }
+
+            session.IsImageDirty = false;
+
+            UpdateImageTitle(session);
+
+            session.CurrentFrameIndex = 0;
+            session.CurrentLayerIndex = 0;
+            session.PreviewFrameIndex = 0;
+
+            OnNewFrame(session);
+        }
 
         private static void CopyLayer(Layer srcLayer, Layer dstLayer)
         {

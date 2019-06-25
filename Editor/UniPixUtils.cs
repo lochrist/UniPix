@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
+using System.Linq;
 
 namespace UniPix
 {
@@ -18,30 +19,6 @@ namespace UniPix
                 layer.Pixels[i] = baseColor;
             }
 
-            return img;
-        }
-
-        public static Image CreateImageFromTexture(string path)
-        {
-            return CreateImageFromTexture(new [] {path});
-        }
-
-        public static Image CreateImageFromTexture(string[] paths)
-        {
-            Image img = null;
-            foreach (var path in paths)
-            {
-                var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-                if (tex != null)
-                {
-                    MakeReadable(path, tex);
-                    if (img == null)
-                    {
-                        img = Image.CreateImage(tex.width, tex.height);
-                    }
-                    ImportFrame(tex, img);
-                }
-            }
             return img;
         }
 
@@ -69,8 +46,13 @@ namespace UniPix
             return false;
         }
 
-        public static Layer ImportFrame(Texture2D tex, Image img)
+        public static Layer ImportFrame(ref Image img, Texture2D tex)
         {
+            if (img == null)
+            {
+                img = Image.CreateImage(tex.width, tex.height);
+            }
+
             // TODO : Crop
             if (tex.width > img.Width)
                 throw new Exception($"Texture doesn't width {tex.width} with img width {img.Width}");
@@ -81,6 +63,44 @@ namespace UniPix
             var layer = newFrame.AddLayer();
             layer.Pixels = tex.GetPixels();
             return layer;
+        }
+
+        public static void ImportFrames(ref Image img, Sprite[] sprites)
+        {
+            foreach (var sprite in sprites)
+            {
+                ImportFrame(ref img, sprite);
+            }
+        }
+
+        public static void ImportFrame(ref Image img, Sprite sprite)
+        {
+            var texture = sprite.texture;
+            if (!texture || texture == null)
+                return;
+
+            var frameSize = GetSpriteSize(sprite);
+            if (img == null)
+            {
+                img = Image.CreateImage(frameSize.x, frameSize.y);
+            }
+
+            if (frameSize.x > img.Height)
+                return;
+
+            if (frameSize.y > img.Width)
+                return;
+
+            var newFrame = img.AddFrame();
+            newFrame.SourceSprite = sprite;
+            var layer = newFrame.AddLayer();
+            // TODO : handle imge with sprites of multi dimensions
+            layer.Pixels = texture.GetPixels((int)sprite.rect.x, (int)sprite.rect.y, frameSize.x, frameSize.y);
+        }
+
+        public static Vector2Int GetSpriteSize(Sprite sprite)
+        {
+            return new Vector2Int((int)sprite.rect.width, (int)sprite.rect.height);
         }
 
         public static void SetLayerColor(Layer layer, Color color)
@@ -140,5 +160,37 @@ namespace UniPix
             GUILayout.EndHorizontal();
             return result;
         }
+
+        #region Export
+        public static void SaveImageSources(Image image, bool spriteSheet)
+        {
+            // For each linked source sprite
+                // Update source texture
+                // Save on the png.
+
+            // If spriteSheet: bundle together all unlinked frame. Create sprite sheet
+            // if not: save separate image per frame
+
+            // Reassign linked resources to frames
+        }
+
+        // Export is not linked at all to the image
+        public static void ExportFrames(Image image, Frame[] frames)
+        {
+            // ask user for base name: give image as base name
+            // Save each image separately
+            // Ensure to properly update SpriteMetadata
+
+        }
+
+        // Export is not linked to the image
+        public static void ExportFramesToSpriteSheet(Image image, Frame[] frames)
+        {
+            // ask user for base name: give image as base name
+            // Save as a sprite sheet
+            // Ensure to properly update SpriteMetadata
+        }
+
+        #endregion
     }
 }

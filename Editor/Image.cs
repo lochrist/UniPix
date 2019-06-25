@@ -88,6 +88,8 @@ namespace UniPix
         [SerializeField]
         public int Height;
         public Layer BlendedLayer;
+        [SerializeField]
+        public Sprite SourceSprite;
 
         Texture2D m_Texture;
         public Texture2D Texture

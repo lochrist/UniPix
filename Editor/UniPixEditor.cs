@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
@@ -260,6 +261,7 @@ namespace UniPix
                 Session.RightPanelScroll = GUILayout.BeginScrollView(Session.RightPanelScroll);
                 DrawLayers();
                 DrawColorPalette();
+                DrawFrameSource();
                 GUILayout.EndScrollView();
                 GUILayout.EndArea();
                 DrawStatus();
@@ -581,12 +583,9 @@ namespace UniPix
                     case EventType.DragPerform:
                         if (!m_CanvasRect.Contains(Event.current.mousePosition))
                             break;
+                        var paths = DragAndDrop.objectReferences
+                            .Where(obj => obj is Image || obj is Texture2D || obj is Sprite).ToArray();
 
-                        var paths = 
-                            DragAndDrop.objectReferences
-                                .Where(obj => obj is Image || obj is Texture2D)
-                                .Select(obj => AssetDatabase.GetAssetPath(obj))
-                                .Where(path => !string.IsNullOrEmpty(path)).ToArray();
                         if (paths.Length > 0)
                         {
                             DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
@@ -760,6 +759,28 @@ namespace UniPix
                         }
                     }
                 }
+            }
+        }
+
+        private void DrawFrameSource()
+        {
+            using (new GUILayout.VerticalScope(Styles.pixBox))
+            {
+                GUILayout.Label("Frame Source", Styles.layerHeader);
+
+                var oldLabelWidth = EditorGUIUtility.labelWidth;
+                var oldFieldWidth = EditorGUIUtility.fieldWidth;
+                EditorGUIUtility.labelWidth = 45;
+                EditorGUIUtility.fieldWidth = 45;
+                EditorGUI.BeginChangeCheck();
+                var sprite = EditorGUILayout.ObjectField("Sprite", Session.CurrentFrame.SourceSprite, typeof(Sprite), false);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    // TODO: handle source change
+
+                }
+                EditorGUIUtility.labelWidth = oldLabelWidth;
+                EditorGUIUtility.fieldWidth = oldFieldWidth;
             }
         }
 
