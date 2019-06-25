@@ -33,7 +33,6 @@ namespace UniPix
             get
             {
                 var halfBrush = BrushSize / 2;
-                var reminder = BrushSize % 2;
                 var cursorCoordX = Mathf.Max(CursorImgCoord.x - halfBrush, 0);
                 var cursorCoordY = Mathf.Max(CursorImgCoord.y - halfBrush, 0);
                 var cursorSize = BrushSize;
@@ -57,7 +56,7 @@ namespace UniPix
 
         public int PreviewFps = 4;
         public int PreviewFrameIndex = 0;
-        public bool IsPreviewPlaying;
+        public bool IsPreviewPlaying = true;
         public float PreviewTimer;
 
         public Vector2 FrameScroll = new Vector2(0, 0);
@@ -84,7 +83,6 @@ namespace UniPix
         Rect m_ColorPaletteRect;
         Rect m_ToolsPaletteRect;
         Rect m_FramePreviewRect;
-        Rect m_DebugAreaRect;
         Rect m_RightPanelRect;
         Texture2D m_TransparentTex;
         System.Diagnostics.Stopwatch m_Timer = new System.Diagnostics.Stopwatch();
@@ -124,22 +122,18 @@ namespace UniPix
             public static GUIContent cloneFrame = new GUIContent(Icons.duplicateLayer, "Clone frame");
             public static GUIContent deleteFrame = new GUIContent(Icons.x, "Delete frame");
 
-            public static GUIContent brushTool = new GUIContent(Icons.pencil, "Brush");
-            public static GUIContent eraserTool = new GUIContent(Icons.eraser, "Eraser");
-
-            public static GUIContent gridSettingsContent = new GUIContent("Grid...");
-
-            // public static GUIContent layerVisible = new GUIContent(Icons.eye, "Layer Visibility");
-            // public static GUIContent layerNotVisible = new GUIContent(Icons.eyeClosed, "Layer Visibility");
-
-            public static GUIStyle brushSizeStyle = new GUIStyle(EditorStyles.numberField)
-            {
-                fixedWidth = 50
-            };
+            public static GUIContent gridSettingsContent = new GUIContent(Icons.cog);
             public static GUIStyle layerHeader = new GUIStyle(EditorStyles.boldLabel);
             public static GUIStyle layerName = new GUIStyle(EditorStyles.largeLabel);
             public static GUIStyle currentLayerName = new GUIStyle(EditorStyles.largeLabel);
-            public static GUIStyle layerOpacity = new GUIStyle(EditorStyles.numberField);
+            public static GUIStyle layerOpacitySlider = new GUIStyle(GUI.skin.horizontalSlider)
+            {
+                margin = new RectOffset(0, 10, 0, 0)
+            };
+            public static GUIStyle brushSlider = new GUIStyle(GUI.skin.horizontalSlider)
+            {
+                margin = new RectOffset(0, 10, 0, 0)
+            };
             public static GUIStyle layerVisible = new GUIStyle(EditorStyles.toggle);
             public static GUIStyle layerLocked = new GUIStyle(EditorStyles.toggle);
             public static GUIStyle layerToolbarBtn = new GUIStyle(EditorStyles.miniButton)
@@ -296,8 +290,6 @@ namespace UniPix
             DrawDebugRect(m_StatusRect, "status", Color.red);
             DrawDebugRect(m_LayerRect, "layer", Color.cyan);
             DrawDebugRect(m_ColorPaletteRect, "palette", Color.gray);
-
-            DrawDebugRect(m_DebugAreaRect, "debug", Color.green);
         }
 
         private static void DrawDebugRect(Rect rect, string title, Color c)
@@ -407,16 +399,14 @@ namespace UniPix
                     }
                 }
 
-                using (new GUILayout.HorizontalScope())
+                EditorGUI.BeginChangeCheck();
+                var opacity = UniPixUtils.Slider($"Opacity {(int)(Session.CurrentLayer.Opacity * 100)}%",
+                    Session.CurrentLayer.Opacity, 0f, 1f, Styles.layerOpacitySlider
+                    );
+                if (EditorGUI.EndChangeCheck())
                 {
-                    GUILayout.Label($"Opacity {(int)(Session.CurrentLayer.Opacity * 100)}%", GUILayout.ExpandWidth(false));
-                    EditorGUI.BeginChangeCheck();
-                    var opacity = GUILayout.HorizontalSlider(Session.CurrentLayer.Opacity, 0, 1, GUILayout.ExpandWidth(true));
-                    if (EditorGUI.EndChangeCheck())
-                    {
-                        UniPixCommands.SetLayerOpacity(Session, Session.CurrentLayerIndex, opacity);
-                        Repaint();
-                    }
+                    UniPixCommands.SetLayerOpacity(Session, Session.CurrentLayerIndex, opacity);
+                    Repaint();
                 }
 
                 for (var i = Session.CurrentFrame.Layers.Count - 1; i >= 0; i--)
@@ -450,10 +440,7 @@ namespace UniPix
             GUILayout.BeginArea(m_ToolsPaletteRect);
 
             GUILayout.Label("Brush Size", Styles.layerHeader);
-            GUILayout.BeginHorizontal();
-            GUILayout.Label($"{Session.BrushSize}", GUILayout.ExpandWidth(false));
-            Session.BrushSize = (int)GUILayout.HorizontalSlider(Session.BrushSize, 1, 6, GUILayout.ExpandWidth(true));
-            GUILayout.EndHorizontal();
+            Session.BrushSize = (int)UniPixUtils.Slider($"{Session.BrushSize}", Session.BrushSize, 1, 6, Styles.brushSlider);
 
             GUILayout.Label("Tools", Styles.layerHeader);
 
@@ -680,6 +667,7 @@ namespace UniPix
             }
 
             var labelRect = new Rect(frameRect.x, frameRect.yMax, 35, 15);
+
             GUI.Label(labelRect, $"{Session.PreviewFps}fps");
             Session.PreviewFps = (int)GUI.HorizontalSlider(new Rect(labelRect.xMax, labelRect.y,
                     frameRect.width - labelRect.width - Styles.kMargin, labelRect.height), Session.PreviewFps, 0, 24);

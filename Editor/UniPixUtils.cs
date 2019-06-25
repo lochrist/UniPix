@@ -131,5 +131,14 @@ namespace UniPix
                 }
             }
         }
+
+        public static float Slider(string title, float value, float left, float right, GUIStyle sliderStyle = null)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(title, GUILayout.ExpandWidth(false));
+            var result = GUILayout.HorizontalSlider(value, left, right, sliderStyle ?? GUI.skin.horizontalSlider, GUI.skin.horizontalSliderThumb, GUILayout.ExpandWidth(true));
+            GUILayout.EndHorizontal();
+            return result;
+        }
     }
 }

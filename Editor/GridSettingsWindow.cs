@@ -34,6 +34,8 @@ namespace UniPix
         {
             using (new GUILayout.VerticalScope(PixEditor.Styles.pixBox))
             {
+                GUILayout.Label("Grid");
+
                 var oldLabelWidth = EditorGUIUtility.labelWidth;
                 var oldFieldWidth = EditorGUIUtility.fieldWidth;
                 EditorGUIUtility.labelWidth = 45;
@@ -74,7 +76,7 @@ namespace UniPix
             var screenRect = new Rect(screenPos, rect.size);
             var gridSettings = ScriptableObject.CreateInstance<GridSettingsWindow>();
             s_Editor = editor;
-            gridSettings.ShowAsDropDown(screenRect, new Vector2(100, 75));
+            gridSettings.ShowAsDropDown(screenRect, new Vector2(100, 85));
             return true;
         }
     }

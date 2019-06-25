@@ -3,19 +3,9 @@
 Pixel Art Editor for Unity
 
 TODO
-* Redo all ui with proper styles and margin and layout
-* Proper UI for Brush size + opacity
-* Ensure creation of image allows speciying the size of the image + allow resize of image
-* Rename layers
+* Fix ui glitches
 * Undo/Redo
     * Add to createAsset menu (See Damian prez)
-* UI beautify:
-    * Proper background/border for BeginArea
-    * USS for styling
-    * Use icons
-    * Color swapper needs border
-    * tooltips
-	* Use style with actual margin (is it possible to remove kMargin?)
 * Import/Export : to clarify goals. should at least make editing of game assets possible
     * export as gif
     * export as spritesheet
@@ -49,6 +39,8 @@ If time:
 * UIElements:
 	* create ui with uielements and benchmark
 	* benchmark current ui code
+* Rename layers
+* Ensure creation of image allows speciying the size of the image + allow resize of image
 
 
 Not for hackweek:
