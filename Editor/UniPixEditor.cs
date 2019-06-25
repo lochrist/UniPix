@@ -23,7 +23,9 @@ namespace UniPix
         public Layer CurrentLayer => CurrentFrame.Layers[CurrentLayerIndex];
 
         public Color CurrentColor = new Color(1, 0, 0);
+        public int CurrentColorPaletteIndex = -1;
         public Color SecondaryColor = Color.black;
+        public int SecondaryColorPaletteIndex = -1;
 
         public Rect ScaledImgRect;
         public Vector2Int CursorImgCoord;
@@ -45,7 +47,7 @@ namespace UniPix
                 return brushRect;
             }
         }
-        public int BrushSize = 5;
+        public int BrushSize = 1;
 
         public Palette Palette;
 
@@ -168,11 +170,19 @@ namespace UniPix
                 padding = new RectOffset(2, 2, 2, 2)
             };
 
-            public static GUIStyle selectedPixBox = new GUIStyle()
+            public static GUIStyle selectedPixBox = new GUIStyle(pixBox)
             {
-                name = "selected-pixbox",
-                margin = new RectOffset(2, 2, 2, 2),
-                padding = new RectOffset(2, 2, 2, 2)
+                name = "selected-pixbox"
+            };
+
+            public static GUIStyle primaryColorBox = new GUIStyle(pixBox)
+            {
+                name = "primary-color-box"
+            };
+
+            public static GUIStyle secondaryColorBox = new GUIStyle(pixBox)
+            {
+                name = "secondary-color-box"
             };
 
             public static readonly GUIStyle itemBackground1 = new GUIStyle
@@ -543,11 +553,21 @@ namespace UniPix
             var primaryColorRect = new Rect(10, position.height - Styles.kStatusbarHeight - (2*Styles.kColorSwatchSize), Styles.kColorSwatchSize, Styles.kColorSwatchSize);
             var secondaryColorRect = new Rect(primaryColorRect.xMax - 15, primaryColorRect.yMax - 15, Styles.kColorSwatchSize, Styles.kColorSwatchSize);
 
-            Session.SecondaryColor = EditorGUI.ColorField(secondaryColorRect, new GUIContent(""), Session.SecondaryColor, false, false, false);
-            GUI.Box(secondaryColorRect, "", Styles.pixBox);
+            EditorGUI.BeginChangeCheck();
+            var color = EditorGUI.ColorField(secondaryColorRect, new GUIContent(""), Session.SecondaryColor, false, false, false);
+            if (EditorGUI.EndChangeCheck())
+            {
+                UniPixCommands.SetBrushColor(Session, 1, color);
+            }
+            GUI.Box(secondaryColorRect, "", Styles.secondaryColorBox);
 
-            Session.CurrentColor = EditorGUI.ColorField(primaryColorRect, new GUIContent(""), Session.CurrentColor, false, false, false);
-            GUI.Box(primaryColorRect, "", Styles.pixBox);
+            EditorGUI.BeginChangeCheck();
+            color = EditorGUI.ColorField(primaryColorRect, new GUIContent(""), Session.CurrentColor, false, false, false);
+            if (EditorGUI.EndChangeCheck())
+            {
+                UniPixCommands.SetBrushColor(Session, 0, color);
+            }
+            GUI.Box(primaryColorRect, "", Styles.primaryColorBox);
         }
 
         private void DrawPixEditor()
@@ -717,11 +737,23 @@ namespace UniPix
                                 else
                                 {
                                     EditorGUI.DrawRect(contentRect, Session.Palette.Colors[colorItemIndex]);
+                                    if (Session.CurrentColorPaletteIndex == colorItemIndex)
+                                    {
+                                        GUI.Box(contentRect, "", Styles.primaryColorBox);
+                                    }
+                                    else if (Session.SecondaryColorPaletteIndex == colorItemIndex)
+                                    {
+                                        GUI.Box(contentRect, "", Styles.secondaryColorBox);
+                                    }
                                 }
 
-                                if (Event.current.isMouse && Event.current.type == EventType.MouseDown && contentRect.Contains(Event.current.mousePosition))
+                                if (Event.current.isMouse && 
+                                    Event.current.type == EventType.MouseDown && 
+                                    contentRect.Contains(Event.current.mousePosition) &&
+                                    (Event.current.button == 0 || Event.current.button == 1))
                                 {
-                                    Session.CurrentColor = Session.Palette.Colors[colorItemIndex];
+                                    UniPixCommands.SetBrushColor(Session, Event.current.button, Session.Palette.Colors[colorItemIndex]);
+                                    Repaint();
                                 }
                             }
                         }

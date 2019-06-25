@@ -6,6 +6,14 @@
 	border: 2px solid rgb(255, 215, 0);
 }
 
+.primary-color-box {
+	border: 2px solid rgb(175, 50, 50);
+}
+
+.secondary-color-box {
+	border: 2px solid rgb(50, 50, 175);
+}
+
 .pix-item-background1 {
     -unity-enable-hovering: --enable-style-hovering;
 }

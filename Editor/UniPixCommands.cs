@@ -133,6 +133,21 @@ namespace UniPix
         {
             session.CurrentLayerIndex = layerIndex;
         }
+
+        public static void SetBrushColor(SessionData session, int colorType, Color color)
+        {
+            if (colorType == 0)
+            {
+                session.CurrentColor = color;
+                session.CurrentColorPaletteIndex = session.Palette.Colors.FindIndex(c => c == color);
+            }
+            else
+            {
+                session.SecondaryColor = color;
+                session.SecondaryColorPaletteIndex = session.Palette.Colors.FindIndex(c => c == color);
+            }
+        }
+
         #endregion
 
         // TODO: should it be part of the model?
@@ -322,8 +337,8 @@ namespace UniPix
             session.Palette = new Palette();
             UniPixUtils.ExtractPaletteFrom(session.CurrentFrame, session.Palette.Colors);
 
-            session.CurrentColor = session.Palette.Colors.Count > 0 ? session.Palette.Colors[0] : Color.black;
-            session.SecondaryColor = session.Palette.Colors.Count > 1 ? session.Palette.Colors[1] : Color.white;
+            SetBrushColor(session, 0, session.Palette.Colors.Count > 0 ? session.Palette.Colors[0] : Color.black);
+            SetBrushColor(session, 1, session.Palette.Colors.Count > 1 ? session.Palette.Colors[1] : Color.white);
         }
         #endregion
     }
