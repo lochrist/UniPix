@@ -2,18 +2,7 @@
 
 Pixel Art Editor for Unity
 
-When Exporting:
-- Export to spriteSheets
-- Export to All separate files
-- Export current frame
-
-Save:
-- Save Image
-- Save and Sync Sources
-
-- For each frame that is not bound to a sprite:
-    - Create one texture per frame
-    - create spritesheet
+- Export to spriteSheet + slice: todo
 
 In Frame view: 
 - If assigned another sprite: load it?

@@ -48,6 +48,17 @@ namespace UniPix
             return false;
         }
 
+        public static void MakeUncompressed(string path, Texture2D tex)
+        {
+            var tImporter = AssetImporter.GetAtPath(path) as TextureImporter;
+            if (tImporter != null && tImporter.textureCompression != TextureImporterCompression.Uncompressed)
+            {
+                tImporter.textureCompression = TextureImporterCompression.Uncompressed;
+                AssetDatabase.ImportAsset(path);
+                AssetDatabase.Refresh();
+            }
+        }
+
         public static Layer ImportFrame(ref Image img, Texture2D tex)
         {
             if (img == null)

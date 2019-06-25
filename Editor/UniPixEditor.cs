@@ -782,10 +782,19 @@ namespace UniPix
                 if (EditorGUI.EndChangeCheck())
                 {
                     // TODO: handle source change
-
+                    // TODO Export
                 }
                 EditorGUIUtility.labelWidth = oldLabelWidth;
                 EditorGUIUtility.fieldWidth = oldFieldWidth;
+
+                using (new EditorGUI.DisabledScope(Session.CurrentFrame.SourceSprite == null || !Session.IsImageDirty))
+                {
+                    if (GUILayout.Button(Styles.syncContent))
+                    {
+                        UniPixCommands.SavePix(Session);
+                        UniPixCommands.UpdateFrameSprite(Session.CurrentFrame);
+                    }
+                }
             }
         }
 
@@ -806,20 +815,25 @@ namespace UniPix
                 Repaint();
             }
 
-            if (GUILayout.Button(Styles.saveContent, EditorStyles.toolbarButton))
+            using (new EditorGUI.DisabledScope(!Session.IsImageDirty))
             {
-                UniPixCommands.SavePix(Session);
+                if (GUILayout.Button(Styles.saveContent, EditorStyles.toolbarButton))
+                {
+                    UniPixCommands.SavePix(Session);
+                }
             }
 
             var syncRect = GUILayoutUtility.GetRect(Styles.syncContent, EditorStyles.toolbarButton);
             var areAllSourcesSet = Session.Image.Frames.All(f => f.SourceSprite != null);
             if (!areAllSourcesSet && EditorGUI.DropdownButton(syncRect, Styles.syncContent, FocusType.Passive, EditorStyles.toolbarButton) && SyncWindow.canShow)
             {
+                // TODO Export
                 if (SyncWindow.ShowAtPosition(this, syncRect))
                     GUIUtility.ExitGUI();
             }
             else if (GUI.Button(syncRect, Styles.syncContent, EditorStyles.toolbarButton))
             {
+                // TODO Export
                 UniPixCommands.SaveImageSources(Session);
             }
 
@@ -833,6 +847,7 @@ namespace UniPix
             var exportRect = GUILayoutUtility.GetRect(Styles.exportContent, EditorStyles.toolbarButton);
             if (EditorGUI.DropdownButton(exportRect, Styles.exportContent, FocusType.Passive, EditorStyles.toolbarButton) && ExportWindow.canShow)
             {
+                // TODO Export
                 if (ExportWindow.ShowAtPosition(this, exportRect))
                     GUIUtility.ExitGUI();
             }

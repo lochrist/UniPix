@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Linq;
+using UnityEngine.PlayerLoop;
 
 namespace UniPix
 {
@@ -116,14 +117,32 @@ namespace UniPix
         #region Export
         public static void SaveImageSources(SessionData session, bool spriteSheet = false)
         {
-            // For each linked source sprite
-            // Update source texture
-            // Save on the png.
-
-            // If spriteSheet: bundle together all unlinked frame. Create sprite sheet
-            // if not: save separate image per frame
-
-            // Reassign linked resources to frames
+            if (spriteSheet)
+            {
+                var linkedFrames = session.Image.Frames.Where(f => f.SourceSprite != null).ToArray();
+                var unlinkedFrame = session.Image.Frames.Where(f => f.SourceSprite == null).ToArray();
+                // If spriteSheet: bundle together all unlinked frame. Create sprite sheet
+                // TODO Export
+            }
+            else
+            {
+                var basePath = UniPixUtils.GetBasePath(session.ImagePath);
+                for (int i = 0; i < session.Image.Frames.Count; i++)
+                {
+                    var frame = session.Image.Frames[i];
+                    if (frame.SourceSprite == null)
+                    {
+                        // One image per frame
+                        var framePath = UniPixUtils.GetUniquePath(basePath, ".png", i);
+                        framePath = ExportFrame(frame, framePath);
+                        frame.SourceSprite = AssetDatabase.LoadAssetAtPath<Sprite>(framePath);
+                    }
+                    else
+                    {
+                        UpdateFrameSprite(frame);
+                    }
+                }
+            }
         }
 
         // Export is not linked at all to the image
@@ -149,8 +168,7 @@ namespace UniPix
             for (var i = 0; i < session.Image.Frames.Count; ++i)
             {
                 var frame = session.Image.Frames[i];
-                var framePath = $"{basePath}_{i + 1}.png";
-                ExportFrame(frame, framePath);
+                ExportFrame(frame, UniPixUtils.GetUniquePath(basePath, ".png", i));
             }
         }
 
@@ -160,22 +178,63 @@ namespace UniPix
             // ask user for base name: give image as base name
             // Save as a sprite sheet
             // Ensure to properly update SpriteMetadata
+
+            // TODO Export
             throw new Exception("Not Implemented");
+        }
+
+        public static void UpdateFrameSprite(Frame frame)
+        {
+            if (frame.SourceSprite == null)
+                throw new Exception("Not implemented");
+
+            var spriteSize = UniPixUtils.GetSpriteSize(frame.SourceSprite);
+            if (spriteSize.x != frame.Width || spriteSize.y != frame.Height)
+                throw new Exception("UpdateFrameSprite: Frame doesn't match sprite size");
+
+            var texture = frame.SourceSprite.texture;
+            var texturePath = AssetDatabase.GetAssetPath(texture);
+            if (string.IsNullOrEmpty(texturePath))
+                throw new Exception("Texture not bound to a path");
+
+            UniPixUtils.MakeUncompressed(texturePath, texture);
+
+            var textureRect = frame.SourceSprite.rect;
+            var frameX = 0;
+            var frameY = 0;
+            for (var x = textureRect.x; x < textureRect.xMax; ++x, ++frameX)
+            {
+                for (var y = textureRect.y; y < textureRect.yMax; ++y, ++frameY)
+                {
+                    texture.SetPixel((int)x, (int)y, frame.Texture.GetPixel(frameX, frameY));
+                }
+            }
+            texture.Apply();
+
+            var frameContent = texture.EncodeToPNG();
+            if (frameContent == null)
+                throw new Exception("Texture cannot be converted to PNG: " + texturePath);
+            File.WriteAllBytes(texturePath, frameContent);
+            AssetDatabase.Refresh();
         }
 
         private static string ExportFrame(Frame frame, string path)
         {
+            var updateMetaFile = !File.Exists(path);
             var frameTex = frame.Texture;
             var frameContent = frameTex.EncodeToPNG();
             File.WriteAllBytes(path, frameContent);
             AssetDatabase.Refresh();
 
-            TextureImporter importer = TextureImporter.GetAtPath(path) as TextureImporter;
-            importer.textureType = TextureImporterType.Sprite;
-            importer.filterMode = FilterMode.Point;
-            importer.textureCompression = TextureImporterCompression.Uncompressed;
-            importer.SaveAndReimport();
-            AssetDatabase.Refresh();
+            if (updateMetaFile)
+            {
+                TextureImporter importer = TextureImporter.GetAtPath(path) as TextureImporter;
+                importer.textureType = TextureImporterType.Sprite;
+                importer.filterMode = FilterMode.Point;
+                importer.textureCompression = TextureImporterCompression.Uncompressed;
+                importer.SaveAndReimport();
+                AssetDatabase.Refresh();
+            }
             return path;
         }
 
