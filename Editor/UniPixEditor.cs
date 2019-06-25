@@ -431,11 +431,12 @@ namespace UniPix
                     UniPixCommands.SetLayerOpacity(Session, Session.CurrentLayerIndex, opacity);
                     Repaint();
                 }
+                GUILayout.Space(5);
 
                 for (var i = Session.CurrentFrame.Layers.Count - 1; i >= 0; i--)
                 {
                     var layer = Session.CurrentFrame.Layers[i];
-                    var bgStyle = i % 2 == 0 ? Styles.itemBackground1 : Styles.itemBackground2;
+                    var bgStyle = i % 2 == 1 ? Styles.itemBackground1 : Styles.itemBackground2;
                     GUILayout.BeginHorizontal(bgStyle);
 
                     if (GUILayout.Button(layer.Name, i == Session.CurrentLayerIndex ? Styles.currentLayerName : Styles.layerName, GUILayout.ExpandWidth(true)))
