@@ -791,13 +791,6 @@ namespace UniPix
 
         private void DrawToolbar()
         {
-            // settings
-            // Save
-            // Export
-            // New
-            // Import
-            // Duplicate
-            
             GUILayout.BeginArea(m_ToolbarRect, EditorStyles.toolbar);
             GUILayout.BeginHorizontal();
 
@@ -819,10 +812,15 @@ namespace UniPix
             }
 
             var syncRect = GUILayoutUtility.GetRect(Styles.syncContent, EditorStyles.toolbarButton);
-            if (EditorGUI.DropdownButton(syncRect, Styles.syncContent, FocusType.Passive, EditorStyles.toolbarButton) && SyncWindow.canShow)
+            var areAllSourcesSet = Session.Image.Frames.All(f => f.SourceSprite != null);
+            if (!areAllSourcesSet && EditorGUI.DropdownButton(syncRect, Styles.syncContent, FocusType.Passive, EditorStyles.toolbarButton) && SyncWindow.canShow)
             {
                 if (SyncWindow.ShowAtPosition(this, syncRect))
                     GUIUtility.ExitGUI();
+            }
+            else if (GUI.Button(syncRect, Styles.syncContent, EditorStyles.toolbarButton))
+            {
+                UniPixCommands.SaveImageSources(Session);
             }
 
             var settingsRect = GUILayoutUtility.GetRect(Styles.gridSettingsContent, EditorStyles.toolbarButton);

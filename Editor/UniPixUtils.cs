@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
+using System.IO;
 using System.Linq;
+using System.Threading;
 
 namespace UniPix
 {
@@ -161,36 +163,35 @@ namespace UniPix
             return result;
         }
 
-        #region Export
-        public static void SaveImageSources(Image image, bool spriteSheet)
+        public static string GetBasePath(string path)
         {
-            // For each linked source sprite
-                // Update source texture
-                // Save on the png.
+            if (Path.IsPathRooted(path))
+            {
+                path = FileUtil.GetProjectRelativePath(path);
+            }
 
-            // If spriteSheet: bundle together all unlinked frame. Create sprite sheet
-            // if not: save separate image per frame
-
-            // Reassign linked resources to frames
+            var directoryName = Path.GetDirectoryName(path).Replace("\\", "/");
+            return $"{Path.GetDirectoryName(path)}/{GetBaseName(path)}";
         }
 
-        // Export is not linked at all to the image
-        public static void ExportFrames(Image image, Frame[] frames)
+        public static string GetBaseName(string path)
         {
-            // ask user for base name: give image as base name
-            // Save each image separately
-            // Ensure to properly update SpriteMetadata
-
+            var name = Path.GetFileName(path);
+            var firstDot = name.IndexOf(".");
+            var baseName = name.Substring(0, firstDot);
+            return baseName;
         }
 
-        // Export is not linked to the image
-        public static void ExportFramesToSpriteSheet(Image image, Frame[] frames)
+        public static string GetUniquePath(string basePath, string extension, int index = 1)
         {
-            // ask user for base name: give image as base name
-            // Save as a sprite sheet
-            // Ensure to properly update SpriteMetadata
+            var path = $"{basePath}_{index}{extension}";
+            return path;
+            while (File.Exists(path))
+            {
+                ++index;
+                path = $"{basePath}_{index}{extension}";
+            }
+            return path;
         }
-
-        #endregion
     }
 }

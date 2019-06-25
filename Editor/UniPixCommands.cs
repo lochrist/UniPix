@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ namespace UniPix
 {
     public static class UniPixCommands
     {
+        #region SaveAndLoad
         public static bool LoadPix(SessionData session)
         {
             var path = EditorUtility.OpenFilePanel(
@@ -55,6 +57,10 @@ namespace UniPix
 
         public static bool LoadPix(SessionData session, string path)
         {
+            if (Path.IsPathRooted(path))
+            {
+                path = FileUtil.GetProjectRelativePath(path);
+            }
             session.Image = AssetDatabase.LoadAssetAtPath<Image>(path);
             InitImageSession(session);
             return true;
@@ -105,6 +111,75 @@ namespace UniPix
             session.IsImageDirty = false;
             UpdateImageTitle(session);
         }
+        #endregion
+
+        #region Export
+        public static void SaveImageSources(SessionData session, bool spriteSheet = false)
+        {
+            // For each linked source sprite
+            // Update source texture
+            // Save on the png.
+
+            // If spriteSheet: bundle together all unlinked frame. Create sprite sheet
+            // if not: save separate image per frame
+
+            // Reassign linked resources to frames
+        }
+
+        // Export is not linked at all to the image
+        public static void ExportFrames(SessionData session, Frame[] frames = null)
+        {
+            // ask user for base name: give image as base name
+            // Save each image separately
+            // Ensure to properly update SpriteMetadata
+            frames = frames ?? session.Image.Frames.ToArray();
+            if (frames.Length == 0)
+                return;
+
+            string path = EditorUtility.SaveFilePanel(
+                "Export as image",
+                "Assets/", string.IsNullOrEmpty(session.ImagePath) ? "pix.png" : UniPixUtils.GetBaseName(session.ImagePath), "png");
+            if (path == "")
+            {
+                return;
+            }
+
+            var basePath = UniPixUtils.GetBasePath(path);
+
+            for (var i = 0; i < session.Image.Frames.Count; ++i)
+            {
+                var frame = session.Image.Frames[i];
+                var framePath = $"{basePath}_{i + 1}.png";
+                ExportFrame(frame, framePath);
+            }
+        }
+
+        // Export is not linked to the image
+        public static void ExportFramesToSpriteSheet(SessionData session)
+        {
+            // ask user for base name: give image as base name
+            // Save as a sprite sheet
+            // Ensure to properly update SpriteMetadata
+            throw new Exception("Not Implemented");
+        }
+
+        private static string ExportFrame(Frame frame, string path)
+        {
+            var frameTex = frame.Texture;
+            var frameContent = frameTex.EncodeToPNG();
+            File.WriteAllBytes(path, frameContent);
+            AssetDatabase.Refresh();
+
+            TextureImporter importer = TextureImporter.GetAtPath(path) as TextureImporter;
+            importer.textureType = TextureImporterType.Sprite;
+            importer.filterMode = FilterMode.Point;
+            importer.textureCompression = TextureImporterCompression.Uncompressed;
+            importer.SaveAndReimport();
+            AssetDatabase.Refresh();
+            return path;
+        }
+
+        #endregion
 
         #region UI
         public static void SetCurrentFrame(SessionData session, int frameIndex)
@@ -278,17 +353,14 @@ namespace UniPix
 
         private static void InitImageSession(SessionData session)
         {
-            EditorPrefs.SetString(PixEditor.Prefs.kCurrentImg, 
-                session.Image == null || string.IsNullOrEmpty(session.ImagePath) ? "" : session.ImagePath);
-
             if (session.Image == null)
             {
                 session.Image = UniPixUtils.CreateImage(32, 32, Color.clear);
             }
 
             session.IsImageDirty = false;
-
             UpdateImageTitle(session);
+            EditorPrefs.SetString(PixEditor.Prefs.kCurrentImg, string.IsNullOrEmpty(session.ImagePath) ? "" : session.ImagePath);
 
             session.CurrentFrameIndex = 0;
             session.CurrentLayerIndex = 0;

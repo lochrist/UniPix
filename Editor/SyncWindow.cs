@@ -35,16 +35,16 @@ namespace UniPix
             {
                 GUILayout.Label("Sync", PixEditor.Styles.layerHeader);
 
-                GUILayout.Label("Some frames do not have a source assets assigned. How do you want all those frames?", EditorStyles.helpBox);
+                GUILayout.Label("Some frames do not have a Source Sprite assigned. How do you want to save all those frames?", EditorStyles.helpBox);
 
                 if (GUILayout.Button("Save separate images"))
                 {
-
+                    UniPixCommands.SaveImageSources(s_Editor.Session);
                 }
 
                 if (GUILayout.Button("Save as spritesheet"))
                 {
-
+                    UniPixCommands.SaveImageSources(s_Editor.Session, true);
                 }
             }
         }
@@ -55,7 +55,7 @@ namespace UniPix
             var screenRect = new Rect(screenPos, rect.size);
             var win = ScriptableObject.CreateInstance<SyncWindow>();
             s_Editor = editor;
-            win.ShowAsDropDown(screenRect, new Vector2(200, 150));
+            win.ShowAsDropDown(screenRect, new Vector2(200, 110));
             return true;
         }
     }

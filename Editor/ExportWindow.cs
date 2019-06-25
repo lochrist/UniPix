@@ -37,17 +37,17 @@ namespace UniPix
 
                 if (GUILayout.Button("Export current frame"))
                 {
-
+                    UniPixCommands.ExportFrames(s_Editor.Session, new [] {s_Editor.Session.CurrentFrame});
                 }
 
                 if (GUILayout.Button("Export all frames"))
                 {
-
+                    UniPixCommands.ExportFrames(s_Editor.Session);
                 }
 
-                if (GUILayout.Button("Export spritesheet"))
+                if (GUILayout.Button("Export to sprite sheet"))
                 {
-
+                    UniPixCommands.ExportFramesToSpriteSheet(s_Editor.Session);
                 }
             }
         }
