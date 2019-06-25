@@ -14,6 +14,7 @@ namespace UniPix
         public static Texture2D cog = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/Cog.png");
         public static Texture2D colorPicker = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/ColorPicker.png");
         public static Texture2D colorSwapAndArrow = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/ColorSwapAndArrow.png");
+        public static Texture2D newImage = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/New.png");
         public static Texture2D counterClockwiseRotation = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/CounterClockwiseRotation.png");
         public static Texture2D diskette = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/Diskette.png");
         public static Texture2D duplicateLayer = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/DuplicateLayer.png");

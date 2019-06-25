@@ -90,6 +90,8 @@ namespace UniPix
         Texture2D m_TransparentTex;
         System.Diagnostics.Stopwatch m_Timer = new System.Diagnostics.Stopwatch();
 
+        public bool isExporting;
+
         public static class Prefs
         {
             public static string kPrefix = "unixpix.";
@@ -125,7 +127,12 @@ namespace UniPix
             public static GUIContent cloneFrame = new GUIContent(Icons.duplicateLayer, "Clone frame");
             public static GUIContent deleteFrame = new GUIContent(Icons.x, "Delete frame");
 
+            public static GUIContent newContent = new GUIContent(Icons.newImage, "New Image");
+            public static GUIContent loadContent = new GUIContent(Icons.folder, "Load Image");
+            public static GUIContent saveContent = new GUIContent(Icons.diskette, "Save Image");
             public static GUIContent gridSettingsContent = new GUIContent(Icons.cog);
+            public static GUIContent exportContent = new GUIContent(Icons.export);
+            public static GUIContent syncContent = new GUIContent(Icons.counterClockwiseRotation, "Save and sync Sources");
             public static GUIStyle layerHeader = new GUIStyle(EditorStyles.boldLabel);
             public static GUIStyle layerName = new GUIStyle(EditorStyles.largeLabel);
             public static GUIStyle currentLayerName = new GUIStyle(EditorStyles.largeLabel);
@@ -145,7 +152,6 @@ namespace UniPix
             public static GUIStyle layerLocked = new GUIStyle(EditorStyles.toggle);
             public static GUIStyle layerToolbarBtn = new GUIStyle(EditorStyles.miniButton)
             {
-                // name = "layerToolbarBtn",
                 margin = new RectOffset(0, 0, 0, 0),
                 padding = new RectOffset(0, 0, 0, 0),
                 fixedWidth = 30,
@@ -154,7 +160,6 @@ namespace UniPix
 
             public static GUIStyle frameBtn = new GUIStyle(EditorStyles.miniButton)
             {
-                // name = "fameBtn",
                 margin = new RectOffset(0, 0, 0, 0),
                 padding = new RectOffset(2, 2, 2, 2)
             };
@@ -796,24 +801,29 @@ namespace UniPix
             GUILayout.BeginArea(m_ToolbarRect, EditorStyles.toolbar);
             GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button("New", EditorStyles.toolbarButton))
+            if (GUILayout.Button(Styles.newContent, EditorStyles.toolbarButton))
             {
                 UniPixCommands.CreatePix(Session, 32, 32);
                 Repaint();
             }
 
-            if (GUILayout.Button("Load", EditorStyles.toolbarButton))
+            if (GUILayout.Button(Styles.loadContent, EditorStyles.toolbarButton))
             {
                 UniPixCommands.LoadPix(Session);
                 Repaint();
             }
 
-            if (GUILayout.Button("Save", EditorStyles.toolbarButton))
+            if (GUILayout.Button(Styles.saveContent, EditorStyles.toolbarButton))
             {
                 UniPixCommands.SavePix(Session);
             }
 
-            GUILayout.Label(Session.ImageTitle, EditorStyles.toolbarTextField);
+            var syncRect = GUILayoutUtility.GetRect(Styles.syncContent, EditorStyles.toolbarButton);
+            if (EditorGUI.DropdownButton(syncRect, Styles.syncContent, FocusType.Passive, EditorStyles.toolbarButton) && SyncWindow.canShow)
+            {
+                if (SyncWindow.ShowAtPosition(this, syncRect))
+                    GUIUtility.ExitGUI();
+            }
 
             var settingsRect = GUILayoutUtility.GetRect(Styles.gridSettingsContent, EditorStyles.toolbarButton);
             if (EditorGUI.DropdownButton(settingsRect, Styles.gridSettingsContent, FocusType.Passive, EditorStyles.toolbarButton) && GridSettingsWindow.canShow)
@@ -821,6 +831,15 @@ namespace UniPix
                 if (GridSettingsWindow.ShowAtPosition(this, settingsRect))
                     GUIUtility.ExitGUI();
             }
+
+            var exportRect = GUILayoutUtility.GetRect(Styles.exportContent, EditorStyles.toolbarButton);
+            if (EditorGUI.DropdownButton(exportRect, Styles.exportContent, FocusType.Passive, EditorStyles.toolbarButton) && ExportWindow.canShow)
+            {
+                if (ExportWindow.ShowAtPosition(this, exportRect))
+                    GUIUtility.ExitGUI();
+            }
+
+            GUILayout.Label(Session.ImageTitle, EditorStyles.toolbarTextField);
 
             GUILayout.FlexibleSpace();
 

@@ -2,22 +2,20 @@
 
 Pixel Art Editor for Unity
 
-Import Workflow:
-- accept pix.asset -> single drag acceptance + open asset -> easy 
-
-
-- Drag multiple textures
-    - Extract sprites from each texture if possible
-        - One frame per sprite
-- Drag multiple sprites: one frame per sprite
-
 When Exporting:
+- Export to spriteSheets
+- Export to All separate files
+- Export current frame
+
+Save:
+- Save Image
+- Save and Sync Sources
+
 - For each frame that is not bound to a sprite:
     - Create one texture per frame
     - create spritesheet
 
 In Frame view: 
-- Show sprite mapped to the frame(?)
 - If assigned another sprite: load it?
 
 TODO
