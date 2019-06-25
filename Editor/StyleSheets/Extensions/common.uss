@@ -5,3 +5,28 @@
 .selected-pixbox {
 	border: 2px solid rgb(255, 215, 0);
 }
+
+.pix-item-background1 {
+    -unity-enable-hovering: --enable-style-hovering;
+}
+
+.pix-item-background2 {
+    -unity-enable-hovering: --enable-style-hovering;
+
+    background-color: --theme-background-color-alternate;
+}
+
+.pix-item-background1:hover,
+.pix-item-background2:hover {
+    background-color: --theme-line-selection-background-color-hover;
+}
+
+.pix-item-selected-background {
+    -unity-enable-hovering: --enable-style-hovering;
+
+    background-color: --theme-line-selection-background-color-focus;
+}
+
+.pix-item-selected-background:hover {
+    background-color: --theme-line-selection-background-color-focus;
+}

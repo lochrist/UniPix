@@ -128,21 +128,25 @@ namespace UniPix
             public static GUIStyle currentLayerName = new GUIStyle(EditorStyles.largeLabel);
             public static GUIStyle layerOpacitySlider = new GUIStyle(GUI.skin.horizontalSlider)
             {
-                margin = new RectOffset(0, 10, 0, 0)
+                margin = new RectOffset(0, 15, 0, 0)
             };
             public static GUIStyle brushSlider = new GUIStyle(GUI.skin.horizontalSlider)
             {
-                margin = new RectOffset(0, 10, 0, 0)
+                margin = new RectOffset(0, 17, 0, 0)
             };
-            public static GUIStyle layerVisible = new GUIStyle(EditorStyles.toggle);
+            public static GUIStyle layerVisible = new GUIStyle(EditorStyles.toggle)
+            {
+                margin = new RectOffset(0, 0, 4, 0),
+                padding = new RectOffset(0, 0, 4, 0)
+            };
             public static GUIStyle layerLocked = new GUIStyle(EditorStyles.toggle);
             public static GUIStyle layerToolbarBtn = new GUIStyle(EditorStyles.miniButton)
             {
                 // name = "layerToolbarBtn",
                 margin = new RectOffset(0, 0, 0, 0),
                 padding = new RectOffset(0, 0, 0, 0),
-                fixedWidth = 25,
-                fixedHeight = 25
+                fixedWidth = 30,
+                fixedHeight = 30
             };
 
             public static GUIStyle frameBtn = new GUIStyle(EditorStyles.miniButton)
@@ -169,6 +173,16 @@ namespace UniPix
                 name = "selected-pixbox",
                 margin = new RectOffset(2, 2, 2, 2),
                 padding = new RectOffset(2, 2, 2, 2)
+            };
+
+            public static readonly GUIStyle itemBackground1 = new GUIStyle
+            {
+                name = "pix-item-background1",
+            };
+
+            public static readonly GUIStyle itemBackground2 = new GUIStyle(itemBackground1)
+            {
+                name = "pix-item-background2",
             };
 
             static Styles()
@@ -236,7 +250,6 @@ namespace UniPix
                 Session.RightPanelScroll = GUILayout.BeginScrollView(Session.RightPanelScroll);
                 DrawLayers();
                 DrawColorPalette();
-                // DrawDebugStuff();
                 GUILayout.EndScrollView();
                 GUILayout.EndArea();
                 DrawStatus();
@@ -412,7 +425,8 @@ namespace UniPix
                 for (var i = Session.CurrentFrame.Layers.Count - 1; i >= 0; i--)
                 {
                     var layer = Session.CurrentFrame.Layers[i];
-                    GUILayout.BeginHorizontal();
+                    var bgStyle = i % 2 == 0 ? Styles.itemBackground1 : Styles.itemBackground2;
+                    GUILayout.BeginHorizontal(bgStyle);
 
                     if (GUILayout.Button(layer.Name, i == Session.CurrentLayerIndex ? Styles.currentLayerName : Styles.layerName, GUILayout.ExpandWidth(true)))
                     {
