@@ -160,6 +160,22 @@ namespace UniPix
             }
         }
 
+        public static void ReplaceSourceSprite(SessionData session, Sprite sourceSprite)
+        {
+            var spriteSize = UniPixUtils.GetSpriteSize(sourceSprite);
+            if (session.CurrentFrame.Width != spriteSize.x || session.CurrentFrame.Height != spriteSize.y)
+            {
+                throw new Exception("New sprite size doesn't match frame.");
+            }
+
+            UniPixUtils.MakeReadable(sourceSprite.texture);
+            session.CurrentFrame.SourceSprite = sourceSprite;
+            session.CurrentFrame.Layers.Clear();
+            var layer = session.CurrentFrame.AddLayer();
+            layer.Pixels = sourceSprite.texture.GetPixels((int)sourceSprite.rect.x, (int)sourceSprite.rect.y, spriteSize.x, spriteSize.y);
+            DirtyImage(session);
+        }
+
         // Export is not linked at all to the image
         public static string ExportFrames(SessionData session, Frame[] frames = null)
         {

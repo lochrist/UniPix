@@ -776,10 +776,12 @@ namespace UniPix
                 using (new UniPixUtils.FieldWidthScope(45, 45))
                 {
                     EditorGUI.BeginChangeCheck();
-                    var sprite = EditorGUILayout.ObjectField("Sprite", Session.CurrentFrame.SourceSprite, typeof(Sprite), false);
+                    var sprite = (Sprite)EditorGUILayout.ObjectField("Sprite", Session.CurrentFrame.SourceSprite, typeof(Sprite), false);
                     if (EditorGUI.EndChangeCheck())
                     {
-
+                        UniPixCommands.ReplaceSourceSprite(Session, sprite);
+                        Repaint();
+                        GUIUtility.ExitGUI();
                     }
                 }
 
