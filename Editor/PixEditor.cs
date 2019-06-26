@@ -813,50 +813,57 @@ namespace UniPix
             GUILayout.BeginArea(m_ToolbarRect, EditorStyles.toolbar);
             GUILayout.BeginHorizontal();
 
-            if (GUILayout.Button(Styles.newContent, EditorStyles.toolbarButton))
+            if (ModeService.currentId != "unipix")
             {
-                UniPixCommands.CreatePix(Session, 32, 32);
-                Repaint();
-            }
-
-            if (GUILayout.Button(Styles.loadContent, EditorStyles.toolbarButton))
-            {
-                UniPixCommands.LoadPix(Session);
-                Repaint();
-            }
-
-            using (new EditorGUI.DisabledScope(!Session.IsImageDirty))
-            {
-                if (GUILayout.Button(Styles.saveContent, EditorStyles.toolbarButton))
+                if (GUILayout.Button(Styles.newContent, EditorStyles.toolbarButton))
                 {
-                    UniPixCommands.SavePix(Session);
+                    UniPixCommands.CreatePix(Session, 32, 32);
+                    Repaint();
+                }
+
+                if (GUILayout.Button(Styles.loadContent, EditorStyles.toolbarButton))
+                {
+                    UniPixCommands.LoadPix(Session);
+                    Repaint();
+                }
+
+                using (new EditorGUI.DisabledScope(!Session.IsImageDirty))
+                {
+                    if (GUILayout.Button(Styles.saveContent, EditorStyles.toolbarButton))
+                    {
+                        UniPixCommands.SavePix(Session);
+                    }
+                }
+
+                var syncRect = GUILayoutUtility.GetRect(Styles.syncContent, EditorStyles.toolbarButton);
+                var areAllSourcesSet = Session.Image.Frames.All(f => f.SourceSprite != null);
+                if (!areAllSourcesSet && EditorGUI.DropdownButton(syncRect, Styles.syncContent, FocusType.Passive, EditorStyles.toolbarButton) && SyncWindow.canShow)
+                {
+                    if (SyncWindow.ShowAtPosition(this, syncRect))
+                        GUIUtility.ExitGUI();
+                }
+                else if (GUI.Button(syncRect, Styles.syncContent, EditorStyles.toolbarButton))
+                {
+                    UniPixCommands.SaveImageSources(Session);
+                }
+
+                var settingsRect = GUILayoutUtility.GetRect(Styles.gridSettingsContent, EditorStyles.toolbarButton);
+                if (EditorGUI.DropdownButton(settingsRect, Styles.gridSettingsContent, FocusType.Passive, EditorStyles.toolbarButton) && GridSettingsWindow.canShow)
+                {
+                    if (GridSettingsWindow.ShowAtPosition(this, settingsRect))
+                        GUIUtility.ExitGUI();
+                }
+
+                var exportRect = GUILayoutUtility.GetRect(Styles.exportContent, EditorStyles.toolbarButton);
+                if (EditorGUI.DropdownButton(exportRect, Styles.exportContent, FocusType.Passive, EditorStyles.toolbarButton) && ExportWindow.canShow)
+                {
+                    if (ExportWindow.ShowAtPosition(this, exportRect))
+                        GUIUtility.ExitGUI();
                 }
             }
-
-            var syncRect = GUILayoutUtility.GetRect(Styles.syncContent, EditorStyles.toolbarButton);
-            var areAllSourcesSet = Session.Image.Frames.All(f => f.SourceSprite != null);
-            if (!areAllSourcesSet && EditorGUI.DropdownButton(syncRect, Styles.syncContent, FocusType.Passive, EditorStyles.toolbarButton) && SyncWindow.canShow)
+            else
             {
-                if (SyncWindow.ShowAtPosition(this, syncRect))
-                    GUIUtility.ExitGUI();
-            }
-            else if (GUI.Button(syncRect, Styles.syncContent, EditorStyles.toolbarButton))
-            {
-                UniPixCommands.SaveImageSources(Session);
-            }
-
-            var settingsRect = GUILayoutUtility.GetRect(Styles.gridSettingsContent, EditorStyles.toolbarButton);
-            if (EditorGUI.DropdownButton(settingsRect, Styles.gridSettingsContent, FocusType.Passive, EditorStyles.toolbarButton) && GridSettingsWindow.canShow)
-            {
-                if (GridSettingsWindow.ShowAtPosition(this, settingsRect))
-                    GUIUtility.ExitGUI();
-            }
-
-            var exportRect = GUILayoutUtility.GetRect(Styles.exportContent, EditorStyles.toolbarButton);
-            if (EditorGUI.DropdownButton(exportRect, Styles.exportContent, FocusType.Passive, EditorStyles.toolbarButton) && ExportWindow.canShow)
-            {
-                if (ExportWindow.ShowAtPosition(this, exportRect))
-                    GUIUtility.ExitGUI();
+                GUILayout.Space(25);
             }
 
             GUILayout.Label(Session.ImageTitle, EditorStyles.toolbarTextField, GUILayout.MinWidth(250));

@@ -718,6 +718,12 @@ namespace UniPix
 
         }
 
+        [CommandHandler("UniPix/CenterCanvas")]
+        private static void CenterCanvas(CommandExecuteContext context)
+        {
+
+        }
+
         [CommandHandler("UniPix/StartAnimation")]
         private static void StartAnimationPreview(CommandExecuteContext context)
         {
@@ -762,6 +768,18 @@ namespace UniPix
 
         [CommandHandler("UniPix/DecreaseBrushSize")]
         private static void DecreaseBrushSize(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/IncreaseColor")]
+        private static void IncreaseColor(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/DecreaseColor")]
+        private static void DecreaseColor(CommandExecuteContext context)
         {
 
         }

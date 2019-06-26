@@ -62,6 +62,8 @@ unipix = {
                 { name = "Zoom" command_id = "UniPix/Zoom" }
                 { name = "Zoom Back" command_id = "UniPix/ZoomBack" }
                 null
+                { name = "Center Canvas" command_id = "UniPix/CenterCanvas" }
+                null
                 { name = "Stop Animation" command_id = "UniPix/StopAnimation" }
                 { name = "Start Animation" command_id = "UniPix/StartAnimation" }
                 { name = "Increase Animation Speed" command_id = "UniPix/IncreaseAnimationSpeed" }
@@ -77,6 +79,8 @@ unipix = {
                 { name = "Increase Brush" command_id = "UniPix/IncreaseBrushSize" }
                 { name = "Decrease Brush" command_id = "UniPix/IncreaseBrushSize" }
                 null
+                { name = "Increase Color" command_id = "UniPix/IncreaseColor" }
+                { name = "Decrease Color" command_id = "UniPix/DecreaseColor" }
                 { name = "Swap Color" command_id = "UniPix/SwapColor" }
             ]
         }
