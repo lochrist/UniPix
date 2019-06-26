@@ -169,6 +169,12 @@ namespace UniPix
                 richText = true
             };
 
+            public static GUIStyle pixMain = new GUIStyle()
+            {
+                name = "pixmain",
+                padding = new RectOffset(2, 0, 0, 0)
+            };
+
             public static GUIStyle pixBox = new GUIStyle()
             {
                 name = "pixbox",
@@ -220,6 +226,8 @@ namespace UniPix
         private void OnEnable()
         {
             titleContent = new GUIContent("UniPix");
+            minSize = new Vector2(Styles.kLeftPanelWidth + Styles.kRightPanelWidth + 100, 400);
+
             m_Tools = new PixTool[] {
                 new BrushTool(),
                 new EraseTool()
@@ -277,11 +285,11 @@ namespace UniPix
         {
             var verticalMaxHeight = position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight;
 
-            m_ToolbarRect = new Rect(0, 0, position.width, Styles.kToolbarHeight);
+            m_ToolbarRect = new Rect(Styles.kMargin, 0, position.width, Styles.kToolbarHeight);
             { // Column 1
-                m_AnimPreviewRect = new Rect(0, m_ToolbarRect.yMax, Styles.kFramePreviewWidth, Styles.kFramePreviewWidth);
+                m_AnimPreviewRect = new Rect(m_ToolbarRect.x, m_ToolbarRect.yMax, Styles.kFramePreviewWidth, Styles.kFramePreviewWidth);
                 const int kToolsSpacing = 10;
-                m_ToolsPaletteRect = new Rect(0, m_AnimPreviewRect.yMax + kToolsSpacing, Styles.kToolPaletteWidth, Styles.kLayerRectHeight);
+                m_ToolsPaletteRect = new Rect(m_ToolbarRect.x, m_AnimPreviewRect.yMax + kToolsSpacing, Styles.kToolPaletteWidth, Styles.kLayerRectHeight);
             }
 
             { // Column 2
@@ -850,11 +858,9 @@ namespace UniPix
                     GUIUtility.ExitGUI();
             }
 
-            GUILayout.Label(Session.ImageTitle, EditorStyles.toolbarTextField);
+            GUILayout.Label(Session.ImageTitle, EditorStyles.toolbarTextField, GUILayout.MinWidth(250));
 
             GUILayout.FlexibleSpace();
-
-            Session.IsDebugDraw = GUILayout.Toggle(Session.IsDebugDraw, "Debug");
 
             GUILayout.EndHorizontal();
             GUILayout.EndArea();

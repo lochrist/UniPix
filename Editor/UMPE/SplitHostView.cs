@@ -12,7 +12,7 @@ namespace UnityEditor
 
             if (imguiContainer != null)
             {
-                imguiContainer.name = "KidsHostView";
+                imguiContainer.name = "PixMainView";
                 imguiContainer.tabIndex = -1;
             }
         }
