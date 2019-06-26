@@ -2,10 +2,54 @@
 
 Pixel Art Editor for Unity
 
-- Export to spriteSheet + slice: todo
+- Way to create a layout with docking system and no toolbar
+- Way to save current layout (in the mode at the right path)
+1- Create layout with docking and uni pix
+2- create layout with docking and uni pix + project browser
+3- create layout with docking and uni pix + project browser + console?
+4- Function to create uni pix and no docking
+5- Button to pop the project browser next to pix? Pop it modal? ShowAtPosition?
+6- Validate what happens (which data) in drag and drop across multi process : surely miss dropping of sprites
 
-In Frame view: 
-- If assigned another sprite: load it?
+In mode, do not draw the toolbar?
+
+Need to Expose commands and shortcut:
+- New Image
+- Open/Load
+- Save
+- Sync
+- Undo/Redo
+- Export Current frame
+- Export Multi frame
+- Export SpriteSheet
+
+- Select Brush
+- Select Erase
+- Next Frame
+- Previous frame
+- Next Layer
+- Previous Layer
+- Pan (no command?)
+- Zoom (mouse?)
+
+- Delete current frame
+- Clone current frame
+
+- Delete current layer
+- Clone current layer
+- Merge current layer with bottom
+- Move layer up
+- Move layer down
+
+- Increase brush size
+- Lower brush size
+- Swap color
+
+- Start Preview
+- Stop Preview
+- Increse preview speed
+- Slow previw speed
+
 
 TODO
 * Mode:
@@ -35,6 +79,7 @@ TODO
         * switch palette and apply palette to image: all colors are replaced with colors from the other palette?
 
 If time:
+* spriesheet syncing if needed
 * UIElements:
 	* create ui with uielements and benchmark
 	* benchmark current ui code

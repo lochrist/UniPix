@@ -1,0 +1,62 @@
+unipix = {
+    label = "UniPix"
+    menus = [
+        {
+            name = "File" // Name of the top level menu item
+            children = [ // Children of this menu
+                { name = "Save"}
+            ]
+        }
+        {
+            name = "Tools" // This is a new menu
+            children = [
+                 { name = "Refresh Modes" command_id = "ModeService/Refresh" shortcut="&r" }
+            ]
+        }
+        {
+            // This menu shows how bindings between a menu and a command id are applied
+            name = "Edit"
+            children = [
+                // There are 2 ways to "move" menu around:
+
+                // If you want to change where a menu item is IN THE SAME TOP LEVEL MENU nothing is needed!
+                // We assume the menu_item_id is the same (ex: Edit/Undo)
+                // In that case we reverted inversed Undo and Redo while still keeping them in the Edit top level menu.
+                {name = "Redo"}
+                {name = "Undo"}
+
+                null, // This is a separator
+
+                {name="Shortcuts..."}
+            ]
+        }
+        {
+            name = "Help"
+            children = "*"
+        }
+    ]
+
+    layouts = [
+        /* "Packages/com.unity.UniPix/Layouts/Northstar.wlt" */
+    ]
+
+    pane_types = [
+        /*
+        "SceneView"
+        "InspectorWindow"
+        "ProjectBrowser"
+        "ProfilerWindow"
+        */
+    ]
+
+    capabilities = {
+        layout_switching = false
+    }
+
+    shortcuts = [
+        /*
+        "Packages/com.unity.northstar/Profiles/NorthDefault.shortcut",
+        "Packages/com.unity.northstar/Profiles/North.shortcut"
+        */
+    ]
+}

@@ -1,7 +1,9 @@
 {
-    "name": "UniPix.Editor",
+    "name": "Assembly-CSharp-Editor-testable",
     "references": [],
-    "optionalUnityReferences": [],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
     "includePlatforms": [
         "Editor"
     ],

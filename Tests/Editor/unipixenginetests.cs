@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
+#if DISABLED
 namespace UniPix
 {
     public static class UniPixMisc
@@ -168,3 +169,4 @@ namespace UniPix
     }
 }
 
+#endif
