@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using UniPix;
 using UnityEditor;
 using UnityEngine;
@@ -103,6 +104,7 @@ public class LayoutUtils
                 // Project Browser View
                 var da = ScriptableObject.CreateInstance<DockArea>();
                 da.AddTab(ScriptableObject.CreateInstance<ProjectBrowser>());
+                da.AddTab(ScriptableObject.CreateInstance<ConsoleWindow>());
                 splitView.AddChild(da);
             }
 
@@ -116,8 +118,8 @@ public class LayoutUtils
             var main = ScriptableObject.CreateInstance<PixMainView>();
             main.AddChild(splitView);
 
-            splitView.children[0].position = new Rect(0, 0, width * 0.3f, height);
-            splitView.children[1].position = new Rect(0, 0, width * 0.7f, height);
+            splitView.children[0].position = new Rect(0, 0, width * 0.4f, height);
+            splitView.children[1].position = new Rect(0, 0, width * 0.6f, height);
 
             splitView.Reflow();
 
@@ -215,6 +217,49 @@ public class LayoutUtils
         {
             ContainerWindow.SetFreezeDisplay(false);
         }
+    }
+
+    [MenuItem("Layout/Project Bundle")]
+    public static void CreateProject()
+    {
+        var projectBrowser = ScriptableObject.CreateInstance<ProjectBrowser>();
+        var console = ScriptableObject.CreateInstance<ConsoleWindow>();
+        var view = ScriptableObject.CreateInstance<SplitView>();
+        var da = ScriptableObject.CreateInstance<DockArea>();
+        da.AddTab(console);
+        da.AddTab(projectBrowser);
+        view.AddChild(da);
+
+        const float kWidth = 500;
+        const float kHeight = 400;
+
+        view.children[0].position = new Rect(0, 0, kWidth, kHeight);
+
+        var containerWindow = ScriptableObject.CreateInstance<ContainerWindow>();
+        containerWindow.m_DontSaveToLayout = false;
+        containerWindow.position = new Rect(100, 100, kWidth, kHeight);
+        containerWindow.rootView = view;
+        containerWindow.rootView.position = new Rect(0, 0, view.position.width, view.position.height);
+
+        containerWindow.Show(ShowMode.NormalWindow, false, true, setFocus: true);
+    }
+
+    [UsedImplicitly, MenuItem("Layout/Save Pix Layout", false, 14005)]
+    public static void SavePixLayout()
+    {
+        WindowLayout.SaveWindowLayout("Packages/com.unity.unipix/Editor/Layouts/Pix.wlt");
+    }
+
+    [UsedImplicitly, MenuItem("Layout/Save BrowsePix Layout", false, 14010)]
+    public static void SaveBrowseLayout()
+    {
+        WindowLayout.SaveWindowLayout("Packages/com.unity.unipix/Editor/Layouts/Browse.wlt");
+    }
+
+    [UsedImplicitly, MenuItem("Layout/Save Debug Layout", false, 14015)]
+    public static void SaveDebugLayout()
+    {
+        WindowLayout.SaveWindowLayout("Packages/com.unity.unipix/Editor/Layouts/Debug.wlt");
     }
 
     public static void ExampleDockingAndSplitView()

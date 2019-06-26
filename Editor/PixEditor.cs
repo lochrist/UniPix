@@ -90,7 +90,7 @@ namespace UniPix
         Texture2D m_TransparentTex;
         System.Diagnostics.Stopwatch m_Timer = new System.Diagnostics.Stopwatch();
 
-        public bool isExporting;
+        public static SessionData s_Session;
 
         public static class Prefs
         {
@@ -235,6 +235,7 @@ namespace UniPix
             m_CurrentTool = m_Tools[0];
 
             Session = new SessionData();
+            s_Session = Session;
 
             UniPixCommands.LoadPix(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
 
@@ -249,7 +250,7 @@ namespace UniPix
 
         private void OnDisable()
         {
-
+            s_Session = null;
         }
 
         private void OnGUI()

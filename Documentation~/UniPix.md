@@ -23,33 +23,39 @@ Need to Expose commands and shortcut:
 - Export Multi frame
 - Export SpriteSheet
 
-- Select Brush
-- Select Erase
+Edit
+- Undo
+- Redo
+
+Frame
 - Next Frame
 - Previous frame
-- Next Layer
-- Previous Layer
-- Pan (no command?)
-- Zoom (mouse?)
-
 - Delete current frame
 - Clone current frame
 
+Layer
+- Next Layer
+- Previous Layer
 - Delete current layer
 - Clone current layer
 - Merge current layer with bottom
 - Move layer up
 - Move layer down
 
-- Increase brush size
-- Lower brush size
-- Swap color
-
+View
+- Pan (no command?)
+- Zoom (mouse?)
 - Start Preview
 - Stop Preview
 - Increse preview speed
 - Slow previw speed
 
+Tools
+- Select Brush
+- Select Erase
+- Increase brush size
+- Lower brush size
+- Swap color
 
 TODO
 * Mode:

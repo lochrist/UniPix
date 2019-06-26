@@ -591,5 +591,188 @@ namespace UniPix
             SetBrushColor(session, 1, session.Palette.Colors.Count > 1 ? session.Palette.Colors[1] : Color.white);
         }
         #endregion
+
+        #region Menu
+        [CommandHandler("UniPix/NewImage")]
+        private static void NewImage(CommandExecuteContext context)
+        {
+            // TODO: allow selection of image size
+            CreatePix(PixEditor.s_Session, 32, 32);
+        }
+
+        [CommandHandler("UniPix/Open")]
+        private static void Open(CommandExecuteContext context)
+        {
+            LoadPix(PixEditor.s_Session);
+        }
+
+        [CommandHandler("UniPix/Save")]
+        private static void Save(CommandExecuteContext context)
+        {
+            SavePix(PixEditor.s_Session);
+        }
+
+        [CommandHandler("UniPix/Sync")]
+        private static void Sync(CommandExecuteContext context)
+        {
+            // TODO with a validator
+        }
+
+        [CommandHandler("UniPix/ExportCurrentFrame")]
+        private static void ExportCurrentFrame(CommandExecuteContext context)
+        {
+            ExportFrames(PixEditor.s_Session, new[] { PixEditor.s_Session.CurrentFrame });
+        }
+
+        [CommandHandler("UniPix/ExportFrames")]
+        private static void ExportFrames(CommandExecuteContext context)
+        {
+            ExportFrames(PixEditor.s_Session);
+        }
+
+        [CommandHandler("UniPix/ExportSpriteSheet")]
+        private static void ExportSpriteSheet(CommandExecuteContext context)
+        {
+            ExportFramesToSpriteSheet(PixEditor.s_Session);
+        }
+
+        [CommandHandler("UniPix/GotoDefaultMode")]
+        private static void GotoDefaultMode(CommandExecuteContext context)
+        {
+            ModeService.ChangeModeById("default");
+        }
+
+        [CommandHandler("UniPix/GotoNextFrame")]
+        private static void GotoNextFrame(CommandExecuteContext context)
+        {
+            
+        }
+
+        [CommandHandler("UniPix/GotoPreviousFrame")]
+        private static void GotoPreviousFrame(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/DeleteCurrentFrame")]
+        private static void DeleteCurrentFrame(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/CloneCurrentFrame")]
+        private static void CloneCurrentFrame(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/GotoNextLayer")]
+        private static void GotoNextLayer(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/GotoPreviousLayer")]
+        private static void GotoPreviousLAyer(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/DeleteCurrentLayer")]
+        private static void DeleteCurrentLayer(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/CloneCurrentLayer")]
+        private static void CloneCurrentLayer(CommandExecuteContext context)
+        {
+
+        }
+        [CommandHandler("UniPix/MergeCurrentLayer")]
+        private static void MergeCurrentLayer(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/MoveLayerUp")]
+        private static void MoveLayerUp(CommandExecuteContext context)
+        {
+
+        }
+        [CommandHandler("UniPix/MoveLayerDown")]
+        private static void MoveLayerDown(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/Zoom")]
+        private static void Zoom(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/ZoomBack")]
+        private static void ZoomBack(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/StartAnimation")]
+        private static void StartAnimationPreview(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/StopAnimation")]
+        private static void StopAnimationPreview(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/IncreaseAnimationSpeed")]
+        private static void IncreaseAnimationSpeed(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/DecreaseAnimationSpeed")]
+        private static void DecreaseAnimationSpeed(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/ActivateBrush")]
+        private static void ActivateBrush(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/ActivateEraser")]
+        private static void ActivateEraser(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/IncreaseBrushSize")]
+        private static void IncreaseBrushSize(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/DecreaseBrushSize")]
+        private static void DecreaseBrushSize(CommandExecuteContext context)
+        {
+
+        }
+
+        [CommandHandler("UniPix/SwapColor")]
+        private static void SwapColor(CommandExecuteContext context)
+        {
+
+        }
+        #endregion
     }
 }
+ 
+ 

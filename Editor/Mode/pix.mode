@@ -4,13 +4,15 @@ unipix = {
         {
             name = "File" // Name of the top level menu item
             children = [ // Children of this menu
-                { name = "Save"}
-            ]
-        }
-        {
-            name = "Tools" // This is a new menu
-            children = [
-                 { name = "Refresh Modes" command_id = "ModeService/Refresh" shortcut="&r" }
+                {name = "New..." command_id = "UniPix/NewImage" }
+                {name = "Open..." command_id = "UniPix/Open" }
+                null
+                { name = "Save" command_id = "UniPix/Save" }
+                { name = "Sync" command_id = "UniPix/Sync" }
+                null
+                { name = "Export Current Frame" command_id = "UniPix/ExportCurrentFrame" }
+                { name = "Export Frames" command_id = "UniPix/ExportFrames" }
+                { name = "Export SpriteSheet" command_id = "UniPix/ExportSpriteSheet" }
             ]
         }
         {
@@ -31,26 +33,88 @@ unipix = {
             ]
         }
         {
+            name = "Frame"
+            children = [
+                { name = "Go to next" command_id = "UniPix/GotoNextFrame" }
+                { name = "Go to previous" command_id = "UniPix/GotoPreviousFrame" }
+                null
+                { name = "Clone current" command_id = "UniPix/CloneCurrentFrame" }
+                { name = "Delete current" command_id = "UniPix/DeleteCurrentFrame" }
+            ]
+        }
+        {
+            name = "Layer"
+            children = [
+                { name = "Go to next" command_id = "UniPix/GotoNextLayer" }
+                { name = "Go to previous" command_id = "UniPix/GotoPreviousLayer" }
+                null
+                { name = "Clone current" command_id = "UniPix/CloneCurrentLayer" }
+                { name = "Delete current" command_id = "UniPix/DeleteCurrentLayer" }
+                { name = "Merge current" command_id = "UniPix/MergeCurrentLayer" }
+                null
+                { name = "Move up" command_id = "UniPix/MoveLayerUp" }
+                { name = "Move down" command_id = "UniPix/MoveLayerDown" }
+            ]
+        }
+        {
+            name = "View"
+            children = [
+                { name = "Zoom" command_id = "UniPix/Zoom" }
+                { name = "Zoom Back" command_id = "UniPix/ZoomBack" }
+                null
+                { name = "Stop Animation" command_id = "UniPix/StopAnimation" }
+                { name = "Start Animation" command_id = "UniPix/StartAnimation" }
+                { name = "Increase Animation Speed" command_id = "UniPix/IncreaseAnimationSpeed" }
+                { name = "Decrease Animation Speed" command_id = "UniPix/DecreaseAnimationSpeed" }
+            ]
+        }
+        {
+            name = "Tool"
+            children = [
+                { name = "Brush" command_id = "UniPix/ActivateBrush" }
+                { name = "Eraser" command_id = "UniPix/ActivateEraser" }
+                null
+                { name = "Increase Brush" command_id = "UniPix/IncreaseBrushSize" }
+                { name = "Decrease Brush" command_id = "UniPix/IncreaseBrushSize" }
+                null
+                { name = "Swap Color" command_id = "UniPix/SwapColor" }
+            ]
+        }
+        {
+            name = "Window"
+            children = [
+                {name = "Console" menu_item_id = "Window/UniPix"}
+                {name = "Console" menu_item_id = "Window/General/Project"}
+                {name = "Console" menu_item_id = "Window/General/Console"}
+            ]
+        }
+        {
             name = "Help"
             children = "*"
+        }
+        {
+            name = "Debug"
+            internal = true
+            children = [
+                 { name = "Refresh Modes" command_id = "ModeService/Refresh" shortcut="&r" }
+                 { name = "Default Mode" command_id = "UniPix/GotoDefaultMode" }
+            ]
         }
     ]
 
     layouts = [
-        /* "Packages/com.unity.UniPix/Layouts/Northstar.wlt" */
+        "Packages/com.unity.UniPix/Editor/Layouts/Pix.wlt"
+        "Packages/com.unity.UniPix/Editor/Layouts/Browse.wlt"
+        "Packages/com.unity.UniPix/Editor/Layouts/Debug.wlt"
     ]
 
     pane_types = [
-        /*
-        "SceneView"
-        "InspectorWindow"
         "ProjectBrowser"
-        "ProfilerWindow"
-        */
+        "ConsoleWindow"
     ]
 
     capabilities = {
-        layout_switching = false
+        layout_switching = true
     }
 
     shortcuts = [
