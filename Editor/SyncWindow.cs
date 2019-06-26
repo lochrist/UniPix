@@ -39,12 +39,20 @@ namespace UniPix
 
                 if (GUILayout.Button("Save separate images"))
                 {
-                    UniPixCommands.SaveImageSources(s_Editor.Session);
+                    EditorApplication.delayCall += () =>
+                    {
+                        UniPixCommands.SaveImageSources(s_Editor.Session);
+                        Close();
+                    };
                 }
 
                 if (GUILayout.Button("Save as spritesheet"))
                 {
-                    UniPixCommands.SaveImageSources(s_Editor.Session, true);
+                    EditorApplication.delayCall += () =>
+                    {
+                        UniPixCommands.SaveImageSources(s_Editor.Session, true);
+                        Close();
+                    };
                 }
             }
         }

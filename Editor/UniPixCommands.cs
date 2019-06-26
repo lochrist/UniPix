@@ -133,9 +133,10 @@ namespace UniPix
                     UpdateFrameSprite(linkedFrame);
                 }
 
+                // TODO Export => not linked
                 var unlinkedFrame = session.Image.Frames.Where(f => f.SourceSprite == null).ToArray();
-                // If spriteSheet: bundle together all unlinked frame. Create sprite sheet
-                // TODO Export
+                var sheet = ExportFramesToSpriteSheet(session, unlinkedFrame);
+                // Need to relink each sprite to their frame.
             }
             else
             {
