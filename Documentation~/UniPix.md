@@ -8,22 +8,6 @@ In Frame view:
 - If assigned another sprite: load it?
 
 TODO
-* 
-* Import/Export : to clarify goals. should at least make editing of game assets possible
-    * When dragging identify if multiple sprites are dragged, bind each frames to its sprite source
-        * is it possible to actually write on a spritesheet?
-        * Support Sprite if they are bound to an asset
-        * Frame keeps reference on the sprite
-        * on Save:
-            * Write in the Sprite Texture
-            * If only a texture and NOT a Sprite: write on the image (same format if possible)
-    * export as gif
-    * export as spritesheet
-    * Workflow with sprites:
-        * How to "bind" to a sprite?
-        * Generate the spritesheet on import of the asset?
-* Undo/Redo
-    * Add to createAsset menu (See Damian prez)
 * Mode:
     * Its own menu
     * its own layout? or single window?
@@ -34,6 +18,9 @@ TODO
     * Open in isolation
 	* validate drag and drop from another project
 	* Add Right click on asset: open in UniPix
+* export as gif: https://github.com/simonwittber/uGIF/tree/master/Assets/uGIF/Scripts
+* Undo/Redo
+    * Add to createAsset menu (See Damian prez)
 * Tools:
     * Bucket filler
     * Mirror?

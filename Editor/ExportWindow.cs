@@ -35,26 +35,51 @@ namespace UniPix
             {
                 GUILayout.Label("Export", PixEditor.Styles.layerHeader);
 
-                var exportFolder = "";
+                var exportMode = -1;
                 if (GUILayout.Button("Export current frame"))
                 {
-                    exportFolder = UniPixCommands.ExportFrames(s_Editor.Session, new [] {s_Editor.Session.CurrentFrame});
+                    exportMode = 0;
                 }
 
                 if (GUILayout.Button("Export all frames"))
                 {
-                    exportFolder = UniPixCommands.ExportFrames(s_Editor.Session);
+                    exportMode = 1;
                 }
 
                 if (GUILayout.Button("Export to sprite sheet"))
                 {
-                    exportFolder = UniPixCommands.ExportFramesToSpriteSheet(s_Editor.Session);
+                    exportMode = 2;
                 }
 
-                if (!string.IsNullOrEmpty(exportFolder))
+                if (exportMode != -1)
                 {
-                    EditorUtility.RevealInFinder(exportFolder);
+                    EditorApplication.delayCall += () => DelayedExport(exportMode);
+                    Close();
                 }
+            }
+        }
+
+        private static void DelayedExport(int mode)
+        {
+            var exportedFile = "";
+            if (mode == 0)
+            {
+                var frames = UniPixCommands.ExportFrames(s_Editor.Session, new[] { s_Editor.Session.CurrentFrame });
+                exportedFile = frames != null && frames.Length > 0 ? frames[0] : null;
+            }
+            else if (mode == 1)
+            {
+                var frames = UniPixCommands.ExportFrames(s_Editor.Session);
+                exportedFile = frames != null && frames.Length > 0 ? frames[0] : null;
+            }
+            else
+            {
+                exportedFile = UniPixCommands.ExportFramesToSpriteSheet(s_Editor.Session);
+            }
+
+            if (!string.IsNullOrEmpty(exportedFile))
+            {
+                EditorUtility.RevealInFinder(exportedFile);
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.IO;
@@ -127,6 +128,11 @@ namespace UniPix
             if (spriteSheet)
             {
                 var linkedFrames = session.Image.Frames.Where(f => f.SourceSprite != null).ToArray();
+                foreach (var linkedFrame in linkedFrames)
+                {
+                    UpdateFrameSprite(linkedFrame);
+                }
+
                 var unlinkedFrame = session.Image.Frames.Where(f => f.SourceSprite == null).ToArray();
                 // If spriteSheet: bundle together all unlinked frame. Create sprite sheet
                 // TODO Export
@@ -177,7 +183,7 @@ namespace UniPix
         }
 
         // Export is not linked at all to the image
-        public static string ExportFrames(SessionData session, Frame[] frames = null)
+        public static string[] ExportFrames(SessionData session, Frame[] frames = null)
         {
             // ask user for base name: give image as base name
             // Save each image separately
@@ -186,36 +192,105 @@ namespace UniPix
             if (frames.Length == 0)
                 return null;
 
-            string path = EditorUtility.SaveFilePanel(
-                "Export as image",
-                "Assets/", string.IsNullOrEmpty(session.ImagePath) ? "pix.png" : UniPixUtils.GetBaseName(session.ImagePath), "png");
+            var baseFolder = string.IsNullOrEmpty(session.ImagePath) ? "Assets/" : Path.GetDirectoryName(session.ImagePath);
+            var baseName = string.IsNullOrEmpty(session.ImagePath) ? "pix.png" : UniPixUtils.GetBaseName(session.ImagePath);
+            string path = EditorUtility.SaveFilePanel("Export as image", baseFolder, baseName, "png");
             if (path == "")
             {
                 return null;
             }
 
             var basePath = UniPixUtils.GetBasePath(path);
-
+            var frameFilePaths = new List<string>();
             for (var i = 0; i < frames.Length; ++i)
             {
                 var frame = session.Image.Frames[i];
-                ExportFrame(frame, UniPixUtils.GetUniquePath(basePath, ".png", i));
+                frameFilePaths.Add(ExportFrame(frame, UniPixUtils.GetUniquePath(basePath, ".png", i)));
             }
 
-            return Path.GetDirectoryName(basePath);
+            return frameFilePaths.ToArray();
         }
 
         // Export is not linked to the image
-        public static string ExportFramesToSpriteSheet(SessionData session)
+        public static string ExportFramesToSpriteSheet(SessionData session, Frame[] frames = null)
         {
             // ask user for base name: give image as base name
             // Save as a sprite sheet
             // Ensure to properly update SpriteMetadata
+            frames = frames ?? session.Image.Frames.ToArray();
+            var baseFolder = string.IsNullOrEmpty(session.ImagePath) ? "Assets/" : Path.GetDirectoryName(session.ImagePath);
+            var baseName = string.IsNullOrEmpty(session.ImagePath) ? "sprite_sheet.png" : $"{UniPixUtils.GetBaseName(session.ImagePath)}_sheet";
+            string path = EditorUtility.SaveFilePanel("Save spritesheet", baseFolder, baseName, "png");
+            if (path == "")
+            {
+                return null;
+            }
 
-            // TODO Export
-            throw new Exception("Not Implemented");
+            var frameWidth = session.Image.Width;
+            var frameHeight = session.Image.Height;
+            var rows = (int)Mathf.Sqrt(frames.Length);
+            var spriteSheetWidth = (frames.Length * frameWidth) / rows;
+            spriteSheetWidth += spriteSheetWidth % frameWidth;
 
-            return null;
+            var spriteSheetHeight = frameHeight * rows;
+            spriteSheetHeight += spriteSheetHeight % frameHeight;
+
+            var spriteSheet = new Texture2D(spriteSheetWidth, spriteSheetHeight) { filterMode = FilterMode.Point };
+            spriteSheet.name = UniPixUtils.GetBaseName(path);
+            var offsetX = 0;
+            var offsetY = spriteSheetHeight - frameHeight;
+
+            for (int i = 0; i < frames.Length; i++)
+            {
+                if (i != 0 && (frameWidth * i) % spriteSheetWidth == 0)
+                {
+                    offsetY -= frameHeight;
+                    offsetX = 0;
+                }
+
+                for (var x = 0; x < frameWidth; x++)
+                {
+                    for (var y = 0; y < frameHeight; y++)
+                    {
+                        var framePixelColor = frames[i].Texture.GetPixel(x, y);
+                        spriteSheet.SetPixel(x + offsetX, y + offsetY, framePixelColor);
+                        spriteSheet.Apply();
+                    }
+                }
+                offsetX += frameWidth;
+            }
+
+            var content = spriteSheet.EncodeToPNG();
+            File.WriteAllBytes(path, content);
+            AssetDatabase.Refresh();
+
+            // Slice the sprite:
+            var importer = AssetImporter.GetAtPath(FileUtil.GetProjectRelativePath(path)) as TextureImporter;
+            if (importer != null)
+            {
+                importer.isReadable = true;
+                importer.spriteImportMode = SpriteImportMode.Multiple;
+
+                var spritesheetMetaData = new List<SpriteMetaData>();
+                for (int x = 0; x < spriteSheet.width; x += frameWidth)
+                {
+                    for (int y = spriteSheet.height; y > 0; y -= frameHeight)
+                    {
+                        SpriteMetaData data = new SpriteMetaData();
+                        data.pivot = new Vector2(0.5f, 0.5f);
+                        data.alignment = 9;
+                        data.name = spriteSheet.name + x + "_" + y;
+                        data.rect = new Rect(x, y - frameHeight, frameWidth, frameHeight);
+                        spritesheetMetaData.Add(data);
+                    }
+                }
+
+                importer.spritesheet = spritesheetMetaData.ToArray();
+                AssetDatabase.Refresh();
+                importer.SaveAndReimport();
+            }
+
+            return path;
         }
 
         public static void UpdateFrameSprite(Frame frame)
@@ -263,12 +338,15 @@ namespace UniPix
 
             if (updateMetaFile)
             {
-                TextureImporter importer = TextureImporter.GetAtPath(path) as TextureImporter;
-                importer.textureType = TextureImporterType.Sprite;
-                importer.filterMode = FilterMode.Point;
-                importer.textureCompression = TextureImporterCompression.Uncompressed;
-                importer.SaveAndReimport();
-                AssetDatabase.Refresh();
+                var importer = AssetImporter.GetAtPath(path) as TextureImporter;
+                if (importer != null)
+                {
+                    importer.textureType = TextureImporterType.Sprite;
+                    importer.filterMode = FilterMode.Point;
+                    importer.textureCompression = TextureImporterCompression.Uncompressed;
+                    importer.SaveAndReimport();
+                    AssetDatabase.Refresh();
+                }
             }
             return path;
         }
