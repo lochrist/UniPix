@@ -117,6 +117,13 @@ namespace UniPix
         #region Export
         public static void SaveImageSources(SessionData session, bool spriteSheet = false)
         {
+            UniPixCommands.SavePix(session);
+            if (string.IsNullOrEmpty(session.ImagePath))
+            {
+                // SavePix was cancelled.
+                return;
+            }
+
             if (spriteSheet)
             {
                 var linkedFrames = session.Image.Frames.Where(f => f.SourceSprite != null).ToArray();
@@ -126,12 +133,20 @@ namespace UniPix
             }
             else
             {
-                var basePath = UniPixUtils.GetBasePath(session.ImagePath);
+                string basePath =null;
                 for (int i = 0; i < session.Image.Frames.Count; i++)
                 {
                     var frame = session.Image.Frames[i];
                     if (frame.SourceSprite == null)
                     {
+                        if (basePath == null)
+                        {
+                            string path = EditorUtility.SaveFilePanel(
+                                "Export as image",
+                                "Assets/", string.IsNullOrEmpty(session.ImagePath) ? "pix.png" : UniPixUtils.GetBaseName(session.ImagePath), "png");
+                            basePath = path == "" ? UniPixUtils.GetBasePath(session.ImagePath) : UniPixUtils.GetBasePath(path);
+                        }
+
                         // One image per frame
                         var framePath = UniPixUtils.GetUniquePath(basePath, ".png", i);
                         framePath = ExportFrame(frame, framePath);
@@ -146,34 +161,36 @@ namespace UniPix
         }
 
         // Export is not linked at all to the image
-        public static void ExportFrames(SessionData session, Frame[] frames = null)
+        public static string ExportFrames(SessionData session, Frame[] frames = null)
         {
             // ask user for base name: give image as base name
             // Save each image separately
             // Ensure to properly update SpriteMetadata
             frames = frames ?? session.Image.Frames.ToArray();
             if (frames.Length == 0)
-                return;
+                return null;
 
             string path = EditorUtility.SaveFilePanel(
                 "Export as image",
                 "Assets/", string.IsNullOrEmpty(session.ImagePath) ? "pix.png" : UniPixUtils.GetBaseName(session.ImagePath), "png");
             if (path == "")
             {
-                return;
+                return null;
             }
 
             var basePath = UniPixUtils.GetBasePath(path);
 
-            for (var i = 0; i < session.Image.Frames.Count; ++i)
+            for (var i = 0; i < frames.Length; ++i)
             {
                 var frame = session.Image.Frames[i];
                 ExportFrame(frame, UniPixUtils.GetUniquePath(basePath, ".png", i));
             }
+
+            return Path.GetDirectoryName(basePath);
         }
 
         // Export is not linked to the image
-        public static void ExportFramesToSpriteSheet(SessionData session)
+        public static string ExportFramesToSpriteSheet(SessionData session)
         {
             // ask user for base name: give image as base name
             // Save as a sprite sheet
@@ -181,6 +198,8 @@ namespace UniPix
 
             // TODO Export
             throw new Exception("Not Implemented");
+
+            return null;
         }
 
         public static void UpdateFrameSprite(Frame frame)

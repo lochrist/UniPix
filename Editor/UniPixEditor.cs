@@ -773,27 +773,26 @@ namespace UniPix
             {
                 GUILayout.Label("Frame Source", Styles.layerHeader);
 
-                var oldLabelWidth = EditorGUIUtility.labelWidth;
-                var oldFieldWidth = EditorGUIUtility.fieldWidth;
-                EditorGUIUtility.labelWidth = 45;
-                EditorGUIUtility.fieldWidth = 45;
-                EditorGUI.BeginChangeCheck();
-                var sprite = EditorGUILayout.ObjectField("Sprite", Session.CurrentFrame.SourceSprite, typeof(Sprite), false);
-                if (EditorGUI.EndChangeCheck())
+                using (new UniPixUtils.FieldWidthScope(45, 45))
                 {
-                    // TODO: handle source change
-                    // TODO Export
+                    EditorGUI.BeginChangeCheck();
+                    var sprite = EditorGUILayout.ObjectField("Sprite", Session.CurrentFrame.SourceSprite, typeof(Sprite), false);
+                    if (EditorGUI.EndChangeCheck())
+                    {
+
+                    }
                 }
-                EditorGUIUtility.labelWidth = oldLabelWidth;
-                EditorGUIUtility.fieldWidth = oldFieldWidth;
 
                 using (new EditorGUI.DisabledScope(Session.CurrentFrame.SourceSprite == null || !Session.IsImageDirty))
                 {
-                    if (GUILayout.Button(Styles.syncContent))
+                    GUILayout.BeginHorizontal();
+                    GUILayout.FlexibleSpace();
+                    if (GUILayout.Button(Styles.syncContent, GUILayout.MaxWidth(32)))
                     {
                         UniPixCommands.SavePix(Session);
                         UniPixCommands.UpdateFrameSprite(Session.CurrentFrame);
                     }
+                    GUILayout.EndHorizontal();
                 }
             }
         }
@@ -827,13 +826,11 @@ namespace UniPix
             var areAllSourcesSet = Session.Image.Frames.All(f => f.SourceSprite != null);
             if (!areAllSourcesSet && EditorGUI.DropdownButton(syncRect, Styles.syncContent, FocusType.Passive, EditorStyles.toolbarButton) && SyncWindow.canShow)
             {
-                // TODO Export
                 if (SyncWindow.ShowAtPosition(this, syncRect))
                     GUIUtility.ExitGUI();
             }
             else if (GUI.Button(syncRect, Styles.syncContent, EditorStyles.toolbarButton))
             {
-                // TODO Export
                 UniPixCommands.SaveImageSources(Session);
             }
 
@@ -847,7 +844,6 @@ namespace UniPix
             var exportRect = GUILayoutUtility.GetRect(Styles.exportContent, EditorStyles.toolbarButton);
             if (EditorGUI.DropdownButton(exportRect, Styles.exportContent, FocusType.Passive, EditorStyles.toolbarButton) && ExportWindow.canShow)
             {
-                // TODO Export
                 if (ExportWindow.ShowAtPosition(this, exportRect))
                     GUIUtility.ExitGUI();
             }

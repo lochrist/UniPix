@@ -32,14 +32,10 @@ namespace UniPix
 
         void OnGUI()
         {
+            using (new UniPixUtils.FieldWidthScope(45, 45))
             using (new GUILayout.VerticalScope(PixEditor.Styles.pixBox))
             {
                 GUILayout.Label("Grid");
-
-                var oldLabelWidth = EditorGUIUtility.labelWidth;
-                var oldFieldWidth = EditorGUIUtility.fieldWidth;
-                EditorGUIUtility.labelWidth = 45;
-                EditorGUIUtility.fieldWidth = 45;
                 EditorGUI.BeginChangeCheck();
                 s_Editor.Session.ShowGrid = GUILayout.Toggle(s_Editor.Session.ShowGrid, "Show");
                 if (EditorGUI.EndChangeCheck())
@@ -64,8 +60,6 @@ namespace UniPix
                     s_Editor.Repaint();
                 }
 
-                EditorGUIUtility.labelWidth = oldLabelWidth;
-                EditorGUIUtility.fieldWidth = oldFieldWidth;
                 GUILayout.FlexibleSpace();
             }
         }

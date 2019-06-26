@@ -196,13 +196,34 @@ namespace UniPix
         public static string GetUniquePath(string basePath, string extension, int index = 1)
         {
             var path = $"{basePath}_{index}{extension}";
-            return path;
             while (File.Exists(path))
             {
                 ++index;
                 path = $"{basePath}_{index}{extension}";
             }
             return path;
+        }
+
+        public struct FieldWidthScope : IDisposable
+        {
+            float m_LabelWidth;
+            float m_FieldWidth;
+
+            public FieldWidthScope(float labelWidth, float fieldWidth = 0)
+            {
+                m_LabelWidth = EditorGUIUtility.labelWidth;
+                m_FieldWidth = EditorGUIUtility.fieldWidth;
+
+                EditorGUIUtility.labelWidth = labelWidth;
+                if (fieldWidth != 0)
+                    EditorGUIUtility.fieldWidth = fieldWidth;
+            }
+
+            public void Dispose()
+            {
+                EditorGUIUtility.labelWidth = m_LabelWidth;
+                EditorGUIUtility.fieldWidth = m_FieldWidth;
+            }
         }
     }
 }

@@ -35,19 +35,25 @@ namespace UniPix
             {
                 GUILayout.Label("Export", PixEditor.Styles.layerHeader);
 
+                var exportFolder = "";
                 if (GUILayout.Button("Export current frame"))
                 {
-                    UniPixCommands.ExportFrames(s_Editor.Session, new [] {s_Editor.Session.CurrentFrame});
+                    exportFolder = UniPixCommands.ExportFrames(s_Editor.Session, new [] {s_Editor.Session.CurrentFrame});
                 }
 
                 if (GUILayout.Button("Export all frames"))
                 {
-                    UniPixCommands.ExportFrames(s_Editor.Session);
+                    exportFolder = UniPixCommands.ExportFrames(s_Editor.Session);
                 }
 
                 if (GUILayout.Button("Export to sprite sheet"))
                 {
-                    UniPixCommands.ExportFramesToSpriteSheet(s_Editor.Session);
+                    exportFolder = UniPixCommands.ExportFramesToSpriteSheet(s_Editor.Session);
+                }
+
+                if (!string.IsNullOrEmpty(exportFolder))
+                {
+                    EditorUtility.RevealInFinder(exportFolder);
                 }
             }
         }

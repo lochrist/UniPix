@@ -107,3 +107,27 @@ Good inspirations
 
 
 ou Pixel Art drawing app, created as a unity game that runs on ipad and that uses the Eventservice to communicate with the different instances?
+
+
+Video ideas:
+
+- quick enumeration of all features while using the pixel art editor
+    - layers
+    - multi frames
+    - import from texture2D, sprite, jpg, png 
+    - export as separate frames or spritesheet
+    - synchronize with source asset
+    - grid
+    - tools:
+    - palette management
+    - animation preview
+    - undo/redo
+    - everything has a shorcuts
+    - but everty unity pixel art editor would have that...
+- In its own process:
+    - separate undo-queue
+    - not impacted by global selection
+    - sync with master instance
+    - its own menubar and shortcuts!
+- Can even be started standalone:
+    - create shortcut with proper command line switch on the project
