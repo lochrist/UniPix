@@ -14,13 +14,13 @@ namespace UniPix
         public static PixSession Create()
         {
             var session = new PixSession();
-            session.ImageSessionState = ScriptableObject.CreateInstance<ImageSessionState>();
+            session.ImageSessionState = ScriptableObject.CreateInstance<PixImageSessionState>();
             return session;
         }
 
         public float ZoomLevel = 20f;
 
-        public Image Image;
+        public PixImage Image;
         public string ImagePath;
         public string ImageTitle;
         public bool IsImageDirty;
@@ -40,7 +40,7 @@ namespace UniPix
         public Frame CurrentFrame => Image.Frames[CurrentFrameIndex];
         public Layer CurrentLayer => CurrentFrame.Layers[CurrentLayerIndex];
 
-        public ImageSessionState ImageSessionState;
+        public PixImageSessionState ImageSessionState;
 
         public Color CurrentColor = new Color(1, 0, 0);
         public int CurrentColorPaletteIndex = -1;
@@ -260,7 +260,7 @@ namespace UniPix
             Session = PixSession.Create();
             s_Session = Session;
 
-            UniPixCommands.LoadPix(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
+            PixCommands.LoadPix(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
 
             Session.ZoomLevel = 10f;
 
@@ -426,14 +426,14 @@ namespace UniPix
                 {
                     if (GUILayout.Button(Styles.newLayer, Styles.layerToolbarBtn))
                     {
-                        UniPixCommands.CreateLayer(Session);
+                        PixCommands.CreateLayer(Session);
                         Repaint();
                         GUIUtility.ExitGUI();
                     }
 
                     if (GUILayout.Button(Styles.cloneLayer, Styles.layerToolbarBtn))
                     {
-                        UniPixCommands.CloneLayer(Session);
+                        PixCommands.CloneLayer(Session);
                         Repaint();
                         GUIUtility.ExitGUI();
                     }
@@ -442,7 +442,7 @@ namespace UniPix
                     {
                         if (GUILayout.Button(Styles.moveLayerUp, Styles.layerToolbarBtn))
                         {
-                            UniPixCommands.SwapLayers(Session, Session.CurrentLayerIndex, Session.CurrentLayerIndex + 1);
+                            PixCommands.SwapLayers(Session, Session.CurrentLayerIndex, Session.CurrentLayerIndex + 1);
                             Repaint();
                             GUIUtility.ExitGUI();
                         }
@@ -452,14 +452,14 @@ namespace UniPix
                     {
                         if (GUILayout.Button(Styles.moveLayerDown, Styles.layerToolbarBtn))
                         {
-                            UniPixCommands.SwapLayers(Session, Session.CurrentLayerIndex, Session.CurrentLayerIndex - 1);
+                            PixCommands.SwapLayers(Session, Session.CurrentLayerIndex, Session.CurrentLayerIndex - 1);
                             Repaint();
                             GUIUtility.ExitGUI();
                         }
 
                         if (GUILayout.Button(Styles.mergeLayer, Styles.layerToolbarBtn))
                         {
-                            UniPixCommands.MergeLayers(Session, Session.CurrentLayerIndex, Session.CurrentLayerIndex - 1);
+                            PixCommands.MergeLayers(Session, Session.CurrentLayerIndex, Session.CurrentLayerIndex - 1);
                             Repaint();
                             GUIUtility.ExitGUI();
                         }
@@ -467,19 +467,19 @@ namespace UniPix
 
                     if (GUILayout.Button(Styles.deleteLayer, Styles.layerToolbarBtn))
                     {
-                        UniPixCommands.DeleteLayer(Session);
+                        PixCommands.DeleteLayer(Session);
                         Repaint();
                         GUIUtility.ExitGUI();
                     }
                 }
 
                 EditorGUI.BeginChangeCheck();
-                var opacity = UniPixUtils.Slider($"Opacity {(int)(Session.CurrentLayer.Opacity * 100)}%",
+                var opacity = PixUtils.Slider($"Opacity {(int)(Session.CurrentLayer.Opacity * 100)}%",
                     Session.CurrentLayer.Opacity, 0f, 1f, Styles.layerOpacitySlider
                     );
                 if (EditorGUI.EndChangeCheck())
                 {
-                    UniPixCommands.SetLayerOpacity(Session, Session.CurrentLayerIndex, opacity);
+                    PixCommands.SetLayerOpacity(Session, Session.CurrentLayerIndex, opacity);
                     Repaint();
                 }
                 GUILayout.Space(5);
@@ -492,7 +492,7 @@ namespace UniPix
 
                     if (GUILayout.Button(layer.Name, i == Session.CurrentLayerIndex ? Styles.currentLayerName : Styles.layerName, GUILayout.ExpandWidth(true)))
                     {
-                        UniPixCommands.SetCurrentLayer(Session, i);
+                        PixCommands.SetCurrentLayer(Session, i);
                         Repaint();
                     }
 
@@ -500,7 +500,7 @@ namespace UniPix
                     var isLayerVisible = GUILayout.Toggle(layer.Visible, "", Styles.layerVisible);
                     if (EditorGUI.EndChangeCheck())
                     {
-                        UniPixCommands.SetLayerVisibility(Session, i, isLayerVisible);
+                        PixCommands.SetLayerVisibility(Session, i, isLayerVisible);
                         Repaint();
                     }
 
@@ -516,7 +516,7 @@ namespace UniPix
             GUILayout.BeginArea(m_ToolsPaletteRect);
 
             GUILayout.Label("Brush Size", Styles.layerHeader);
-            Session.BrushSize = (int)UniPixUtils.Slider($"{Session.BrushSize}", Session.BrushSize, 1, 6, Styles.brushSlider);
+            Session.BrushSize = (int)PixUtils.Slider($"{Session.BrushSize}", Session.BrushSize, 1, 6, Styles.brushSlider);
 
             GUILayout.Label("Tools", Styles.layerHeader);
 
@@ -554,13 +554,13 @@ namespace UniPix
             var eventUsed = false;
             foreach (var frame in Session.Image.Frames)
             {
-                var frameRect = UniPixUtils.LayoutFrameTile(frame, frameIndex == Session.CurrentFrameIndex);
+                var frameRect = PixUtils.LayoutFrameTile(frame, frameIndex == Session.CurrentFrameIndex);
                 if (frameRect.Contains(Event.current.mousePosition))
                 {
                     if (GUI.Button(new Rect(frameRect.x + Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, 
                         Styles.kFramePreviewBtn), Styles.cloneFrame, Styles.frameBtn))
                     {
-                        UniPixCommands.CloneFrame(Session, frameIndex);
+                        PixCommands.CloneFrame(Session, frameIndex);
                         Repaint();
                         GUIUtility.ExitGUI();
                         eventUsed = true;
@@ -569,7 +569,7 @@ namespace UniPix
                     if (GUI.Button(new Rect(frameRect.xMax - Styles.kFramePreviewBtn - Styles.kMargin, frameRect.y + Styles.kMargin, 
                         Styles.kFramePreviewBtn, Styles.kFramePreviewBtn), Styles.deleteFrame, Styles.frameBtn))
                     {
-                        UniPixCommands.DeleteFrame(Session, frameIndex);
+                        PixCommands.DeleteFrame(Session, frameIndex);
                         Repaint();
                         GUIUtility.ExitGUI();
                         eventUsed = true;
@@ -578,7 +578,7 @@ namespace UniPix
 
                 if (!eventUsed && frameRect.Contains(Event.current.mousePosition) && Event.current.type == EventType.MouseDown)
                 {
-                    UniPixCommands.SetCurrentFrame(Session, frameIndex);
+                    PixCommands.SetCurrentFrame(Session, frameIndex);
                     Repaint();
                     GUIUtility.ExitGUI();
                 }
@@ -588,7 +588,7 @@ namespace UniPix
 
             if (GUILayout.Button("New Frame"))
             {
-                UniPixCommands.NewFrame(Session);
+                PixCommands.NewFrame(Session);
                 Repaint();
                 GUIUtility.ExitGUI();
             }
@@ -605,7 +605,7 @@ namespace UniPix
             var color = EditorGUI.ColorField(secondaryColorRect, new GUIContent(""), Session.SecondaryColor, false, false, false);
             if (EditorGUI.EndChangeCheck())
             {
-                UniPixCommands.SetBrushColor(Session, 1, color);
+                PixCommands.SetBrushColor(Session, 1, color);
             }
             GUI.Box(secondaryColorRect, "", Styles.secondaryColorBox);
 
@@ -613,13 +613,13 @@ namespace UniPix
             color = EditorGUI.ColorField(primaryColorRect, new GUIContent(""), Session.CurrentColor, false, false, false);
             if (EditorGUI.EndChangeCheck())
             {
-                UniPixCommands.SetBrushColor(Session, 0, color);
+                PixCommands.SetBrushColor(Session, 0, color);
             }
             GUI.Box(primaryColorRect, "", Styles.primaryColorBox);
             var switcher = new Rect(primaryColorRect.x + 7, primaryColorRect.yMax, 30, 30);
             if (GUI.Button(switcher, Styles.colorSwitcherContent, Styles.colorSwap))
             {
-                UniPixCommands.SwitchColor(Session);
+                PixCommands.SwitchColor(Session);
             }
         }
 
@@ -634,13 +634,13 @@ namespace UniPix
                         if (!m_CanvasRect.Contains(Event.current.mousePosition))
                             break;
                         var objs = DragAndDrop.objectReferences
-                            .Where(UniPixUtils.IsValidPixSource).ToArray();
+                            .Where(PixUtils.IsValidPixSource).ToArray();
 
                         if (objs.Length == 0 && DragAndDrop.paths.Length > 0)
                         {
                             objs = DragAndDrop.paths
                                 .Select(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>)
-                                .Where(UniPixUtils.IsValidPixSource).ToArray();
+                                .Where(PixUtils.IsValidPixSource).ToArray();
                         }
 
                         if (objs.Length > 0)
@@ -650,7 +650,7 @@ namespace UniPix
                             {
                                 DragAndDrop.AcceptDrag();
                                 Event.current.Use();
-                                UniPixCommands.LoadPix(Session, objs);
+                                PixCommands.LoadPix(Session, objs);
                                 GUIUtility.ExitGUI();
                             }
                         }
@@ -810,7 +810,7 @@ namespace UniPix
                                     contentRect.Contains(Event.current.mousePosition) &&
                                     (Event.current.button == 0 || Event.current.button == 1))
                                 {
-                                    UniPixCommands.SetBrushColor(Session, Event.current.button, Session.Palette.Colors[colorItemIndex]);
+                                    PixCommands.SetBrushColor(Session, Event.current.button, Session.Palette.Colors[colorItemIndex]);
                                     Repaint();
                                 }
                             }
@@ -826,13 +826,13 @@ namespace UniPix
             {
                 GUILayout.Label("Frame Source", Styles.layerHeader);
 
-                using (new UniPixUtils.FieldWidthScope(45, 45))
+                using (new PixUtils.FieldWidthScope(45, 45))
                 {
                     EditorGUI.BeginChangeCheck();
                     var sprite = (Sprite)EditorGUILayout.ObjectField("Sprite", Session.CurrentFrame.SourceSprite, typeof(Sprite), false);
                     if (EditorGUI.EndChangeCheck())
                     {
-                        UniPixCommands.ReplaceSourceSprite(Session, sprite);
+                        PixCommands.ReplaceSourceSprite(Session, sprite);
                         Repaint();
                         GUIUtility.ExitGUI();
                     }
@@ -844,8 +844,8 @@ namespace UniPix
                     GUILayout.FlexibleSpace();
                     if (GUILayout.Button(Styles.syncContent, GUILayout.MaxWidth(32)))
                     {
-                        UniPixCommands.SavePix(Session);
-                        UniPixCommands.UpdateFrameSprite(Session.CurrentFrame);
+                        PixCommands.SavePix(Session);
+                        PixCommands.UpdateFrameSprite(Session.CurrentFrame);
                     }
                     GUILayout.EndHorizontal();
                 }
@@ -861,21 +861,21 @@ namespace UniPix
             {
                 if (GUILayout.Button(Styles.newContent, EditorStyles.toolbarButton))
                 {
-                    UniPixCommands.CreatePix(Session, 32, 32);
+                    PixCommands.CreatePix(Session, 32, 32);
                     Repaint();
                 }
 
                 if (GUILayout.Button(Styles.loadContent, EditorStyles.toolbarButton))
                 {
-                    UniPixCommands.LoadPix(Session);
+                    PixCommands.LoadPix(Session);
                     Repaint();
                 }
 
-                using (new EditorGUI.DisabledScope(!Session.IsImageDirty))
+                using (new EditorGUI.DisabledScope(!Session.IsImageDirty && !string.IsNullOrEmpty(Session.ImagePath)))
                 {
                     if (GUILayout.Button(Styles.saveContent, EditorStyles.toolbarButton))
                     {
-                        UniPixCommands.SavePix(Session);
+                        PixCommands.SavePix(Session);
                     }
                 }
 
@@ -888,7 +888,7 @@ namespace UniPix
                 }
                 else if (GUI.Button(syncRect, Styles.syncContent, EditorStyles.toolbarButton))
                 {
-                    UniPixCommands.SaveImageSources(Session);
+                    PixCommands.SaveImageSources(Session);
                 }
 
                 var settingsRect = GUILayoutUtility.GetRect(Styles.gridSettingsContent, EditorStyles.toolbarButton);
@@ -966,16 +966,16 @@ namespace UniPix
         [UsedImplicitly, MenuItem("Assets/Open in UniPix", false, 180000)]
         private static void OpenInPix()
         { 
-            if (Selection.objects.Any(UniPixUtils.IsValidPixSource))
+            if (Selection.objects.Any(PixUtils.IsValidPixSource))
             {
-                UniPixCommands.EditInPix(Selection.objects);
+                PixCommands.EditInPix(Selection.objects);
             }
         }
 
         [UsedImplicitly, MenuItem("Assets/Open in UniPix", true, 180000)]
         private static bool OpenInPixValidate()
         {
-            return Selection.objects.Any(UniPixUtils.IsValidPixSource);
+            return Selection.objects.Any(PixUtils.IsValidPixSource);
         }
 
         #endregion

@@ -6,7 +6,7 @@ using UnityEditor;
 namespace UniPix
 {
     [System.Serializable]
-    public class Image : ScriptableObject
+    public class PixImage : ScriptableObject
     {
         [SerializeField]
         public List<Frame> Frames;
@@ -15,7 +15,7 @@ namespace UniPix
         public int Width;
         [SerializeField]
         public int Height;
-        public Image()
+        public PixImage()
         {
             Width = 16;
             Height = 16;
@@ -32,9 +32,9 @@ namespace UniPix
             return frame;
         }
 
-        public static Image CreateImage(int width, int height)
+        public static PixImage CreateImage(int width, int height)
         {
-            var img = CreateInstance<Image>();
+            var img = CreateInstance<PixImage>();
             img.Width = width;
             img.Height = height;
             return img;
@@ -138,12 +138,12 @@ namespace UniPix
 
         private static void UpdateTextureFromFrame(Frame frame)
         {
-            UniPixUtils.SetLayerColor(frame.BlendedLayer, Color.clear);
+            PixUtils.SetLayerColor(frame.BlendedLayer, Color.clear);
             for (var layerIndex = 0; layerIndex < frame.Layers.Count; ++layerIndex)
             {
                 if (frame.Layers[layerIndex].Visible)
                 {
-                    UniPixUtils.Blend(frame.Layers[layerIndex], frame.BlendedLayer, frame.BlendedLayer);
+                    PixUtils.Blend(frame.Layers[layerIndex], frame.BlendedLayer, frame.BlendedLayer);
                 }
             }
 

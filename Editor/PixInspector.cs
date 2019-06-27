@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UniPix
 {
-    [CustomEditor(typeof(Image))]
+    [CustomEditor(typeof(PixImage))]
     [CanEditMultipleObjects]
     public class ImageInspector : Editor
     {
@@ -15,12 +15,12 @@ namespace UniPix
 
         public override void OnInspectorGUI()
         {
-            Image img = (Image)target;
+            PixImage img = (PixImage)target;
 
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Edit"))
             {
-                UniPixCommands.EditInPix(new Object[] { img });
+                PixCommands.EditInPix(new Object[] { img });
             }
             if (GUILayout.Button("Edit (isolated)"))
             {
@@ -32,7 +32,7 @@ namespace UniPix
             EditorGUILayout.IntField("Width", img.Width);
             EditorGUILayout.IntField("Height", img.Height);
 
-            using (new UniPixUtils.FieldWidthScope(15, 45))
+            using (new PixUtils.FieldWidthScope(15, 45))
             {
                 int frameIndex = 0;
                 foreach (var frame in img.Frames)
@@ -41,7 +41,7 @@ namespace UniPix
                     {
                         GUILayout.BeginHorizontal();
                         EditorGUILayout.ObjectField(new GUIContent($"{frameIndex}"), frame.SourceSprite, typeof(Sprite), false);
-                        UniPixUtils.LayoutFrameTile(frame);
+                        PixUtils.LayoutFrameTile(frame);
                         GUILayout.FlexibleSpace();
                         GUILayout.EndHorizontal();
                     }
@@ -49,7 +49,7 @@ namespace UniPix
                     {
                         GUILayout.BeginHorizontal();
                         GUILayout.Label($"{frameIndex}");
-                        UniPixUtils.LayoutFrameTile(frame);
+                        PixUtils.LayoutFrameTile(frame);
                         GUILayout.FlexibleSpace();
                         GUILayout.EndHorizontal();
                     }

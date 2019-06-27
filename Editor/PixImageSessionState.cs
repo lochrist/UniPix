@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UniPix
 {
-    public class ImageSessionState : ScriptableObject
+    public class PixImageSessionState : ScriptableObject
     {
         public int CurrentFrameIndex;
         public int CurrentLayerIndex;

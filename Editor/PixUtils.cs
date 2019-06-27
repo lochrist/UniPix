@@ -9,11 +9,11 @@ using System.Threading;
 
 namespace UniPix
 {
-    public static class UniPixUtils
+    public static class PixUtils
     {
-        public static Image CreateImage(int width, int height, Color baseColor)
+        public static PixImage CreateImage(int width, int height, Color baseColor)
         {
-            var img = Image.CreateImage(width, height);
+            var img = PixImage.CreateImage(width, height);
             var newFrame = img.AddFrame();
             var layer = newFrame.AddLayer();
             for (var i = 0; i < layer.Pixels.Length; ++i)
@@ -59,11 +59,11 @@ namespace UniPix
             }
         }
 
-        public static Layer ImportFrame(ref Image img, Texture2D tex)
+        public static Layer ImportFrame(ref PixImage img, Texture2D tex)
         {
             if (img == null)
             {
-                img = Image.CreateImage(tex.width, tex.height);
+                img = PixImage.CreateImage(tex.width, tex.height);
             }
 
             // TODO : Crop
@@ -78,7 +78,7 @@ namespace UniPix
             return layer;
         }
 
-        public static void ImportFrames(ref Image img, Sprite[] sprites)
+        public static void ImportFrames(ref PixImage img, Sprite[] sprites)
         {
             foreach (var sprite in sprites)
             {
@@ -86,7 +86,7 @@ namespace UniPix
             }
         }
 
-        public static void ImportFrame(ref Image img, Sprite sprite)
+        public static void ImportFrame(ref PixImage img, Sprite sprite)
         {
             var texture = sprite.texture;
             if (!texture || texture == null)
@@ -95,7 +95,7 @@ namespace UniPix
             var frameSize = GetSpriteSize(sprite);
             if (img == null)
             {
-                img = Image.CreateImage(frameSize.x, frameSize.y);
+                img = PixImage.CreateImage(frameSize.x, frameSize.y);
             }
 
             if (frameSize.x > img.Height)
@@ -237,7 +237,7 @@ namespace UniPix
 
         public static bool IsValidPixSource(UnityEngine.Object obj)
         {
-            return obj is Image || obj is Sprite || obj is Texture2D;
+            return obj is PixImage || obj is Sprite || obj is Texture2D;
         }
     }
 }

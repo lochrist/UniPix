@@ -8,7 +8,7 @@ using UnityEngine.PlayerLoop;
 
 namespace UniPix
 {
-    public static class UniPixCommands
+    public static class PixCommands
     {
         #region SaveAndLoad
         public static bool LoadPix(PixSession session)
@@ -24,28 +24,28 @@ namespace UniPix
 
         public static bool LoadPix(PixSession session, UnityEngine.Object[] pixSources)
         {
-            session.Image = pixSources.FirstOrDefault(s => s is Image) as Image;
+            session.Image = pixSources.FirstOrDefault(s => s is PixImage) as PixImage;
             if (session.Image == null)
             {
                 foreach (var pixSource in pixSources)
                 {
                     if (pixSource is Texture2D tex)
                     {
-                        UniPixUtils.MakeReadable(tex);
+                        PixUtils.MakeReadable(tex);
                         var texPath = AssetDatabase.GetAssetPath(tex);
                         var sprites = AssetDatabase.LoadAllAssetsAtPath(texPath).Select(a => a as Sprite).Where(s => s != null).ToArray();                        
                         if (sprites.Length > 0)
                         {
-                            UniPixUtils.ImportFrames(ref session.Image, sprites);
+                            PixUtils.ImportFrames(ref session.Image, sprites);
                         }
                         else
                         {
-                            UniPixUtils.ImportFrame(ref session.Image, tex);
+                            PixUtils.ImportFrame(ref session.Image, tex);
                         }
                     }
                     else if (pixSource is Sprite sprite)
                     {
-                        UniPixUtils.ImportFrame(ref session.Image, sprite);
+                        PixUtils.ImportFrame(ref session.Image, sprite);
                     }
                 }
             }
@@ -60,7 +60,7 @@ namespace UniPix
             {
                 path = FileUtil.GetProjectRelativePath(path);
             }
-            session.Image = AssetDatabase.LoadAssetAtPath<Image>(path);
+            session.Image = AssetDatabase.LoadAssetAtPath<PixImage>(path);
             InitImageSession(session);
             return true;
         }
@@ -76,7 +76,7 @@ namespace UniPix
             }
 
             path = FileUtil.GetProjectRelativePath(path);
-            Image img = UniPixUtils.CreateImage(w, h, Color.clear);
+            PixImage img = PixUtils.CreateImage(w, h, Color.clear);
             AssetDatabase.CreateAsset(img, path);
             EditorUtility.SetDirty(img);
             AssetDatabase.SaveAssets();
@@ -115,7 +115,7 @@ namespace UniPix
         #region Export
         public static void SaveImageSources(PixSession session, bool spriteSheet = false)
         {
-            UniPixCommands.SavePix(session);
+            PixCommands.SavePix(session);
             if (string.IsNullOrEmpty(session.ImagePath))
             {
                 // SavePix was cancelled.
@@ -147,12 +147,12 @@ namespace UniPix
                         {
                             string path = EditorUtility.SaveFilePanel(
                                 "Export as image",
-                                "Assets/", string.IsNullOrEmpty(session.ImagePath) ? "pix.png" : UniPixUtils.GetBaseName(session.ImagePath), "png");
-                            basePath = path == "" ? UniPixUtils.GetBasePath(session.ImagePath) : UniPixUtils.GetBasePath(path);
+                                "Assets/", string.IsNullOrEmpty(session.ImagePath) ? "pix.png" : PixUtils.GetBaseName(session.ImagePath), "png");
+                            basePath = path == "" ? PixUtils.GetBasePath(session.ImagePath) : PixUtils.GetBasePath(path);
                         }
 
                         // One image per frame
-                        var framePath = UniPixUtils.GetUniquePath(basePath, ".png", i);
+                        var framePath = PixUtils.GetUniquePath(basePath, ".png", i);
                         framePath = ExportFrame(frame, framePath);
                         frame.SourceSprite = AssetDatabase.LoadAssetAtPath<Sprite>(framePath);
                     }
@@ -166,13 +166,13 @@ namespace UniPix
 
         public static void ReplaceSourceSprite(PixSession session, Sprite sourceSprite)
         {
-            var spriteSize = UniPixUtils.GetSpriteSize(sourceSprite);
+            var spriteSize = PixUtils.GetSpriteSize(sourceSprite);
             if (session.CurrentFrame.Width != spriteSize.x || session.CurrentFrame.Height != spriteSize.y)
             {
                 throw new Exception("New sprite size doesn't match frame.");
             }
 
-            UniPixUtils.MakeReadable(sourceSprite.texture);
+            PixUtils.MakeReadable(sourceSprite.texture);
 
             RecordUndo(session, "Replace Source sprite");
 
@@ -194,19 +194,19 @@ namespace UniPix
                 return null;
 
             var baseFolder = string.IsNullOrEmpty(session.ImagePath) ? "Assets/" : Path.GetDirectoryName(session.ImagePath);
-            var baseName = string.IsNullOrEmpty(session.ImagePath) ? "pix.png" : UniPixUtils.GetBaseName(session.ImagePath);
+            var baseName = string.IsNullOrEmpty(session.ImagePath) ? "pix.png" : PixUtils.GetBaseName(session.ImagePath);
             string path = EditorUtility.SaveFilePanel("Export as image", baseFolder, baseName, "png");
             if (path == "")
             {
                 return null;
             }
 
-            var basePath = UniPixUtils.GetBasePath(path);
+            var basePath = PixUtils.GetBasePath(path);
             var frameFilePaths = new List<string>();
             for (var i = 0; i < frames.Length; ++i)
             {
                 var frame = session.Image.Frames[i];
-                frameFilePaths.Add(ExportFrame(frame, UniPixUtils.GetUniquePath(basePath, ".png", i)));
+                frameFilePaths.Add(ExportFrame(frame, PixUtils.GetUniquePath(basePath, ".png", i)));
             }
 
             return frameFilePaths.ToArray();
@@ -220,7 +220,7 @@ namespace UniPix
             // Ensure to properly update SpriteMetadata
             frames = frames ?? session.Image.Frames.ToArray();
             var baseFolder = string.IsNullOrEmpty(session.ImagePath) ? "Assets/" : Path.GetDirectoryName(session.ImagePath);
-            var baseName = string.IsNullOrEmpty(session.ImagePath) ? "sprite_sheet.png" : $"{UniPixUtils.GetBaseName(session.ImagePath)}_sheet";
+            var baseName = string.IsNullOrEmpty(session.ImagePath) ? "sprite_sheet.png" : $"{PixUtils.GetBaseName(session.ImagePath)}_sheet";
             string path = EditorUtility.SaveFilePanel("Save spritesheet", baseFolder, baseName, "png");
             if (path == "")
             {
@@ -237,7 +237,7 @@ namespace UniPix
             spriteSheetHeight += spriteSheetHeight % frameHeight;
 
             var spriteSheet = new Texture2D(spriteSheetWidth, spriteSheetHeight) { filterMode = FilterMode.Point };
-            spriteSheet.name = UniPixUtils.GetBaseName(path);
+            spriteSheet.name = PixUtils.GetBaseName(path);
             var offsetX = 0;
             var offsetY = spriteSheetHeight - frameHeight;
 
@@ -299,7 +299,7 @@ namespace UniPix
             if (frame.SourceSprite == null)
                 throw new Exception("Not implemented");
 
-            var spriteSize = UniPixUtils.GetSpriteSize(frame.SourceSprite);
+            var spriteSize = PixUtils.GetSpriteSize(frame.SourceSprite);
             if (spriteSize.x != frame.Width || spriteSize.y != frame.Height)
                 throw new Exception("UpdateFrameSprite: Frame doesn't match sprite size");
 
@@ -308,7 +308,7 @@ namespace UniPix
             if (string.IsNullOrEmpty(texturePath))
                 throw new Exception("Texture not bound to a path");
 
-            UniPixUtils.MakeUncompressed(texturePath, texture);
+            PixUtils.MakeUncompressed(texturePath, texture);
 
             var textureRect = frame.SourceSprite.rect;
             var frameX = 0;
@@ -529,7 +529,7 @@ namespace UniPix
             var srcLayer1 = session.CurrentFrame.Layers[src1];
             var dstLayer2 = session.CurrentFrame.Layers[dst2];
             
-            UniPixUtils.Blend(srcLayer1, dstLayer2, dstLayer2);
+            PixUtils.Blend(srcLayer1, dstLayer2, dstLayer2);
 
             session.CurrentFrame.Layers.Remove(srcLayer1);
 
@@ -562,11 +562,11 @@ namespace UniPix
         {
             if (session.Image == null)
             {
-                session.Image = UniPixUtils.CreateImage(32, 32, Color.clear);
+                session.Image = PixUtils.CreateImage(32, 32, Color.clear);
             }
 
-            session.IsImageDirty = false;
             UpdateImageTitle(session);
+            session.IsImageDirty = false;
             EditorPrefs.SetString(PixEditor.Prefs.kCurrentImg, string.IsNullOrEmpty(session.ImagePath) ? "" : session.ImagePath);
 
             session.CurrentFrameIndex = 0;
@@ -629,7 +629,7 @@ namespace UniPix
         {
             session.CurrentLayerIndex = 0;
             session.Palette = new Palette();
-            UniPixUtils.ExtractPaletteFrom(session.CurrentFrame, session.Palette.Colors);
+            PixUtils.ExtractPaletteFrom(session.CurrentFrame, session.Palette.Colors);
 
             SetBrushColor(session, 0, session.Palette.Colors.Count > 0 ? session.Palette.Colors[0] : Color.black);
             SetBrushColor(session, 1, session.Palette.Colors.Count > 1 ? session.Palette.Colors[1] : Color.white);

@@ -46,9 +46,9 @@ namespace UniPix
                 var strokeColor = Event.current.button == 0 ? session.CurrentColor : session.SecondaryColor;
                 if (!session.Palette.Colors.Contains(strokeColor))
                 {
-                    UniPixCommands.AddPaletteColor(session, strokeColor);
+                    PixCommands.AddPaletteColor(session, strokeColor);
                 }
-                UniPixCommands.SetPixelsUnderBrush(session, strokeColor);
+                PixCommands.SetPixelsUnderBrush(session, strokeColor);
                 return true;
             }
             return false;
@@ -69,7 +69,7 @@ namespace UniPix
             if (IsBrushStroke() &&
                 Event.current.button == 0)
             {
-                UniPixCommands.SetPixelsUnderBrush(session, Color.clear);
+                PixCommands.SetPixelsUnderBrush(session, Color.clear);
                 return true;
             }
             return false;
@@ -90,7 +90,7 @@ namespace UniPix
             if (IsBrushStroke() &&
                 Event.current.button == 0)
             {
-                UniPixCommands.SetPixelsUnderBrush(session, Color.clear);
+                PixCommands.SetPixelsUnderBrush(session, Color.clear);
                 return true;
             }
             return false;
@@ -111,7 +111,7 @@ namespace UniPix
             if (IsBrushStroke() &&
                 Event.current.button == 0)
             {
-                UniPixCommands.SetPixelsUnderBrush(session, Color.clear);
+                PixCommands.SetPixelsUnderBrush(session, Color.clear);
                 return true;
             }
             return false;
@@ -132,7 +132,7 @@ namespace UniPix
             if (IsBrushStroke() &&
                 Event.current.button == 0)
             {
-                UniPixCommands.SetPixelsUnderBrush(session, Color.clear);
+                PixCommands.SetPixelsUnderBrush(session, Color.clear);
                 return true;
             }
             return false;
@@ -153,7 +153,7 @@ namespace UniPix
             if (IsBrushStroke() &&
                 Event.current.button == 0)
             {
-                UniPixCommands.SetPixelsUnderBrush(session, Color.clear);
+                PixCommands.SetPixelsUnderBrush(session, Color.clear);
                 return true;
             }
             return false;
@@ -174,7 +174,7 @@ namespace UniPix
             if (IsBrushStroke() &&
                 Event.current.button == 0)
             {
-                UniPixCommands.SetPixelsUnderBrush(session, Color.clear);
+                PixCommands.SetPixelsUnderBrush(session, Color.clear);
                 return true;
             }
             return false;

@@ -41,7 +41,7 @@ namespace UniPix
                 {
                     EditorApplication.delayCall += () =>
                     {
-                        UniPixCommands.SaveImageSources(s_Editor.Session);
+                        PixCommands.SaveImageSources(s_Editor.Session);
                         Close();
                     };
                 }
@@ -50,7 +50,7 @@ namespace UniPix
                 {
                     EditorApplication.delayCall += () =>
                     {
-                        UniPixCommands.SaveImageSources(s_Editor.Session, true);
+                        PixCommands.SaveImageSources(s_Editor.Session, true);
                         Close();
                     };
                 }

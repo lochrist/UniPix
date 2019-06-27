@@ -34,9 +34,9 @@ namespace UniPix
             {
                 var prefabPath = Application.GetValueForARGV(k_PixPath).Replace("\\", "/");
                 var obj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(prefabPath);
-                if (UniPixUtils.IsValidPixSource(obj))
+                if (PixUtils.IsValidPixSource(obj))
                 {
-                    UniPixCommands.EditInPix(new [] {obj});
+                    PixCommands.EditInPix(new [] {obj});
                 }
             }
         }
@@ -83,7 +83,7 @@ namespace UniPix
         [UsedImplicitly, MenuItem("Assets/Open in UniPix (isolated)", false, 180005)]
         private static void OpenInPix()
         {
-            if (!UniPixUtils.IsValidPixSource(Selection.activeObject))
+            if (!PixUtils.IsValidPixSource(Selection.activeObject))
                 return;
 
             var assetPath = AssetDatabase.GetAssetPath(Selection.activeObject);
@@ -96,7 +96,7 @@ namespace UniPix
         [UsedImplicitly, MenuItem("Assets/Open in UniPix (isolated)", true, 180005)]
         private static bool OpenInPixValidate()
         {
-            return UniPixUtils.IsValidPixSource(Selection.activeObject);
+            return PixUtils.IsValidPixSource(Selection.activeObject);
         }
     }
 
