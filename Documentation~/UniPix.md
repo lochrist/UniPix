@@ -3,17 +3,14 @@
 Pixel Art Editor for Unity
 
 TODO
-* Open Isolated everywhere
-* validate drag and drop from another project (only as string)
-* test save in spritesheet
 * Undo/Redo
     * Add to createAsset menu (See Damian prez)
 * think about video?
 
 If time:
+* Implement missing tool
 * Finish all shortcuts + keep same shortcut in default mode
 * export as gif: https://github.com/simonwittber/uGIF/tree/master/Assets/uGIF/Scripts
-* Implement missing tool
 * spriesheet syncing if needed
 * UIElements:
 	* create ui with uielements and benchmark
@@ -80,22 +77,31 @@ Video ideas:
 
 - quick enumeration of all features while using the pixel art editor
     - layers
+        - opacity
+        - merging
     - multi frames
+    - animation preview
     - import from texture2D, sprite, jpg, png 
     - export as separate frames or spritesheet
     - synchronize with source asset
-    - grid
+    - grid + grid settings
     - tools:
-    - palette management
-    - animation preview
+        - pencil
+        - eraser
+        - bucket
+        - dithering
+    - Color picker
+    - Primary / Secondary color + switch
+    - palette
     - undo/redo
     - everything has a shorcuts
-    - but everty unity pixel art editor would have that...
-- In its own process:
+    - but every unity pixel art editor should have that...
+- In its own process with its own EditorMode:
     - separate undo-queue
     - not impacted by global selection
     - sync with master instance
     - its own menubar and shortcuts!
+    - drag and drop across instances
 - Can even be started standalone:
     - create shortcut with proper command line switch on the project
 

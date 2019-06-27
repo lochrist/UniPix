@@ -9,8 +9,15 @@ using UnityEngine;
 namespace UniPix
 {
     [System.Serializable]
-    public class SessionData
+    public class PixSession
     {
+        public static PixSession Create()
+        {
+            var session = new PixSession();
+            session.ImageSessionState = ScriptableObject.CreateInstance<ImageSessionState>();
+            return session;
+        }
+
         public float ZoomLevel = 20f;
 
         public Image Image;
@@ -18,11 +25,22 @@ namespace UniPix
         public string ImageTitle;
         public bool IsImageDirty;
 
-        public int CurrentLayerIndex = 0;
-        public int CurrentFrameIndex = 0;
+        public int CurrentLayerIndex
+        {
+            get => ImageSessionState.CurrentLayerIndex;
+            set => ImageSessionState.CurrentLayerIndex = value;
+        }
+
+        public int CurrentFrameIndex
+        {
+            get => ImageSessionState.CurrentFrameIndex;
+            set => ImageSessionState.CurrentFrameIndex = value;
+        }
 
         public Frame CurrentFrame => Image.Frames[CurrentFrameIndex];
         public Layer CurrentLayer => CurrentFrame.Layers[CurrentLayerIndex];
+
+        public ImageSessionState ImageSessionState;
 
         public Color CurrentColor = new Color(1, 0, 0);
         public int CurrentColorPaletteIndex = -1;
@@ -78,8 +96,8 @@ namespace UniPix
     {
         public static string packageName = "com.unity.unipix";
         public static string packageFolderName = $"Packages/{packageName}";
-        public static SessionData s_Session;
-        public SessionData Session;
+        public static PixSession s_Session;
+        public PixSession Session;
         public static class Prefs
         {
             public static string kPrefix = "unixpix.";
@@ -239,7 +257,7 @@ namespace UniPix
             };
             m_CurrentTool = m_Tools[0];
 
-            Session = new SessionData();
+            Session = PixSession.Create();
             s_Session = Session;
 
             UniPixCommands.LoadPix(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
@@ -251,6 +269,9 @@ namespace UniPix
             m_TransparentTex.Apply();
 
             wantsMouseMove = true;
+
+            Undo.undoRedoPerformed -= OnUndo;
+            Undo.undoRedoPerformed += OnUndo;
         }
 
         private void OnDisable()
@@ -285,6 +306,12 @@ namespace UniPix
                 GUILayout.EndArea();
                 DrawStatus();
             }
+        }
+
+        private void OnUndo()
+        {
+            Session.CurrentFrame.UpdateFrame();
+            Repaint();
         }
 
         private void ComputeLayout()
@@ -606,17 +633,24 @@ namespace UniPix
                     case EventType.DragPerform:
                         if (!m_CanvasRect.Contains(Event.current.mousePosition))
                             break;
-                        var paths = DragAndDrop.objectReferences
+                        var objs = DragAndDrop.objectReferences
                             .Where(UniPixUtils.IsValidPixSource).ToArray();
 
-                        if (paths.Length > 0)
+                        if (objs.Length == 0 && DragAndDrop.paths.Length > 0)
+                        {
+                            objs = DragAndDrop.paths
+                                .Select(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>)
+                                .Where(UniPixUtils.IsValidPixSource).ToArray();
+                        }
+
+                        if (objs.Length > 0)
                         {
                             DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
                             if (Event.current.type == EventType.DragPerform)
                             {
                                 DragAndDrop.AcceptDrag();
                                 Event.current.Use();
-                                UniPixCommands.LoadPix(Session, paths);
+                                UniPixCommands.LoadPix(Session, objs);
                                 GUIUtility.ExitGUI();
                             }
                         }

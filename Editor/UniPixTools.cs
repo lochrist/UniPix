@@ -16,14 +16,14 @@ namespace UniPix
                 (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag);
         }
 
-        public virtual void DrawCursor(SessionData session)
+        public virtual void DrawCursor(PixSession session)
         {
             var brushRect = session.BrushRect;
             var cursorPosInImg = new Vector2(brushRect.x * session.ZoomLevel, brushRect.y * session.ZoomLevel) + session.ScaledImgRect.position;
             EditorGUI.DrawRect(new Rect(cursorPosInImg, new Vector2(brushRect.width * session.ZoomLevel, brushRect.height * session.ZoomLevel)), kCursorColor);
         }
 
-        public virtual bool OnEvent(Event current, SessionData session)
+        public virtual bool OnEvent(Event current, PixSession session)
         {
             return false;
         }
@@ -37,7 +37,7 @@ namespace UniPix
             Content = new GUIContent(Icons.pencil, "Brush tool");
         }
 
-        public override bool OnEvent(Event current, SessionData session)
+        public override bool OnEvent(Event current, PixSession session)
         {
             DrawCursor(session);
             if (IsBrushStroke() &&
@@ -63,7 +63,7 @@ namespace UniPix
             Content = new GUIContent(Icons.eraser, "Eraser");
         }
 
-        public override bool OnEvent(Event current, SessionData session)
+        public override bool OnEvent(Event current, PixSession session)
         {
             DrawCursor(session);
             if (IsBrushStroke() &&
@@ -84,7 +84,7 @@ namespace UniPix
             Content = new GUIContent(Icons.rectangle, "Rectangle");
         }
 
-        public override bool OnEvent(Event current, SessionData session)
+        public override bool OnEvent(Event current, PixSession session)
         {
             DrawCursor(session);
             if (IsBrushStroke() &&
@@ -105,7 +105,7 @@ namespace UniPix
             Content = new GUIContent(Icons.stroke, "Line");
         }
 
-        public override bool OnEvent(Event current, SessionData session)
+        public override bool OnEvent(Event current, PixSession session)
         {
             DrawCursor(session);
             if (IsBrushStroke() &&
@@ -126,7 +126,7 @@ namespace UniPix
             Content = new GUIContent(Icons.bucket, "Bucket");
         }
 
-        public override bool OnEvent(Event current, SessionData session)
+        public override bool OnEvent(Event current, PixSession session)
         {
             DrawCursor(session);
             if (IsBrushStroke() &&
@@ -147,7 +147,7 @@ namespace UniPix
             Content = new GUIContent(Icons.bucketFull, "Full Frame Bucket");
         }
 
-        public override bool OnEvent(Event current, SessionData session)
+        public override bool OnEvent(Event current, PixSession session)
         {
             DrawCursor(session);
             if (IsBrushStroke() &&
@@ -168,7 +168,7 @@ namespace UniPix
             Content = new GUIContent(Icons.dithering, "Dithering");
         }
 
-        public override bool OnEvent(Event current, SessionData session)
+        public override bool OnEvent(Event current, PixSession session)
         {
             DrawCursor(session);
             if (IsBrushStroke() &&

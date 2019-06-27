@@ -11,7 +11,7 @@ namespace UniPix
     public static class UniPixCommands
     {
         #region SaveAndLoad
-        public static bool LoadPix(SessionData session)
+        public static bool LoadPix(PixSession session)
         {
             var path = EditorUtility.OpenFilePanel(
                     "Find Pix (.unipix.asset | .png | .jpg)",
@@ -22,7 +22,7 @@ namespace UniPix
             return LoadPix(session, path);
         }
 
-        public static bool LoadPix(SessionData session, UnityEngine.Object[] pixSources)
+        public static bool LoadPix(PixSession session, UnityEngine.Object[] pixSources)
         {
             session.Image = pixSources.FirstOrDefault(s => s is Image) as Image;
             if (session.Image == null)
@@ -54,7 +54,7 @@ namespace UniPix
             return true;
         }
 
-        public static bool LoadPix(SessionData session, string path)
+        public static bool LoadPix(PixSession session, string path)
         {
             if (Path.IsPathRooted(path))
             {
@@ -65,7 +65,7 @@ namespace UniPix
             return true;
         }
 
-        public static void CreatePix(SessionData session, int w, int h)
+        public static void CreatePix(PixSession session, int w, int h)
         {
             string path = EditorUtility.SaveFilePanel(
                 "Create UniPix",
@@ -84,7 +84,7 @@ namespace UniPix
             LoadPix(session, AssetDatabase.GetAssetPath(img));
         }
 
-        public static void SavePix(SessionData session)
+        public static void SavePix(PixSession session)
         {
             if (session.Image == null)
                 return;
@@ -113,7 +113,7 @@ namespace UniPix
         #endregion
 
         #region Export
-        public static void SaveImageSources(SessionData session, bool spriteSheet = false)
+        public static void SaveImageSources(PixSession session, bool spriteSheet = false)
         {
             UniPixCommands.SavePix(session);
             if (string.IsNullOrEmpty(session.ImagePath))
@@ -164,7 +164,7 @@ namespace UniPix
             }
         }
 
-        public static void ReplaceSourceSprite(SessionData session, Sprite sourceSprite)
+        public static void ReplaceSourceSprite(PixSession session, Sprite sourceSprite)
         {
             var spriteSize = UniPixUtils.GetSpriteSize(sourceSprite);
             if (session.CurrentFrame.Width != spriteSize.x || session.CurrentFrame.Height != spriteSize.y)
@@ -173,6 +173,9 @@ namespace UniPix
             }
 
             UniPixUtils.MakeReadable(sourceSprite.texture);
+
+            RecordUndo(session, "Replace Source sprite");
+
             session.CurrentFrame.SourceSprite = sourceSprite;
             session.CurrentFrame.Layers.Clear();
             var layer = session.CurrentFrame.AddLayer();
@@ -181,7 +184,7 @@ namespace UniPix
         }
 
         // Export is not linked at all to the image
-        public static string[] ExportFrames(SessionData session, Frame[] frames = null)
+        public static string[] ExportFrames(PixSession session, Frame[] frames = null)
         {
             // ask user for base name: give image as base name
             // Save each image separately
@@ -210,7 +213,7 @@ namespace UniPix
         }
 
         // Export is not linked to the image
-        public static string ExportFramesToSpriteSheet(SessionData session, Frame[] frames = null)
+        public static string ExportFramesToSpriteSheet(PixSession session, Frame[] frames = null)
         {
             // ask user for base name: give image as base name
             // Save as a sprite sheet
@@ -358,18 +361,18 @@ namespace UniPix
             LoadPix(pix.Session, sources);
         }
 
-        public static void SetCurrentFrame(SessionData session, int frameIndex)
+        public static void SetCurrentFrame(PixSession session, int frameIndex)
         {
             session.CurrentFrameIndex = frameIndex;
             OnNewFrame(session);
         }
 
-        public static void SetCurrentLayer(SessionData session, int layerIndex)
+        public static void SetCurrentLayer(PixSession session, int layerIndex)
         {
             session.CurrentLayerIndex = layerIndex;
         }
 
-        public static void SetBrushColor(SessionData session, int colorType, Color color)
+        public static void SetBrushColor(PixSession session, int colorType, Color color)
         {
             if (colorType == 0)
             {
@@ -383,29 +386,31 @@ namespace UniPix
             }
         }
 
-        public static void CenterCanvas(SessionData session)
+        public static void CenterCanvas(PixSession session)
         {
 
         }
         #endregion
 
         // TODO: should it be part of the model?
-        public static void AddPaletteColor(SessionData session, Color newColor)
+        public static void AddPaletteColor(PixSession session, Color newColor)
         {
             session.Palette.Colors.Add(newColor);
         }
 
         #region ModelChanged
-        public static void NewFrame(SessionData session)
+        public static void NewFrame(PixSession session)
         {
+            RecordUndo(session, "Add Frame");
             var newFrame = session.Image.AddFrame();
             newFrame.AddLayer();
             session.CurrentFrameIndex = session.Image.Frames.Count - 1;
             DirtyImage(session);
         }
 
-        public static void DeleteFrame(SessionData session, int frameIndex)
+        public static void DeleteFrame(PixSession session, int frameIndex)
         {
+            RecordUndo(session, "Delete Frame");
             session.Image.Frames.RemoveAt(frameIndex);
             if (session.Image.Frames.Count == 0)
             {
@@ -420,8 +425,9 @@ namespace UniPix
             DirtyImage(session);
         }
 
-        public static void CloneFrame(SessionData session, int frameIndex)
+        public static void CloneFrame(PixSession session, int frameIndex)
         {
+            RecordUndo(session, "Clone frame");
             var toClone = session.Image.Frames[frameIndex];
             var clone = session.Image.AddFrame(frameIndex + 1);
             for (int i = 0; i < toClone.Layers.Count; i++)
@@ -440,15 +446,17 @@ namespace UniPix
             DirtyImage(session);
         }
 
-        public static void CreateLayer(SessionData session)
+        public static void CreateLayer(PixSession session)
         {
+            RecordUndo(session, "Add Layer");
             session.CurrentFrame.AddLayer(session.CurrentLayerIndex + 1);
             session.CurrentLayerIndex = session.CurrentLayerIndex + 1;
             DirtyImage(session);
         }
 
-        public static void CloneLayer(SessionData session)
+        public static void CloneLayer(PixSession session)
         {
+            RecordUndo(session, "Clone Layer");
             var clonedLayer = session.CurrentFrame.AddLayer(session.CurrentLayerIndex + 1);
             var clonedLayerName = clonedLayer.Name;
             var currentLayer = session.CurrentLayer;
@@ -459,8 +467,9 @@ namespace UniPix
             DirtyImage(session);
         }
 
-        public static void DeleteLayer(SessionData session)
+        public static void DeleteLayer(PixSession session)
         {
+            RecordUndo(session, "Delete Layer");
             session.CurrentFrame.Layers.Remove(session.CurrentLayer);
             if (session.CurrentFrame.Layers.Count == 0)
             {
@@ -472,20 +481,23 @@ namespace UniPix
             DirtyImage(session);
         }
 
-        public static void SetLayerOpacity(SessionData session, int layerIndex, float opacity)
+        public static void SetLayerOpacity(PixSession session, int layerIndex, float opacity)
         {
+            RecordUndo(session, "Layer Opacity");
             session.CurrentFrame.Layers[layerIndex].Opacity = opacity;
             DirtyImage(session);
         }
 
-        public static void SetLayerVisibility(SessionData session, int layerIndex, bool isVisible)
+        public static void SetLayerVisibility(PixSession session, int layerIndex, bool isVisible)
         {
+            RecordUndo(session, "Layer Visibility");
             session.CurrentFrame.Layers[layerIndex].Visible = isVisible;
             DirtyImage(session);
         }
 
-        public static void SwapLayers(SessionData session, int layerIndex1, int layerIndex2)
+        public static void SwapLayers(PixSession session, int layerIndex1, int layerIndex2)
         {
+            RecordUndo(session, "Move Layer");
             var layer1 = session.CurrentFrame.Layers[layerIndex1];
             var layer2 = session.CurrentFrame.Layers[layerIndex2];
             session.CurrentFrame.Layers[layerIndex2] = layer1;
@@ -499,8 +511,9 @@ namespace UniPix
             DirtyImage(session);
         }
 
-        public static void MergeLayers(SessionData session, int src1, int dst2)
+        public static void MergeLayers(PixSession session, int src1, int dst2)
         {
+            RecordUndo(session, "Merge Layer");
             var srcLayer1 = session.CurrentFrame.Layers[src1];
             var dstLayer2 = session.CurrentFrame.Layers[dst2];
             
@@ -514,8 +527,9 @@ namespace UniPix
             DirtyImage(session);
         }
 
-        public static void SetPixelsUnderBrush(SessionData session, Color color)
+        public static void SetPixelsUnderBrush(PixSession session, Color color)
         {
+            RecordUndo(session, "Pixels change");
             var brushRect = session.BrushRect;
             for (var y = brushRect.y; y < brushRect.yMax; ++y)
             {
@@ -531,7 +545,8 @@ namespace UniPix
 
         #region Impl
 
-        private static void InitImageSession(SessionData session)
+
+        private static void InitImageSession(PixSession session)
         {
             if (session.Image == null)
             {
@@ -563,7 +578,13 @@ namespace UniPix
             }
         }
 
-        private static void DirtyImage(SessionData session)
+        private static void RecordUndo(PixSession session, string info)
+        {
+            Undo.RecordObject(session.Image, info);
+            Undo.RecordObject(session.ImageSessionState, info);
+        }
+
+        private static void DirtyImage(PixSession session)
         {
             session.CurrentFrame.UpdateFrame();
             if (!session.IsImageDirty)
@@ -573,7 +594,7 @@ namespace UniPix
             }
         }
 
-        private static void UpdateImageTitle(SessionData session)
+        private static void UpdateImageTitle(PixSession session)
         {
             session.ImagePath = AssetDatabase.GetAssetPath(session.Image);
             if (string.IsNullOrEmpty(session.ImagePath))
@@ -590,7 +611,7 @@ namespace UniPix
             }
         }
 
-        private static void OnNewFrame(SessionData session)
+        private static void OnNewFrame(PixSession session)
         {
             session.CurrentLayerIndex = 0;
             session.Palette = new Palette();
