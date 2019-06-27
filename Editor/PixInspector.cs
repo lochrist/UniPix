@@ -16,10 +16,18 @@ namespace UniPix
         public override void OnInspectorGUI()
         {
             Image img = (Image)target;
-            if (GUILayout.Button("Pix Edit", GUILayout.MaxWidth(60)))
+
+            GUILayout.BeginHorizontal();
+            if (GUILayout.Button("Edit"))
             {
-                UniPixCommands.EditInPix(new Object[] {img});
+                UniPixCommands.EditInPix(new Object[] { img });
             }
+            if (GUILayout.Button("Edit (isolated)"))
+            {
+                PixRoleProvider.StartUniPixIsolated(AssetDatabase.GetAssetPath(img));
+            }
+            GUILayout.EndHorizontal();
+            
 
             EditorGUILayout.IntField("Width", img.Width);
             EditorGUILayout.IntField("Height", img.Height);

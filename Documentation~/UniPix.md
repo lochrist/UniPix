@@ -3,24 +3,17 @@
 Pixel Art Editor for Unity
 
 TODO
-* CustomEditor to open in Pix
-* Ricgh click open
-* Mode:
-    * Finish all shortcuts + keep same shortcut in default mode
-    * Shortcut to switch to workflow with project browser and pix and back
-* UMPE:
-    * Open in isolation
-        * right click on a pix.asset
-        * right click on a sprite
-        * right click on a texture
-	* validate drag and drop from another project
-	* Add Right click on asset: open in UniPix
-* export as gif: https://github.com/simonwittber/uGIF/tree/master/Assets/uGIF/Scripts
+* Open Isolated everywhere
+* validate drag and drop from another project (only as string)
+* test save in spritesheet
 * Undo/Redo
     * Add to createAsset menu (See Damian prez)
-* Implement missing tool
+* think about video?
 
 If time:
+* Finish all shortcuts + keep same shortcut in default mode
+* export as gif: https://github.com/simonwittber/uGIF/tree/master/Assets/uGIF/Scripts
+* Implement missing tool
 * spriesheet syncing if needed
 * UIElements:
 	* create ui with uielements and benchmark

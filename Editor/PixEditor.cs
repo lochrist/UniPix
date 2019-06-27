@@ -912,7 +912,7 @@ namespace UniPix
         }
 
         #region Menu
-        [UsedImplicitly, MenuItem("Window/UniPix")]
+        [MenuItem("Window/UniPix", false, 1100)]
         static void ShowUniPix()
         {
             GetWindow<PixEditor>();
@@ -931,7 +931,7 @@ namespace UniPix
 
         [UsedImplicitly, MenuItem("Assets/Open in UniPix", false, 180000)]
         private static void OpenInPix()
-        {
+        { 
             if (Selection.objects.Any(UniPixUtils.IsValidPixSource))
             {
                 UniPixCommands.EditInPix(Selection.objects);
