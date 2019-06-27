@@ -308,6 +308,27 @@ namespace UniPix
             }
         }
 
+        public static void FloodFill(PixImage img, Vector2Int imgCoord, Color targetColor, Color newColor, Color[] output)
+        {
+            if (targetColor == newColor)
+                return;
+
+            var pixelIndex = ImgCoordToPixelIndex(img, imgCoord.x, imgCoord.y);
+            var color = output[pixelIndex];
+            if (color != targetColor)
+                return;
+
+            output[pixelIndex] = newColor;
+            if (imgCoord.y - 1 >= 0)
+                FloodFill(img, new Vector2Int(imgCoord.x, imgCoord.y - 1), targetColor, newColor, output);
+            if (imgCoord.y + 1 < img.Height)
+                FloodFill(img, new Vector2Int(imgCoord.x, imgCoord.y + 1), targetColor, newColor, output);
+            if (imgCoord.x - 1 >= 0)
+                FloodFill(img, new Vector2Int(imgCoord.x - 1, imgCoord.y), targetColor, newColor, output);
+            if (imgCoord.x + 1 < img.Width)
+                FloodFill(img, new Vector2Int(imgCoord.x + 1, imgCoord.y), targetColor, newColor, output);
+        }
+
         public struct FieldWidthScope : IDisposable
         {
             float m_LabelWidth;

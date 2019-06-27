@@ -200,10 +200,18 @@ namespace UniPix
         public override bool OnEvent(Event current, PixSession session)
         {
             DrawCursor(session);
-            if (IsBrushStroke() &&
-                (Event.current.button == 0 || Event.current.button == 1))
+            if (Event.current.isMouse &&
+                (Event.current.button == 0 || Event.current.button == 1) &&
+                Event.current.type == EventType.MouseUp)
             {
-                
+                using (new PixCommands.SessionChangeScope(session, "Bucket"))
+                {
+                    var pixels = session.CurrentLayer.Pixels;
+                    var strokeColor = StrokeColor(session);
+                    var pixelIndex = session.CursorPixelIndex;
+                    var currentCursorColor = pixels[pixelIndex];
+                    PixUtils.FloodFill(session.Image, session.CursorImgCoord, currentCursorColor, strokeColor, pixels);
+                }
                 return true;
             }
             return false;
