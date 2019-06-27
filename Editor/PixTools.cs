@@ -99,6 +99,7 @@ namespace UniPix
 
     public class LineTool : PixTool
     {
+        Vector2Int m_Start;
         public LineTool()
         {
             Name = "Line";
@@ -113,18 +114,15 @@ namespace UniPix
             {
                 if (Event.current.type == EventType.MouseDown)
                 {
-                    Debug.Log("It is down");
-                    session.SetOverlay(session.CursorImgCoord.x, session.CursorImgCoord.y, Color.blue);
+                    m_Start = session.CursorImgCoord;
                 }
                 else if (Event.current.type == EventType.MouseDrag)
                 {
-                    Debug.Log("Dragging: " + Event.current.mousePosition);
                     session.SetOverlay(session.CursorImgCoord.x, session.CursorImgCoord.y, Color.blue);
                 }
                 else if (Event.current.type == EventType.MouseUp)
                 {
-                    Debug.Log("It isup!");
-                    session.ClearOverlay();
+                    session.DestroyOverlay();
                 }
                 return true;
             }

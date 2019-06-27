@@ -26,7 +26,11 @@ namespace UniPix
         Texture2D m_Overlay;
 
         public bool HasOverlay => m_Overlay != null;
-        public void ClearOverlay()
+        public void ClearOverlay(bool apply = true)
+        {
+            PixUtils.SetTextureColor(Overlay, Color.clear, apply);
+        }
+        public void DestroyOverlay()
         {
             if (m_Overlay)
             {
@@ -79,6 +83,8 @@ namespace UniPix
         public int CurrentColorPaletteIndex = -1;
         public Color SecondaryColor = Color.black;
         public int SecondaryColorPaletteIndex = -1;
+
+        public int CurrentToolIndex;
 
         public float ImageOffsetX;
         public float ImageOffsetY;
@@ -271,13 +277,15 @@ namespace UniPix
         System.Diagnostics.Stopwatch m_Timer = new System.Diagnostics.Stopwatch();
         bool m_IsPanning;
         Vector2 m_PanStart;
-        PixTool m_CurrentTool;
+
+        PixTool CurrentTool => m_Tools[Session.CurrentToolIndex];
         PixTool[] m_Tools;
 
         private void OnEnable()
         {
             titleContent = new GUIContent("UniPix");
             minSize = new Vector2(Styles.kLeftPanelWidth + Styles.kRightPanelWidth + 100, 400);
+            Session = PixSession.Create();
 
             m_Tools = new PixTool[] {
                 new BrushTool(),
@@ -288,9 +296,7 @@ namespace UniPix
                 new RectangleTool(),
                 new DitheringTool()
             };
-            m_CurrentTool = m_Tools[0];
-
-            Session = PixSession.Create();
+            Session.CurrentToolIndex = 0;
             s_Session = Session;
 
             PixCommands.LoadPix(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
@@ -564,9 +570,9 @@ namespace UniPix
                         break;
                     var tool = m_Tools[toolIndex];
                     var toolRect = new Rect(Styles.kMargin + toolColumn * (Styles.kMargin + Styles.kToolSize), toolY, Styles.kToolSize, Styles.kToolSize);
-                    if (GUI.Toggle(toolRect, tool == m_CurrentTool, tool.Content, GUI.skin.button))
+                    if (GUI.Toggle(toolRect, toolIndex == Session.CurrentToolIndex, tool.Content, GUI.skin.button))
                     {
-                        m_CurrentTool = tool;
+                        Session.CurrentToolIndex = toolIndex;
                     }
                 }
             }
@@ -704,7 +710,7 @@ namespace UniPix
                 {
                     Session.CursorPos = Event.current.mousePosition - Session.ScaledImgRect.position;
                     Session.CursorImgCoord = new Vector2Int((int)(Session.CursorPos.x / Session.ZoomLevel), (int)(Session.CursorPos.y / Session.ZoomLevel));
-                    if (m_CurrentTool.OnEvent(Event.current, Session))
+                    if (CurrentTool.OnEvent(Event.current, Session))
                     {
                         Repaint();
                     }
