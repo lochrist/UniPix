@@ -567,12 +567,6 @@ namespace UniPix
             }
             DirtyImage(session);
         }
-
-        public static void PixelsChanged(PixSession session)
-        {
-            RecordUndo(session, "Pixels change");
-            DirtyImage(session);
-        }
         #endregion
 
         #region Impl

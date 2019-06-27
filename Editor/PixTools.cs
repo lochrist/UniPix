@@ -236,7 +236,19 @@ namespace UniPix
             if (IsBrushStroke() &&
                 (Event.current.button == 0 || Event.current.button == 1))
             {
-                PixCommands.SetPixelsUnderBrush(session, Color.clear);
+                using (new PixCommands.SessionChangeScope(session, "Dithering"))
+                {
+                    var brushRect = session.BrushRect;
+                    for (var y = brushRect.y; y < brushRect.yMax; ++y)
+                    {
+                        for (var x = brushRect.x; x < brushRect.xMax; ++x)
+                        {
+                            var strokeColor = (x + y) % 2 == 0 ? session.SecondaryColor : session.CurrentColor;
+                            var pixelIndex = session.ImgCoordToPixelIndex(x, y);
+                            session.CurrentLayer.Pixels[pixelIndex] = strokeColor;
+                        }
+                    }
+                }
                 return true;
             }
             return false;
