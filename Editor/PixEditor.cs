@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -606,7 +607,7 @@ namespace UniPix
                         if (!m_CanvasRect.Contains(Event.current.mousePosition))
                             break;
                         var paths = DragAndDrop.objectReferences
-                            .Where(obj => obj is Image || obj is Texture2D || obj is Sprite).ToArray();
+                            .Where(UniPixUtils.IsValidPixSource).ToArray();
 
                         if (paths.Length > 0)
                         {
@@ -910,14 +911,15 @@ namespace UniPix
             }
         }
 
-        [MenuItem("Window/UniPix")]
+        #region Menu
+        [UsedImplicitly, MenuItem("Window/UniPix")]
         static void ShowUniPix()
         {
             GetWindow<PixEditor>();
         }
 
-        [MenuItem("Tools/Refresh Styles &r")]
-        internal static void RefreshStyles()
+        [UsedImplicitly, MenuItem("Tools/Refresh Styles &r")]
+        static void RefreshStyles()
         {
             Unity.MPE.ChannelService.Start();
 
@@ -926,5 +928,22 @@ namespace UniPix
             InternalEditorUtility.RepaintAllViews();
             Debug.Log("Style refreshed");
         }
+
+        [UsedImplicitly, MenuItem("Assets/Open in UniPix", false, 180000)]
+        private static void OpenInPix()
+        {
+            if (Selection.objects.Any(UniPixUtils.IsValidPixSource))
+            {
+                UniPixCommands.EditInPix(Selection.objects);
+            }
+        }
+
+        [UsedImplicitly, MenuItem("Assets/Open in UniPix", true, 180000)]
+        private static bool OpenInPixValidate()
+        {
+            return Selection.objects.Any(UniPixUtils.IsValidPixSource);
+        }
+
+        #endregion
     }
 }

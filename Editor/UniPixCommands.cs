@@ -22,13 +22,8 @@ namespace UniPix
 
         public static bool LoadPix(SessionData session, UnityEngine.Object[] pixSources)
         {
-            session.Image = null;
-
-            if (pixSources.Length == 1 && pixSources[0] is Image image)
-            {
-                session.Image = image;
-            }
-            else
+            session.Image = pixSources.FirstOrDefault(s => s is Image) as Image;
+            if (session.Image == null)
             {
                 foreach (var pixSource in pixSources)
                 {
@@ -355,10 +350,10 @@ namespace UniPix
         #endregion
 
         #region UI
-        public static void EditInPix(Image image)
+        public static void EditInPix(UnityEngine.Object[] sources)
         {
             var pix = EditorWindow.GetWindow<PixEditor>();
-            LoadPix(pix.Session, new[] { image });
+            LoadPix(pix.Session, sources);
         }
 
         public static void SetCurrentFrame(SessionData session, int frameIndex)

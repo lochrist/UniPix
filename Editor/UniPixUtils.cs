@@ -234,5 +234,10 @@ namespace UniPix
                 EditorGUIUtility.fieldWidth = m_FieldWidth;
             }
         }
+
+        public static bool IsValidPixSource(UnityEngine.Object obj)
+        {
+            return obj is Image || obj is Sprite || obj is Texture2D;
+        }
     }
 }

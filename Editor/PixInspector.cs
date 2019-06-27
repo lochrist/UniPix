@@ -18,7 +18,7 @@ namespace UniPix
             Image img = (Image)target;
             if (GUILayout.Button("Pix Edit", GUILayout.MaxWidth(60)))
             {
-                UniPixCommands.EditInPix(img);
+                UniPixCommands.EditInPix(new Object[] {img});
             }
 
             EditorGUILayout.IntField("Width", img.Width);
