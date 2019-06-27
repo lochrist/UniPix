@@ -83,6 +83,7 @@ namespace UniPix
 
     public class RectangleTool : PixTool
     {
+        bool m_Active;
         Vector2Int m_Start;
         public RectangleTool()
         {
@@ -92,12 +93,14 @@ namespace UniPix
 
         public override bool OnEvent(Event current, PixSession session)
         {
-            DrawCursor(session);
+            if (!m_Active)
+                DrawCursor(session);
             if (Event.current.isMouse &&
                 (Event.current.button == 0 || Event.current.button == 1))
             {
                 if (Event.current.type == EventType.MouseDown)
                 {
+                    m_Active = true;
                     m_Start = session.CursorImgCoord;
                 }
                 else if (Event.current.type == EventType.MouseDrag)
@@ -131,6 +134,8 @@ namespace UniPix
                             PixUtils.DrawRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
                         }
                     }
+
+                    m_Active = false;
                 }
                 return true;
             }
@@ -159,11 +164,24 @@ namespace UniPix
                 }
                 else if (Event.current.type == EventType.MouseDrag)
                 {
-                    session.SetOverlay(session.CursorImgCoord.x, session.CursorImgCoord.y, Color.blue);
+                    session.ClearOverlay();
+                    var pixels = session.Overlay.GetPixels();
+                    var strokeColor = StrokeColor(session);
+
+                    PixUtils.DrawLine(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
+
+                    session.Overlay.SetPixels(pixels);
+                    session.Overlay.Apply();
                 }
                 else if (Event.current.type == EventType.MouseUp)
                 {
                     session.DestroyOverlay();
+                    using (new PixCommands.SessionChangeScope(session, "Rectangle"))
+                    {
+                        var pixels = session.CurrentLayer.Pixels;
+                        var strokeColor = StrokeColor(session);
+                        PixUtils.DrawLine(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
+                    }
                 }
                 return true;
             }
