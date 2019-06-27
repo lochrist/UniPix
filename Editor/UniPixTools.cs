@@ -75,4 +75,109 @@ namespace UniPix
             return false;
         }
     }
+
+    public class RectangleTool : PixTool
+    {
+        public RectangleTool()
+        {
+            Name = "Rectangle";
+            Content = new GUIContent(Icons.rectangle, "Rectangle");
+        }
+
+        public override bool OnEvent(Event current, SessionData session)
+        {
+            DrawCursor(session);
+            if (IsBrushStroke() &&
+                Event.current.button == 0)
+            {
+                UniPixCommands.SetPixelsUnderBrush(session, Color.clear);
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public class LineTool : PixTool
+    {
+        public LineTool()
+        {
+            Name = "Line";
+            Content = new GUIContent(Icons.stroke, "Line");
+        }
+
+        public override bool OnEvent(Event current, SessionData session)
+        {
+            DrawCursor(session);
+            if (IsBrushStroke() &&
+                Event.current.button == 0)
+            {
+                UniPixCommands.SetPixelsUnderBrush(session, Color.clear);
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public class BucketTool : PixTool
+    {
+        public BucketTool()
+        {
+            Name = "Bucket";
+            Content = new GUIContent(Icons.bucket, "Bucket");
+        }
+
+        public override bool OnEvent(Event current, SessionData session)
+        {
+            DrawCursor(session);
+            if (IsBrushStroke() &&
+                Event.current.button == 0)
+            {
+                UniPixCommands.SetPixelsUnderBrush(session, Color.clear);
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public class BucketFullTool : PixTool
+    {
+        public BucketFullTool()
+        {
+            Name = "BucketFull";
+            Content = new GUIContent(Icons.bucketFull, "Full Frame Bucket");
+        }
+
+        public override bool OnEvent(Event current, SessionData session)
+        {
+            DrawCursor(session);
+            if (IsBrushStroke() &&
+                Event.current.button == 0)
+            {
+                UniPixCommands.SetPixelsUnderBrush(session, Color.clear);
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public class DitheringTool : PixTool
+    {
+        public DitheringTool()
+        {
+            Name = "Dithering";
+            Content = new GUIContent(Icons.dithering, "Dithering");
+        }
+
+        public override bool OnEvent(Event current, SessionData session)
+        {
+            DrawCursor(session);
+            if (IsBrushStroke() &&
+                Event.current.button == 0)
+            {
+                UniPixCommands.SetPixelsUnderBrush(session, Color.clear);
+                return true;
+            }
+            return false;
+        }
+    }
 }

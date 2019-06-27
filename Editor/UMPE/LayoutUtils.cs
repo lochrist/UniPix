@@ -198,12 +198,6 @@ public class LayoutUtils
         try
         {
             ContainerWindow.SetFreezeDisplay(true);
-
-            const float x = 300f;
-            const float y = 90.0f;
-            const float width = 800;
-            const float height = 600;
-
             var pixWindow = ScriptableObject.CreateInstance<PixEditor>();
             var view = ScriptableObject.CreateInstance<HostView>();
             view.SetActualViewInternal(pixWindow, true);

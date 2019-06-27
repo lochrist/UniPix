@@ -174,6 +174,15 @@ namespace UniPix
             return result;
         }
 
+        public static Rect LayoutFrameTile(Frame frame, bool currentFrame = false)
+        {
+            var tex = frame.Texture;
+            var frameRect = GUILayoutUtility.GetRect(PixEditor.Styles.kFramePreviewSize, PixEditor.Styles.kFramePreviewWidth, PixEditor.Styles.pixBox, GUILayout.Width(PixEditor.Styles.kFramePreviewSize), GUILayout.Height(PixEditor.Styles.kFramePreviewSize));
+            GUI.Box(frameRect, "", currentFrame ? PixEditor.Styles.selectedPixBox : PixEditor.Styles.pixBox);
+            GUI.DrawTexture(frameRect, tex, ScaleMode.ScaleToFit);
+            return frameRect;
+        }
+
         public static string GetBasePath(string path)
         {
             if (Path.IsPathRooted(path))

@@ -1,14 +1,19 @@
+/*
+    shortcut = "&t" // Alt + T
+    shortcut = "%t" // Ctrl + T
+    shortcut = "#t" // Shift + T
+*/
 unipix = {
     label = "UniPix"
     menus = [
         {
             name = "File" // Name of the top level menu item
             children = [ // Children of this menu
-                {name = "New..." command_id = "UniPix/NewImage" }
-                {name = "Open..." command_id = "UniPix/Open" }
+                {name = "New..." command_id = "UniPix/NewImage" shortcut="%n"}
+                {name = "Open..." command_id = "UniPix/Open" shortcut="%o"}
                 null
-                { name = "Save" command_id = "UniPix/Save" }
-                { name = "Sync" command_id = "UniPix/Sync" }
+                { name = "Save" command_id = "UniPix/Save" shortcut="%s"}
+                { name = "Sync" command_id = "UniPix/Sync" shortcut="%&s"}
                 null
                 { name = "Export Current Frame" command_id = "UniPix/ExportCurrentFrame" }
                 { name = "Export Frames" command_id = "UniPix/ExportFrames" }
@@ -35,20 +40,22 @@ unipix = {
         {
             name = "Frame"
             children = [
-                { name = "Go to next" command_id = "UniPix/GotoNextFrame" }
-                { name = "Go to previous" command_id = "UniPix/GotoPreviousFrame" }
+                { name = "Go to next" command_id = "UniPix/GotoNextFrame" shortcut="_Up Arrow"}
+                { name = "Go to previous" command_id = "UniPix/GotoPreviousFrame" shortcut="_Down Arrow"}
                 null
-                { name = "Clone current" command_id = "UniPix/CloneCurrentFrame" }
-                { name = "Delete current" command_id = "UniPix/DeleteCurrentFrame" }
+                { name = "New Frame" command_id = "UniPix/NewFrame" shortcut="%N"}
+                { name = "Clone current" command_id = "UniPix/CloneCurrentFrame" shortcut="&%N"}
+                { name = "Delete current" command_id = "UniPix/DeleteCurrentFrame" shortcut="_Del"}
             ]
         }
         {
             name = "Layer"
             children = [
-                { name = "Go to next" command_id = "UniPix/GotoNextLayer" }
-                { name = "Go to previous" command_id = "UniPix/GotoPreviousLayer" }
+                { name = "Go to next" command_id = "UniPix/GotoNextLayer" shortcut="&t"}
+                { name = "Go to previous" command_id = "UniPix/GotoPreviousLayer" shortcut="%t" }
                 null
-                { name = "Clone current" command_id = "UniPix/CloneCurrentLayer" }
+                { name = "New Layer" command_id = "UniPix/NewLayer" }
+                { name = "Clone current" command_id = "UniPix/CloneCurrentLayer" shortcut="#t" }
                 { name = "Delete current" command_id = "UniPix/DeleteCurrentLayer" }
                 { name = "Merge current" command_id = "UniPix/MergeCurrentLayer" }
                 null
@@ -59,13 +66,13 @@ unipix = {
         {
             name = "View"
             children = [
-                { name = "Zoom" command_id = "UniPix/Zoom" }
-                { name = "Zoom Back" command_id = "UniPix/ZoomBack" }
+                { name = "Zoom" command_id = "UniPix/Zoom" shortcut="_+"}
+                { name = "Zoom Back" command_id = "UniPix/ZoomBack" shortcut="_-"}
                 null
-                { name = "Center Canvas" command_id = "UniPix/CenterCanvas" }
+                { name = "Center Canvas" command_id = "UniPix/CenterCanvas" shortcut="_c"}
+                { name = "Toggle Grid" command_id = "UniPix/ToggleGrid" shortcut="&g"}
                 null
-                { name = "Stop Animation" command_id = "UniPix/StopAnimation" }
-                { name = "Start Animation" command_id = "UniPix/StartAnimation" }
+                { name = "Toggle Animation" command_id = "UniPix/ToggleAnimation" shortcut="%p"}
                 { name = "Increase Animation Speed" command_id = "UniPix/IncreaseAnimationSpeed" }
                 { name = "Decrease Animation Speed" command_id = "UniPix/DecreaseAnimationSpeed" }
             ]
@@ -73,23 +80,38 @@ unipix = {
         {
             name = "Tool"
             children = [
-                { name = "Brush" command_id = "UniPix/ActivateBrush" }
-                { name = "Eraser" command_id = "UniPix/ActivateEraser" }
+                { name = "Brush" command_id = "UniPix/ActivateBrush" shortcut="_b"}
+                { name = "Eraser" command_id = "UniPix/ActivateEraser" shortcut="_e"}
                 null
-                { name = "Increase Brush" command_id = "UniPix/IncreaseBrushSize" }
-                { name = "Decrease Brush" command_id = "UniPix/IncreaseBrushSize" }
+                { name = "Increase Brush" command_id = "UniPix/IncreaseBrushSize" shortcut="_]"}
+                { name = "Decrease Brush" command_id = "UniPix/IncreaseBrushSize" shortcut="_["}
                 null
-                { name = "Increase Color" command_id = "UniPix/IncreaseColor" }
-                { name = "Decrease Color" command_id = "UniPix/DecreaseColor" }
-                { name = "Swap Color" command_id = "UniPix/SwapColor" }
+                { name = "Next Color" command_id = "UniPix/IncreaseColor" shortcut="_."}
+                { name = "Previous Color" command_id = "UniPix/DecreaseColor" shortcut="_,"}
+                { name = "Swap Color" command_id = "UniPix/SwapColor" shortcut="_x"}
             ]
         }
         {
             name = "Window"
             children = [
-                {name = "Console" menu_item_id = "Window/UniPix"}
-                {name = "Console" menu_item_id = "Window/General/Project"}
-                {name = "Console" menu_item_id = "Window/General/Console"}
+                {name = "UniPix" menu_item_id = "Window/UniPix"}
+                {name = "Project Bundle" command_id = "UniPix/OpenProjectBrowse"}
+                /*
+                // Doesn't work
+                {name = "Project" menu_item_id = "Window/General/UniPix"}
+                {name = "Console" menu_item_id = "Window/General/UniPix"}
+                */
+                {
+                    name = "General"
+                    children = [
+                        {name = "Project"}
+                        {name = "Console"}
+                    ]
+                }
+                null
+                {name = "Pix Layout" command_id = "UniPix/Layout/Pix" shortcut="%#1"}
+                {name = "Pix Browse Layout" command_id = "UniPix/Layout/PixBrowse" shortcut="%#2"}
+                {name = "Pix Debug Layout" command_id = "UniPix/Layout/PixDebug" shortcut="%#3"}
             ]
         }
         {

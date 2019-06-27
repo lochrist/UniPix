@@ -28,6 +28,8 @@ namespace UniPix
         public Color SecondaryColor = Color.black;
         public int SecondaryColorPaletteIndex = -1;
 
+        public float ImageOffsetX;
+        public float ImageOffsetY;
         public Rect ScaledImgRect;
         public Vector2Int CursorImgCoord;
         public Vector2 CursorPos;
@@ -75,30 +77,14 @@ namespace UniPix
     {
         public static string packageName = "com.unity.unipix";
         public static string packageFolderName = $"Packages/{packageName}";
-
-        Rect m_CanvasRect;
-        Rect m_StatusRect;
-        Rect m_ViewportRect;
-        Rect m_LayerRect;
-        Rect m_PaletteRect;
-        Rect m_AnimPreviewRect;
-        Rect m_ToolbarRect;
-        Rect m_ColorPaletteRect;
-        Rect m_ToolsPaletteRect;
-        Rect m_FramePreviewRect;
-        Rect m_RightPanelRect;
-        Texture2D m_TransparentTex;
-        System.Diagnostics.Stopwatch m_Timer = new System.Diagnostics.Stopwatch();
-
         public static SessionData s_Session;
-
+        public SessionData Session;
         public static class Prefs
         {
             public static string kPrefix = "unixpix.";
             public static string kCurrentImg = $"{kPrefix}currentImg";
         }
-
-        internal static class Styles
+        public static class Styles
         {
             public const float scrollbarWidth = 13f;
             public const float kToolPaletteWidth = 100;
@@ -133,6 +119,8 @@ namespace UniPix
             public static GUIContent gridSettingsContent = new GUIContent(Icons.cog);
             public static GUIContent exportContent = new GUIContent(Icons.export);
             public static GUIContent syncContent = new GUIContent(Icons.counterClockwiseRotation, "Save and sync Sources");
+            public static GUIContent colorSwitcherContent = new GUIContent(Icons.colorSwapAndArrow, "Swap Primary and Secondary");
+
             public static GUIStyle layerHeader = new GUIStyle(EditorStyles.boldLabel);
             public static GUIStyle layerName = new GUIStyle(EditorStyles.largeLabel);
             public static GUIStyle currentLayerName = new GUIStyle(EditorStyles.largeLabel);
@@ -168,7 +156,10 @@ namespace UniPix
             {
                 richText = true
             };
-
+            public static GUIStyle colorSwap = new GUIStyle()
+            {
+                name = "colorSwap"
+            };
             public static GUIStyle pixMain = new GUIStyle()
             {
                 name = "pixmain",
@@ -213,13 +204,21 @@ namespace UniPix
             }
         }
 
-        float m_ImageOffsetX;
-        float m_ImageOffsetY;
+        Rect m_CanvasRect;
+        Rect m_StatusRect;
+        Rect m_ViewportRect;
+        Rect m_LayerRect;
+        Rect m_PaletteRect;
+        Rect m_AnimPreviewRect;
+        Rect m_ToolbarRect;
+        Rect m_ColorPaletteRect;
+        Rect m_ToolsPaletteRect;
+        Rect m_FramePreviewRect;
+        Rect m_RightPanelRect;
+        Texture2D m_TransparentTex;
+        System.Diagnostics.Stopwatch m_Timer = new System.Diagnostics.Stopwatch();
         bool m_IsPanning;
         Vector2 m_PanStart;
-
-        public SessionData Session;
-
         PixTool m_CurrentTool;
         PixTool[] m_Tools;
 
@@ -230,7 +229,12 @@ namespace UniPix
 
             m_Tools = new PixTool[] {
                 new BrushTool(),
-                new EraseTool()
+                new EraseTool(),
+                new BucketTool(), 
+                new BucketFullTool(), 
+                new LineTool(), 
+                new RectangleTool(),
+                new DitheringTool()
             };
             m_CurrentTool = m_Tools[0];
 
@@ -290,7 +294,10 @@ namespace UniPix
             { // Column 1
                 m_AnimPreviewRect = new Rect(m_ToolbarRect.x, m_ToolbarRect.yMax, Styles.kFramePreviewWidth, Styles.kFramePreviewWidth);
                 const int kToolsSpacing = 10;
-                m_ToolsPaletteRect = new Rect(m_ToolbarRect.x, m_AnimPreviewRect.yMax + kToolsSpacing, Styles.kToolPaletteWidth, Styles.kLayerRectHeight);
+                m_ToolsPaletteRect = new Rect(m_ToolbarRect.x, 
+                    m_AnimPreviewRect.yMax + kToolsSpacing, 
+                    Styles.kToolPaletteWidth, 
+                    (m_Tools.Length) * (Styles.kToolSize + Styles.kMargin));
             }
 
             { // Column 2
@@ -340,23 +347,23 @@ namespace UniPix
         private void ProcessEvents()
         {
             var e = Event.current;
-            if (e.type == EventType.KeyDown)
+            if (ModeService.currentId != "unipix" && e.type == EventType.KeyDown)
             {
                 if (e.keyCode == KeyCode.W)
                 {
-                    m_ImageOffsetY -= 20f;
+                    Session.ImageOffsetY -= 20f;
                 }
                 if (e.keyCode == KeyCode.S)
                 {
-                    m_ImageOffsetY += 20f;
+                    Session.ImageOffsetY += 20f;
                 }
                 if (e.keyCode == KeyCode.A)
                 {
-                    m_ImageOffsetX -= 20f;
+                    Session.ImageOffsetX -= 20f;
                 }
                 if (e.keyCode == KeyCode.D)
                 {
-                    m_ImageOffsetX += 20f;
+                    Session.ImageOffsetX += 20f;
                 }
                 if (e.keyCode == KeyCode.UpArrow)
                 {
@@ -519,11 +526,7 @@ namespace UniPix
             var eventUsed = false;
             foreach (var frame in Session.Image.Frames)
             {
-                var tex = frame.Texture;
-                var frameRect = GUILayoutUtility.GetRect(Styles.kFramePreviewSize, Styles.kFramePreviewWidth, Styles.pixBox, GUILayout.Height(Styles.kFramePreviewSize));
-                GUI.Box(frameRect, "", frameIndex == Session.CurrentFrameIndex ? Styles.selectedPixBox : Styles.pixBox);
-                GUI.DrawTexture(frameRect, tex, ScaleMode.ScaleToFit);
-
+                var frameRect = UniPixUtils.LayoutFrameTile(frame, frameIndex == Session.CurrentFrameIndex);
                 if (frameRect.Contains(Event.current.mousePosition))
                 {
                     if (GUI.Button(new Rect(frameRect.x + Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, 
@@ -585,6 +588,11 @@ namespace UniPix
                 UniPixCommands.SetBrushColor(Session, 0, color);
             }
             GUI.Box(primaryColorRect, "", Styles.primaryColorBox);
+            var switcher = new Rect(primaryColorRect.x + 7, primaryColorRect.yMax, 30, 30);
+            if (GUI.Button(switcher, Styles.colorSwitcherContent, Styles.colorSwap))
+            {
+
+            }
         }
 
         private void DrawPixEditor()
@@ -617,7 +625,7 @@ namespace UniPix
 
             var xScale = Session.Image.Width * Session.ZoomLevel;
             var yScale = Session.Image.Height * Session.ZoomLevel;
-            Session.ScaledImgRect = new Rect((m_CanvasRect.width / 2 - xScale / 2) + m_ImageOffsetX, m_ImageOffsetY, xScale, yScale);
+            Session.ScaledImgRect = new Rect((m_CanvasRect.width / 2 - xScale / 2) + Session.ImageOffsetX, Session.ImageOffsetY, xScale, yScale);
 
             EditorGUI.DrawRect(m_CanvasRect, new Color(0.4f, 0.4f, 0.4f));
             GUILayout.BeginArea(m_CanvasRect);
@@ -663,11 +671,12 @@ namespace UniPix
             else if (m_IsPanning && Event.current.type == EventType.MouseDrag)
             {
                 var panningDistance = Event.current.mousePosition - m_PanStart;
-                m_ImageOffsetX += panningDistance.x;
-                m_ImageOffsetY += panningDistance.y;
+                Session.ImageOffsetX += panningDistance.x;
+                Session.ImageOffsetY += panningDistance.y;
                 m_PanStart = Event.current.mousePosition;
             }
         }
+
 
         private void DrawGrid()
         {

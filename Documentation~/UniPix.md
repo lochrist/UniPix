@@ -2,87 +2,23 @@
 
 Pixel Art Editor for Unity
 
-- Way to create a layout with docking system and no toolbar
-- Way to save current layout (in the mode at the right path)
-1- Create layout with docking and uni pix
-2- create layout with docking and uni pix + project browser
-3- create layout with docking and uni pix + project browser + console?
-4- Function to create uni pix and no docking
-5- Button to pop the project browser next to pix? Pop it modal? ShowAtPosition?
-6- Validate what happens (which data) in drag and drop across multi process : surely miss dropping of sprites
-
-In mode, do not draw the toolbar?
-
-Need to Expose commands and shortcut:
-- New Image
-- Open/Load
-- Save
-- Sync
-- Undo/Redo
-- Export Current frame
-- Export Multi frame
-- Export SpriteSheet
-
-Edit
-- Undo
-- Redo
-
-Frame
-- Next Frame
-- Previous frame
-- Delete current frame
-- Clone current frame
-
-Layer
-- Next Layer
-- Previous Layer
-- Delete current layer
-- Clone current layer
-- Merge current layer with bottom
-- Move layer up
-- Move layer down
-
-View
-- Pan (no command?)
-- Zoom (mouse?)
-- Start Preview
-- Stop Preview
-- Increse preview speed
-- Slow previw speed
-
-Tools
-- Select Brush
-- Select Erase
-- Increase brush size
-- Lower brush size
-- Swap color
-
 TODO
+* CustomEditor to open in Pix
+* Ricgh click open
 * Mode:
-    * Its own menu
-    * its own layout? or single window?
-        * layout with a projectBrowser
-	* Shortcuts: ensure all actions are mapped on shortcut
+    * Finish all shortcuts + keep same shortcut in default mode
+    * Shortcut to switch to workflow with project browser and pix and back
 * UMPE:
-    * with a mode
     * Open in isolation
+        * right click on a pix.asset
+        * right click on a sprite
+        * right click on a texture
 	* validate drag and drop from another project
 	* Add Right click on asset: open in UniPix
 * export as gif: https://github.com/simonwittber/uGIF/tree/master/Assets/uGIF/Scripts
 * Undo/Redo
     * Add to createAsset menu (See Damian prez)
-* Tools:
-    * Bucket filler
-    * Mirror?
-    * Shape:
-        * circle
-        * rectangle
-        * Line
-    * Selection?
-        * Move/Cut
-        * copy + paste
-    * Palette switcher:
-        * switch palette and apply palette to image: all colors are replaced with colors from the other palette?
+* Implement missing tool
 
 If time:
 * spriesheet syncing if needed
@@ -169,3 +105,24 @@ Video ideas:
     - its own menubar and shortcuts!
 - Can even be started standalone:
     - create shortcut with proper command line switch on the project
+
+
+Comments
+- Mode:
+    - command are not seen by the shortcut manager... should we use [Shortcut]??
+    - validate if we use shortcut_id in mode file if it conflicts with shortcut manager (does the shortcut manager overrides the mode file?)
+    - Lots of trouble generating the Close left without docking
+    - Window menu difficult to map
+
+- In Window -> fails
+{name = "Project" menu_item_id = "Window/General/UniPix"}
+{name = "Console" menu_item_id = "Window/General/UniPix"}
+- In Window this works:
+{
+    name = "General"
+    children = [
+        {name = "Project"}
+        {name = "Console"}
+    ]
+}
+- Bug: mode is unipix. Layout system is not properly loaded (default layout wtf???)

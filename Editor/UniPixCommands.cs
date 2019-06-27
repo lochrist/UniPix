@@ -355,6 +355,12 @@ namespace UniPix
         #endregion
 
         #region UI
+        public static void EditInPix(Image image)
+        {
+            var pix = EditorWindow.GetWindow<PixEditor>();
+            LoadPix(pix.Session, new[] { image });
+        }
+
         public static void SetCurrentFrame(SessionData session, int frameIndex)
         {
             session.CurrentFrameIndex = frameIndex;
@@ -380,6 +386,10 @@ namespace UniPix
             }
         }
 
+        public static void CenterCanvas(SessionData session)
+        {
+
+        }
         #endregion
 
         // TODO: should it be part of the model?
@@ -540,6 +550,8 @@ namespace UniPix
             session.PreviewFrameIndex = 0;
 
             OnNewFrame(session);
+
+            CenterCanvas(session);
         }
 
         private static void CopyLayer(Layer srcLayer, Layer dstLayer)
@@ -666,6 +678,12 @@ namespace UniPix
 
         }
 
+        [CommandHandler("UniPix/NewFrame")]
+        private static void NewFrame(CommandExecuteContext context)
+        {
+
+        }
+
         [CommandHandler("UniPix/GotoNextLayer")]
         private static void GotoNextLayer(CommandExecuteContext context)
         {
@@ -689,6 +707,13 @@ namespace UniPix
         {
 
         }
+
+        [CommandHandler("UniPix/NewLayer")]
+        private static void NewLayer(CommandExecuteContext context)
+        {
+
+        }
+
         [CommandHandler("UniPix/MergeCurrentLayer")]
         private static void MergeCurrentLayer(CommandExecuteContext context)
         {
@@ -724,14 +749,14 @@ namespace UniPix
 
         }
 
-        [CommandHandler("UniPix/StartAnimation")]
-        private static void StartAnimationPreview(CommandExecuteContext context)
+        [CommandHandler("UniPix/ToggleGrid")]
+        private static void ToggleGrid(CommandExecuteContext context)
         {
 
         }
 
-        [CommandHandler("UniPix/StopAnimation")]
-        private static void StopAnimationPreview(CommandExecuteContext context)
+        [CommandHandler("UniPix/ToggleAnimation")]
+        private static void ToggleAnimation(CommandExecuteContext context)
         {
 
         }
@@ -775,19 +800,59 @@ namespace UniPix
         [CommandHandler("UniPix/IncreaseColor")]
         private static void IncreaseColor(CommandExecuteContext context)
         {
-
+            Debug.Log("Color ->");
         }
 
         [CommandHandler("UniPix/DecreaseColor")]
         private static void DecreaseColor(CommandExecuteContext context)
         {
-
+            Debug.Log("Color <-");
         }
 
         [CommandHandler("UniPix/SwapColor")]
         private static void SwapColor(CommandExecuteContext context)
         {
 
+        }
+
+        [CommandHandler("UniPix/OpenProjectBrowse")]
+        private static void OpenProjectBrowse(CommandExecuteContext context)
+        {
+            LayoutUtils.CreateProject();
+        }
+
+        private static void LoadLayout(string name)
+        {
+            if (ModeService.currentId == "unipix")
+            {
+                var layouts = ModeService.GetModeDataSectionList<string>(ModeService.currentIndex, "layouts");
+                foreach (var layout in layouts)
+                {
+                    var layoutName = Path.GetFileNameWithoutExtension(layout);
+                    if (name == layoutName)
+                    {
+                        WindowLayout.LoadWindowLayout(layout, false);
+                    }
+                }
+            }
+        }
+
+        [CommandHandler("UniPix/Layout/Pix")]
+        private static void LayoutPix(CommandExecuteContext context)
+        {
+            LoadLayout("Pix");
+        }
+
+        [CommandHandler("UniPix/Layout/PixBrowse")]
+        private static void LayoutPixBrowse(CommandExecuteContext context)
+        {
+            LoadLayout("Browse");
+        }
+
+        [CommandHandler("UniPix/Layout/PixDebug")]
+        private static void LayoutPixDebug(CommandExecuteContext context)
+        {
+            LoadLayout("Debug");
         }
         #endregion
     }

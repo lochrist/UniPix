@@ -21,7 +21,6 @@ public static class PixRoleProvider
     private static void InitializePixProcess()
     {
         Debug.Log("Uni Pix Initialize");
-        LayoutUtils.ExampleDockingAndSplitView();
     }
 
     [UsedImplicitly, RoleProvider(k_RoleName, ProcessEvent.UMP_EVENT_AFTER_DOMAIN_RELOAD)]
@@ -37,12 +36,12 @@ public static class PixRoleProvider
         var args = new List<string>();
         args.Add("ump-window-title");
         args.Add("UniPix");
-        // args.Add("ump-cap");
-        // args.Add("main_window");
+        args.Add("ump-cap");
+        args.Add("main_window");
         args.Add("ump-cap");
         args.Add("menu_bar");
-        // args.Add("editor-mode");
-        // args.Add(k_Mode);
+        args.Add("editor-mode");
+        args.Add(k_Mode);
 
         ProcessService.LaunchSlave(k_RoleName, args.ToArray());
     }
