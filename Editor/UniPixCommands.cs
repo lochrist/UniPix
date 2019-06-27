@@ -14,9 +14,11 @@ namespace UniPix
         public static bool LoadPix(SessionData session)
         {
             var path = EditorUtility.OpenFilePanel(
-                    "Find Pix (.asset | .png | .jpg)",
+                    "Find Pix (.unipix.asset | .png | .jpg)",
                     "Assets/",
                     "Image Files;*.unipix.asset;*.jpg;*.png");
+            if (path == "")
+                return false;
             return LoadPix(session, path);
         }
 
