@@ -619,7 +619,7 @@ namespace UniPix
             var switcher = new Rect(primaryColorRect.x + 7, primaryColorRect.yMax, 30, 30);
             if (GUI.Button(switcher, Styles.colorSwitcherContent, Styles.colorSwap))
             {
-
+                UniPixCommands.SwitchColor(Session);
             }
         }
 

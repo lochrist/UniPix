@@ -363,12 +363,14 @@ namespace UniPix
 
         public static void SetCurrentFrame(PixSession session, int frameIndex)
         {
+            RecordUndo(session, "Change Current Frame", false, true);
             session.CurrentFrameIndex = frameIndex;
             OnNewFrame(session);
         }
 
         public static void SetCurrentLayer(PixSession session, int layerIndex)
         {
+            RecordUndo(session, "Change Current Layer", false, true);
             session.CurrentLayerIndex = layerIndex;
         }
 
@@ -384,6 +386,16 @@ namespace UniPix
                 session.SecondaryColor = color;
                 session.SecondaryColorPaletteIndex = session.Palette.Colors.FindIndex(c => c == color);
             }
+        }
+
+        public static void SwitchColor(PixSession session)
+        {
+            var primaryColor = session.CurrentColor;
+            var primaryColorIndex = session.CurrentColorPaletteIndex;
+            session.CurrentColor = session.SecondaryColor;
+            session.CurrentColorPaletteIndex = session.SecondaryColorPaletteIndex;
+            session.SecondaryColorPaletteIndex = primaryColorIndex;
+            session.SecondaryColor = primaryColor;
         }
 
         public static void CenterCanvas(PixSession session)
@@ -578,10 +590,12 @@ namespace UniPix
             }
         }
 
-        private static void RecordUndo(PixSession session, string info)
+        private static void RecordUndo(PixSession session, string info, bool saveImage = true, bool saveImageSessionState = true)
         {
-            Undo.RecordObject(session.Image, info);
-            Undo.RecordObject(session.ImageSessionState, info);
+            if (saveImage)
+                Undo.RecordObject(session.Image, info);
+            if (saveImageSessionState)
+                Undo.RecordObject(session.ImageSessionState, info);
         }
 
         private static void DirtyImage(PixSession session)
