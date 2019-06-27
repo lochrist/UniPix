@@ -149,8 +149,7 @@ namespace UniPix
 
             if (!frame.m_Texture || frame.m_Texture == null)
             {
-                frame.m_Texture = new Texture2D(frame.Width, frame.Height);
-                frame.m_Texture.filterMode = FilterMode.Point;
+                frame.m_Texture = PixUtils.CreateTexture(frame.Width, frame.Height);
             }
 
             frame.m_Texture.SetPixels(frame.BlendedLayer.Pixels);

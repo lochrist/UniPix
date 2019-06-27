@@ -24,6 +24,20 @@ namespace UniPix
             return img;
         }
 
+        public static Texture2D CreateTexture(int width, int height)
+        {
+            return new Texture2D(width, height) { filterMode = FilterMode.Point };
+        }
+
+        public static void SetTextureColor(Texture2D tex, Color color, bool apply = true)
+        {
+            for(var x = 0; x < tex.width; ++x)
+            for (var y = 0; y < tex.height; ++y)
+                tex.SetPixel(x, y, color);
+
+            tex.Apply();
+        }
+
         public static bool MakeReadable(Texture2D tex)
         {
             if (tex.isReadable)

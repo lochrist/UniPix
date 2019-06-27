@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace UniPix
 {
@@ -21,6 +22,38 @@ namespace UniPix
         public float ZoomLevel = 20f;
 
         public PixImage Image;
+
+        Texture2D m_Overlay;
+
+        public bool HasOverlay => m_Overlay != null;
+        public void ClearOverlay()
+        {
+            if (m_Overlay)
+            {
+                Object.DestroyImmediate(m_Overlay);
+            }
+            m_Overlay = null;
+        }
+        public Texture2D Overlay
+        {
+            get
+            {
+                if (m_Overlay == null)
+                {
+                    m_Overlay = PixUtils.CreateTexture(Image.Width, Image.Height);
+                    PixUtils.SetTextureColor(m_Overlay, Color.clear);
+                }
+                return m_Overlay;
+            }
+        }
+
+        public void SetOverlay(int imgCoordX, int imgCoordY, Color color, bool apply = true)
+        {
+            Overlay.SetPixel(imgCoordX, Overlay.height - imgCoordY - 1, color);
+            if (apply)
+                Overlay.Apply();
+        }
+
         public string ImagePath;
         public string ImageTitle;
         public bool IsImageDirty;
@@ -264,9 +297,8 @@ namespace UniPix
 
             Session.ZoomLevel = 10f;
 
-            m_TransparentTex = new Texture2D(1, 1);
-            m_TransparentTex.SetPixel(0, 0, Color.clear);
-            m_TransparentTex.Apply();
+            m_TransparentTex = PixUtils.CreateTexture(1, 1);
+            PixUtils.SetTextureColor(m_TransparentTex, Color.clear);
 
             wantsMouseMove = true;
 
@@ -295,7 +327,7 @@ namespace UniPix
                 DrawAnimationPreview();
                 DrawFrames();
                 DrawColorSwitcher();
-                DrawPixEditor();
+                DrawCanvas();
 
                 GUILayout.BeginArea(m_RightPanelRect);
                 Session.RightPanelScroll = GUILayout.BeginScrollView(Session.RightPanelScroll);
@@ -623,7 +655,7 @@ namespace UniPix
             }
         }
 
-        private void DrawPixEditor()
+        private void DrawCanvas()
         {
             if (Event.current != null)
             {
@@ -668,7 +700,6 @@ namespace UniPix
                 EditorGUI.DrawTextureTransparent(Session.ScaledImgRect, m_TransparentTex);
                 var tex = Session.CurrentFrame.Texture;
                 GUI.DrawTexture(Session.ScaledImgRect, tex);
-
                 if (Session.ScaledImgRect.Contains(Event.current.mousePosition))
                 {
                     Session.CursorPos = Event.current.mousePosition - Session.ScaledImgRect.position;
@@ -687,6 +718,11 @@ namespace UniPix
                 if (Session.ShowGrid && Session.ZoomLevel > 2)
                 {
                     DrawGrid();
+                }
+
+                if (Session.HasOverlay)
+                {
+                    GUI.DrawTexture(Session.ScaledImgRect, Session.Overlay);
                 }
             }
             GUILayout.EndArea();

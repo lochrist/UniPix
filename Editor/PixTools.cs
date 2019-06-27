@@ -108,10 +108,24 @@ namespace UniPix
         public override bool OnEvent(Event current, PixSession session)
         {
             DrawCursor(session);
-            if (IsBrushStroke() &&
+            if (Event.current.isMouse &&
                 Event.current.button == 0)
             {
-                PixCommands.SetPixelsUnderBrush(session, Color.clear);
+                if (Event.current.type == EventType.MouseDown)
+                {
+                    Debug.Log("It is down");
+                    session.SetOverlay(session.CursorImgCoord.x, session.CursorImgCoord.y, Color.blue);
+                }
+                else if (Event.current.type == EventType.MouseDrag)
+                {
+                    Debug.Log("Dragging: " + Event.current.mousePosition);
+                    session.SetOverlay(session.CursorImgCoord.x, session.CursorImgCoord.y, Color.blue);
+                }
+                else if (Event.current.type == EventType.MouseUp)
+                {
+                    Debug.Log("It isup!");
+                    session.ClearOverlay();
+                }
                 return true;
             }
             return false;

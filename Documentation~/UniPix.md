@@ -3,23 +3,19 @@
 Pixel Art Editor for Unity
 
 TODO
-* Undo/Redo
-    * Add to createAsset menu (See Damian prez)
-* think about video?
 
 If time:
 * Implement missing tool
 * Finish all shortcuts + keep same shortcut in default mode
+
+Not for hackweek:
 * export as gif: https://github.com/simonwittber/uGIF/tree/master/Assets/uGIF/Scripts
-* spriesheet syncing if needed
+* Some spritesheet syncing is not done
 * UIElements:
 	* create ui with uielements and benchmark
 	* benchmark current ui code
 * Rename layers
 * Ensure creation of image allows speciying the size of the image + allow resize of image
-
-
-Not for hackweek:
 * Palette:
 	* Do we want to have palette as a separate asset?
 	* See https://worms2d.info/Palette_file

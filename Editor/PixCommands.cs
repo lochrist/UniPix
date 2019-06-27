@@ -236,7 +236,7 @@ namespace UniPix
             var spriteSheetHeight = frameHeight * rows;
             spriteSheetHeight += spriteSheetHeight % frameHeight;
 
-            var spriteSheet = new Texture2D(spriteSheetWidth, spriteSheetHeight) { filterMode = FilterMode.Point };
+            var spriteSheet = PixUtils.CreateTexture(spriteSheetWidth, spriteSheetHeight);
             spriteSheet.name = PixUtils.GetBaseName(path);
             var offsetX = 0;
             var offsetY = spriteSheetHeight - frameHeight;
