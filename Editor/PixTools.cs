@@ -10,6 +10,11 @@ namespace UniPix
         public Texture2D Icon;
         public GUIContent Content;
 
+        public static Color StrokeColor(PixSession session)
+        {
+            return Event.current.button == 0 ? session.CurrentColor : session.SecondaryColor;
+        }
+
         public static bool IsBrushStroke()
         {
             return Event.current.isMouse &&
@@ -43,7 +48,7 @@ namespace UniPix
             if (IsBrushStroke() &&
                 (Event.current.button == 0 || Event.current.button == 1))
             {
-                var strokeColor = Event.current.button == 0 ? session.CurrentColor : session.SecondaryColor;
+                var strokeColor = StrokeColor(session);
                 if (!session.Palette.Colors.Contains(strokeColor))
                 {
                     PixCommands.AddPaletteColor(session, strokeColor);
@@ -78,19 +83,55 @@ namespace UniPix
 
     public class RectangleTool : PixTool
     {
+        Vector2Int m_Start;
         public RectangleTool()
         {
             Name = "Rectangle";
-            Content = new GUIContent(Icons.rectangle, "Rectangle");
+            Content = new GUIContent(Icons.rectangle, "Rectangle (hold Ctrl for filled)");
         }
 
         public override bool OnEvent(Event current, PixSession session)
         {
             DrawCursor(session);
-            if (IsBrushStroke() &&
-                Event.current.button == 0)
+            if (Event.current.isMouse &&
+                (Event.current.button == 0 || Event.current.button == 1))
             {
-                PixCommands.SetPixelsUnderBrush(session, Color.clear);
+                if (Event.current.type == EventType.MouseDown)
+                {
+                    m_Start = session.CursorImgCoord;
+                }
+                else if (Event.current.type == EventType.MouseDrag)
+                {                    session.ClearOverlay();
+                    var pixels = session.Overlay.GetPixels();
+                    var strokeColor = StrokeColor(session);
+                    if (Event.current.control)
+                    {
+                        PixUtils.DrawFilledRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, pixels);
+                    }
+                    else
+                    {
+                        PixUtils.DrawRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
+                    }
+                    session.Overlay.SetPixels(pixels);
+                    session.Overlay.Apply();
+                }
+                else if (Event.current.type == EventType.MouseUp)
+                {
+                    session.DestroyOverlay();
+                    using (new PixCommands.SessionChangeScope(session, "Rectangle"))
+                    {
+                        var pixels = session.CurrentLayer.Pixels;
+                        var strokeColor = StrokeColor(session);
+                        if (Event.current.control)
+                        {
+                            PixUtils.DrawFilledRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, pixels);
+                        }
+                        else
+                        {
+                            PixUtils.DrawRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
+                        }
+                    }
+                }
                 return true;
             }
             return false;
@@ -110,7 +151,7 @@ namespace UniPix
         {
             DrawCursor(session);
             if (Event.current.isMouse &&
-                Event.current.button == 0)
+                (Event.current.button == 0 || Event.current.button == 1))
             {
                 if (Event.current.type == EventType.MouseDown)
                 {
@@ -142,9 +183,9 @@ namespace UniPix
         {
             DrawCursor(session);
             if (IsBrushStroke() &&
-                Event.current.button == 0)
+                (Event.current.button == 0 || Event.current.button == 1))
             {
-                PixCommands.SetPixelsUnderBrush(session, Color.clear);
+                
                 return true;
             }
             return false;
@@ -162,10 +203,19 @@ namespace UniPix
         public override bool OnEvent(Event current, PixSession session)
         {
             DrawCursor(session);
-            if (IsBrushStroke() &&
-                Event.current.button == 0)
+            if (Event.current.isMouse &&
+                (Event.current.button == 0 || Event.current.button == 1) &&
+                Event.current.type == EventType.MouseUp)
             {
-                PixCommands.SetPixelsUnderBrush(session, Color.clear);
+                using (new PixCommands.SessionChangeScope(session, "Bucket"))
+                {
+                    var pixels = session.CurrentLayer.Pixels;
+                    var strokeColor = StrokeColor(session);
+                    for (int i = 0; i < pixels.Length; i++)
+                    {
+                        pixels[i] = strokeColor;
+                    }
+                }
                 return true;
             }
             return false;
@@ -184,7 +234,7 @@ namespace UniPix
         {
             DrawCursor(session);
             if (IsBrushStroke() &&
-                Event.current.button == 0)
+                (Event.current.button == 0 || Event.current.button == 1))
             {
                 PixCommands.SetPixelsUnderBrush(session, Color.clear);
                 return true;

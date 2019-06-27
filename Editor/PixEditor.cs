@@ -114,7 +114,7 @@ namespace UniPix
 
         public int ImgCoordToPixelIndex(int imgCoordX, int imgCoordY)
         {
-            return imgCoordX + (Image.Height - imgCoordY - 1) * Image.Height;
+            return PixUtils.ImgCoordToPixelIndex(Image, imgCoordX, imgCoordY);
         }
 
         public int PreviewFps = 4;

@@ -5,6 +5,7 @@ Pixel Art Editor for Unity
 TODO
 
 If time:
+* Bug with unity logo editing
 * Implement missing tool
 * Finish all shortcuts + keep same shortcut in default mode
 

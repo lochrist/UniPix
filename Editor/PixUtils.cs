@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Xml.Serialization;
 
 namespace UniPix
 {
@@ -112,10 +113,10 @@ namespace UniPix
                 img = PixImage.CreateImage(frameSize.x, frameSize.y);
             }
 
-            if (frameSize.x > img.Height)
+            if (frameSize.x > img.Width)
                 return;
 
-            if (frameSize.y > img.Width)
+            if (frameSize.y > img.Height)
                 return;
 
             var newFrame = img.AddFrame();
@@ -225,6 +226,51 @@ namespace UniPix
                 path = $"{basePath}_{index}{extension}";
             }
             return path;
+        }
+
+        public static int ImgCoordToPixelIndex(PixImage img, int imgCoordX, int imgCoordY)
+        {
+            return imgCoordX + (img.Height - imgCoordY - 1) * img.Height;
+        }
+
+        public static void DrawRectangle(PixImage img, Vector2Int start, Vector2Int end, Color color, int brushSize, Color[] output)
+        {
+            var minX = Mathf.Min(start.x, end.x);
+            var maxX = Mathf.Max(start.x, end.x);
+            var minY = Mathf.Min(start.y, end.y);
+            var maxY = Mathf.Max(start.y, end.y);
+            for (int x = minX; x <= maxX; ++x)
+            {
+                for (int y = minY; y <= maxY; ++y)
+                {
+                    if (x < minX + brushSize || y < minY + brushSize ||
+                        x > maxX - brushSize || y > maxY - brushSize)
+                    {
+                        var pixelIndex = ImgCoordToPixelIndex(img, x, y);
+                        output[pixelIndex] = color;
+                    }
+                }
+            }
+        }
+
+        public static void DrawFilledRectangle(PixImage img, Vector2Int start, Vector2Int end, Color color, Color[] output)
+        {
+            var minX = Mathf.Min(start.x, end.x);
+            var maxX = Mathf.Max(start.x, end.x);
+            var minY = Mathf.Min(start.y, end.y);
+            var maxY = Mathf.Max(start.y, end.y);
+            for (int x = minX; x <= maxX; ++x)
+            {
+                for (int y = minY; y <= maxY; ++y)
+                {
+                    var pixelIndex = ImgCoordToPixelIndex(img, x, y);
+                    output[pixelIndex] = color;
+                }
+            }
+        }
+
+        public static void DrawLine(PixImage img, Vector2Int start, Vector2Int end, Color color, int brushSize, Color[] output)
+        {
         }
 
         public struct FieldWidthScope : IDisposable

@@ -411,6 +411,20 @@ namespace UniPix
         }
 
         #region ModelChanged
+        public struct SessionChangeScope : IDisposable
+        {
+            PixSession m_Session;
+            public SessionChangeScope(PixSession session, string title, bool saveImage= true, bool saveImgSessionState = true)
+            {
+                m_Session = session;
+                RecordUndo(session, title, saveImage, saveImgSessionState);
+            }
+
+            public void Dispose()
+            {
+                DirtyImage(m_Session);
+            }
+        }
         public static void NewFrame(PixSession session)
         {
             RecordUndo(session, "Add Frame");
@@ -553,11 +567,15 @@ namespace UniPix
             }
             DirtyImage(session);
         }
+
+        public static void PixelsChanged(PixSession session)
+        {
+            RecordUndo(session, "Pixels change");
+            DirtyImage(session);
+        }
         #endregion
 
         #region Impl
-
-
         private static void InitImageSession(PixSession session)
         {
             if (session.Image == null)
