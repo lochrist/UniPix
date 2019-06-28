@@ -672,6 +672,7 @@ namespace UniPix
         private static void Sync(CommandExecuteContext context)
         {
             // TODO with a validator
+            SaveImageSources(PixEditor.s_Session);
         }
 
         [CommandHandler("UniPix/ExportCurrentFrame")]

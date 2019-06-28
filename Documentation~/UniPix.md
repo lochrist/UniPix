@@ -6,7 +6,6 @@ TODO
 
 If time:
 * Bug with unity logo editing
-* Implement missing tool
 * Finish all shortcuts + keep same shortcut in default mode
 
 Not for hackweek:
@@ -72,6 +71,32 @@ ou Pixel Art drawing app, created as a unity game that runs on ipad and that use
 
 Video ideas:
 
+- Introducing
+    - Open Pix
+- In Pix layout
+    - Edit unity:
+        - layer
+        - Bucket
+        - rectangle
+        - opacity
+        - clone unity layer
+        - change color
+        - set opacity
+- Open sprite sheet (scavenger)
+    - Delete + brush
+    - sync
+- Open multi srite
+    - show animation
+- But wait there is more (scratch sound)
+- In its own process (new faster tune)
+- Pix in it own process:
+    - Own menu
+    - Own undo
+    - Drag and drop across process
+    - Edit and sync
+- The end
+
+
 - quick enumeration of all features while using the pixel art editor
     - layers
         - opacity
@@ -81,6 +106,7 @@ Video ideas:
     - import from texture2D, sprite, jpg, png 
     - export as separate frames or spritesheet
     - synchronize with source asset
+        - Show how the scene with idle animation updates?
     - grid + grid settings
     - tools:
         - pencil
@@ -93,6 +119,7 @@ Video ideas:
     - undo/redo
     - everything has a shorcuts
     - but every unity pixel art editor should have that...
+
 - In its own process with its own EditorMode:
     - separate undo-queue
     - not impacted by global selection
@@ -122,3 +149,6 @@ Comments
     ]
 }
 - Bug: mode is unipix. Layout system is not properly loaded (default layout wtf???)
+- Cannot save asset in slave mode
+- Sync doesn't work in slave mode
+- Image not square do not work

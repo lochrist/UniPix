@@ -112,19 +112,19 @@ unipix = {
                 {name = "Pix Layout" command_id = "UniPix/Layout/Pix" shortcut="%#1"}
                 {name = "Pix Browse Layout" command_id = "UniPix/Layout/PixBrowse" shortcut="%#2"}
                 {name = "Pix Debug Layout" command_id = "UniPix/Layout/PixDebug" shortcut="%#3"}
+                null
+                {
+                    name = "Debug"
+                    children = [
+                        { name = "Refresh Modes" command_id = "ModeService/Refresh" shortcut="&r" }
+                        { name = "Default Mode" command_id = "UniPix/GotoDefaultMode" }
+                    ]
+                }
             ]
         }
         {
             name = "Help"
             children = "*"
-        }
-        {
-            name = "Debug"
-            internal = true
-            children = [
-                 { name = "Refresh Modes" command_id = "ModeService/Refresh" shortcut="&r" }
-                 { name = "Default Mode" command_id = "UniPix/GotoDefaultMode" }
-            ]
         }
     ]
 
