@@ -152,3 +152,41 @@ Comments
 - Cannot save asset in slave mode
 - Sync doesn't work in slave mode
 - Image not square do not work
+
+175 videos
+15 min breaks each hour
+started at 13h15
+
+Interesting video:
+- High contrast mode: see if mary needs stuff to use as a package.
+- Ryan buildbot: 
+    - round of applause
+    - plugs umpe
+- Coroutine: all C# and uses entities
+- DataProfiler: profiles jobs, and cache line efficiency
+- unity terminal!
+- Damian workspaces video:
+    - see what roman did
+- Timeline expressions
+- Intel GPA SDK with Unity
+- MArkdown editor in Unity
+- scaning objects with iphone to generate Mesh data connecting to a running unity instance: could use UMPE 
+    - How did they implement communication?
+- Pixel Art tool (not mine) (Teck Lee tian)
+    - John Dickinson
+    - See history feature to see if you can affect history??
+- One Doc website: will it contains internal doc as well?
+- Unity performance reporting!!! 
+- 2 projects to stream the game on browser (using webRTC)
+- Sunstone: @niels ways to get data??? on what? analygtics?
+- Tiny LEgend: @sean et @robertg (tiny game rpg using asset from oryx)
+- Tiny Rogue: Roguelike in tiny 
+- SpriteSkin + Text Mesh Pro
+- UTail: should integrate umpe log (see on github)
+- ZeroClient: grosse clappe!
+- Check Dots Physics doc to know if we could adapt verlet physics
+- Check procedurally generated music package hw19-procedural-music
+- tub: fetch a build automaticaly with a commit version
+    - not enable in mtl
+- Mon video: trop difficile de lire le texte qui passe en bas de l'ecran vs le reste de l'action (et l'efet sur le texte etait mauvais). NEed to learn a better video editing tool.
+- 
