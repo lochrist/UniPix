@@ -398,9 +398,27 @@ namespace UniPix
             session.SecondaryColor = primaryColor;
         }
 
-        public static void CenterCanvas(PixSession session)
+        public static void FrameImage(PixSession session)
         {
+            session.ZoomLevel = 1f;
+            if (session.CanvasSize.x > session.CanvasSize.y)
+            {
+                session.ZoomLevel = (int)session.CanvasSize.y / session.Image.Height;
+            }
+            else
+            {
+                session.ZoomLevel = (int)session.CanvasSize.x / session.Image.Width;
+            }
+            session.ScaledImgRect.width = session.Image.Width * session.ZoomLevel;
+            session.ScaledImgRect.height = session.Image.Height * session.ZoomLevel;
+            CenterImage(session);
+        }
 
+        public static void CenterImage(PixSession session)
+        {
+            var imageOffset = (session.CanvasSize / 2) - (session.ScaledImgRect.size / 2);
+            session.ImageOffsetX = imageOffset.x;
+            session.ImageOffsetY = imageOffset.y;
         }
         #endregion
 
@@ -586,8 +604,7 @@ namespace UniPix
             session.PreviewFrameIndex = 0;
 
             OnNewFrame(session);
-
-            CenterCanvas(session);
+            FrameImage(session);
         }
 
         private static void CopyLayer(Layer srcLayer, Layer dstLayer)
@@ -789,7 +806,7 @@ namespace UniPix
         }
 
         [CommandHandler("UniPix/CenterCanvas")]
-        private static void CenterCanvas(CommandExecuteContext context)
+        private static void CenterImage(CommandExecuteContext context)
         {
 
         }
@@ -902,5 +919,3 @@ namespace UniPix
         #endregion
     }
 }
- 
- 

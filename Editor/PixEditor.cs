@@ -86,6 +86,7 @@ namespace UniPix
 
         public int CurrentToolIndex;
 
+        public Vector2 CanvasSize;
         public float ImageOffsetX;
         public float ImageOffsetY;
         public Rect ScaledImgRect;
@@ -108,24 +109,20 @@ namespace UniPix
                 return brushRect;
             }
         }
+
         public int BrushSize = 1;
-
         public Palette Palette;
-
         public int ImgCoordToPixelIndex(int imgCoordX, int imgCoordY)
         {
             return PixUtils.ImgCoordToPixelIndex(Image, imgCoordX, imgCoordY);
         }
-
         public int PreviewFps = 4;
         public int PreviewFrameIndex = 0;
         public bool IsPreviewPlaying = true;
         public float PreviewTimer;
-
         public Vector2 FrameScroll = new Vector2(0, 0);
         public Vector2 RightPanelScroll = new Vector2(0, 0);
         public bool IsDebugDraw;
-
         public bool ShowGrid = true;
         public int GridSize = 1;
         public Color GridColor = Color.black;
@@ -299,9 +296,8 @@ namespace UniPix
             Session.CurrentToolIndex = 0;
             s_Session = Session;
 
+            Session.CanvasSize = new Vector2(position.width - Styles.kLeftPanelWidth - Styles.kRightPanelWidth - 2 * Styles.kMargin, position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight);
             PixCommands.LoadPix(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
-
-            Session.ZoomLevel = 10f;
 
             m_TransparentTex = PixUtils.CreateTexture(1, 1);
             PixUtils.SetTextureColor(m_TransparentTex, Color.clear);
@@ -375,11 +371,10 @@ namespace UniPix
             }
 
             { // Column 3
+                Session.CanvasSize = new Vector2(position.width - Styles.kLeftPanelWidth - Styles.kRightPanelWidth - 2 * Styles.kMargin, verticalMaxHeight);
                 m_CanvasRect = new Rect(m_FramePreviewRect.xMax + Styles.kMargin,
                     m_ToolbarRect.yMax + Styles.kMargin,
-                    position.width - Styles.kLeftPanelWidth - Styles.kRightPanelWidth - 2*Styles.kMargin,
-                    verticalMaxHeight);
-
+                    Session.CanvasSize.x, Session.CanvasSize.y);
                 m_StatusRect = new Rect(m_CanvasRect.x, m_CanvasRect.yMax, m_CanvasRect.width, Styles.kStatusbarHeight);
             }
 
@@ -698,7 +693,7 @@ namespace UniPix
 
             var xScale = Session.Image.Width * Session.ZoomLevel;
             var yScale = Session.Image.Height * Session.ZoomLevel;
-            Session.ScaledImgRect = new Rect((m_CanvasRect.width / 2 - xScale / 2) + Session.ImageOffsetX, Session.ImageOffsetY, xScale, yScale);
+            Session.ScaledImgRect = new Rect(Session.ImageOffsetX, Session.ImageOffsetY, xScale, yScale);
 
             EditorGUI.DrawRect(m_CanvasRect, new Color(0.4f, 0.4f, 0.4f));
             GUILayout.BeginArea(m_CanvasRect);
@@ -752,6 +747,8 @@ namespace UniPix
                 Session.ImageOffsetY += panningDistance.y;
                 m_PanStart = Event.current.mousePosition;
             }
+
+            Debug.Log($"Offset: [{Session.ImageOffsetX}, {Session.ImageOffsetY}], ScaledImg: {Session.ScaledImgRect}, CanvasRect: {Session.CanvasSize}");
         }
 
 
@@ -955,6 +952,11 @@ namespace UniPix
             GUILayout.Label(Session.ImageTitle, EditorStyles.toolbarTextField, GUILayout.MinWidth(250));
 
             GUILayout.FlexibleSpace();
+
+            if (GUILayout.Button("Center"))
+            {
+                PixCommands.FrameImage(Session);
+            }
 
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
