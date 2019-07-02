@@ -230,7 +230,10 @@ namespace UniPix
 
         public static int ImgCoordToPixelIndex(PixImage img, int imgCoordX, int imgCoordY)
         {
-            return imgCoordX + (img.Height - imgCoordY - 1) * img.Height;
+            // Texture are Bottom to Top
+            // Our cord system is top to bottom.
+            var y = img.Height - imgCoordY - 1;
+            return imgCoordX + y * img.Width;
         }
 
         public static void DrawRectangle(PixImage img, Vector2Int start, Vector2Int end, Color color, int brushSize, Color[] output)

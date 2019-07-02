@@ -151,7 +151,8 @@ Comments
 - Bug: mode is unipix. Layout system is not properly loaded (default layout wtf???)
 - Cannot save asset in slave mode
 - Sync doesn't work in slave mode
-- Image not square do not work
+- PRofiling:
+  - StyleCstalog.GetStyle: seems to be a bit slow because of the allocation for GetStyleState
 
 175 videos
 15 min breaks each hour
