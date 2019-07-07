@@ -304,8 +304,7 @@ namespace UniPix
             };
             Session.CurrentToolIndex = 0;
             s_Session = Session;
-
-            
+            UpdateCanvasSize();
             PixCommands.LoadPix(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
 
             m_TransparentTex = PixUtils.CreateTexture(1, 1);
@@ -315,13 +314,6 @@ namespace UniPix
 
             Undo.undoRedoPerformed -= OnUndo;
             Undo.undoRedoPerformed += OnUndo;
-
-            Debug.Log("OnEnable");
-        }
-
-        private void Awake()
-        {
-            Debug.Log("Awake");
         }
 
         private void OnDisable()
@@ -711,12 +703,17 @@ namespace UniPix
             var yScale = Session.Image.Height * Session.ZoomLevel;
             Session.ScaledImgRect = new Rect(Session.ImageOffsetX, Session.ImageOffsetY, xScale, yScale);
 
-            EditorGUI.DrawRect(m_CanvasRect, new Color(0.4f, 0.4f, 0.4f));
+            if (Event.current.type == EventType.Repaint)
+                EditorGUI.DrawRect(m_CanvasRect, new Color(0.4f, 0.4f, 0.4f));
+
             GUILayout.BeginArea(m_CanvasRect);
             {
-                EditorGUI.DrawTextureTransparent(Session.ScaledImgRect, m_TransparentTex);
-                var tex = Session.CurrentFrame.Texture;
-                GUI.DrawTexture(Session.ScaledImgRect, tex);
+                if (Event.current.type == EventType.Repaint)
+                {
+                    EditorGUI.DrawTextureTransparent(Session.ScaledImgRect, m_TransparentTex);
+                    var tex = Session.CurrentFrame.Texture;
+                    GUI.DrawTexture(Session.ScaledImgRect, tex);
+                }
                 if (Session.ScaledImgRect.Contains(Event.current.mousePosition))
                 {
                     Session.CursorPos = Event.current.mousePosition - Session.ScaledImgRect.position;
@@ -732,12 +729,12 @@ namespace UniPix
                     }
                 }
 
-                if (Session.ShowGrid && Session.ZoomLevel > 2)
+                if (Event.current.type == EventType.Repaint && Session.ShowGrid && Session.ZoomLevel > 2)
                 {
                     DrawGrid();
                 }
 
-                if (Session.HasOverlay)
+                if (Event.current.type == EventType.Repaint && Session.HasOverlay)
                 {
                     GUI.DrawTexture(Session.ScaledImgRect, Session.Overlay);
                 }
@@ -763,10 +760,7 @@ namespace UniPix
                 Session.ImageOffsetY += panningDistance.y;
                 m_PanStart = Event.current.mousePosition;
             }
-
-            Debug.Log($"Offset: [{Session.ImageOffsetX}, {Session.ImageOffsetY}], ScaledImg: {Session.ScaledImgRect}, CanvasRect: {Session.CanvasSize}");
         }
-
 
         private void DrawGrid()
         {
@@ -803,8 +797,12 @@ namespace UniPix
             }
             else
             {
-                GUI.Box(frameRect, "", Styles.pixBox);
-                GUI.DrawTexture(frameRect, tex, ScaleMode.ScaleToFit);
+                if (Event.current.type == EventType.Repaint)
+                {
+                    GUI.Box(frameRect, "", Styles.pixBox);
+                    GUI.DrawTexture(frameRect, tex, ScaleMode.ScaleToFit);
+                }
+                
                 if (Event.current.type == EventType.MouseDown && frameRect.Contains(Event.current.mousePosition))
                 {
                     Event.current.Use();
@@ -843,24 +841,26 @@ namespace UniPix
                             if (colorItemIndex < Session.Palette.Colors.Count)
                             {
                                 var contentRect = new Rect(colorRect.x + Styles.kMargin, colorRect.y + Styles.kMargin, colorRect.width - 2 * Styles.kMargin, colorRect.height - 2 * Styles.kMargin);
-                                if (Session.Palette.Colors[colorItemIndex].a == 0f)
+                                if (Event.current.type == EventType.Repaint)
                                 {
-                                    EditorGUI.DrawTextureTransparent(contentRect, m_TransparentTex);
-                                }
-                                else
-                                {
-                                    EditorGUI.DrawRect(contentRect, Session.Palette.Colors[colorItemIndex]);
-                                    if (Session.CurrentColorPaletteIndex == colorItemIndex)
+                                    if (Session.Palette.Colors[colorItemIndex].a == 0f)
                                     {
-                                        GUI.Box(contentRect, "", Styles.primaryColorBox);
+                                        EditorGUI.DrawTextureTransparent(contentRect, m_TransparentTex);
                                     }
-                                    else if (Session.SecondaryColorPaletteIndex == colorItemIndex)
+                                    else
                                     {
-                                        GUI.Box(contentRect, "", Styles.secondaryColorBox);
+                                        EditorGUI.DrawRect(contentRect, Session.Palette.Colors[colorItemIndex]);
+                                        if (Session.CurrentColorPaletteIndex == colorItemIndex)
+                                        {
+                                            GUI.Box(contentRect, "", Styles.primaryColorBox);
+                                        }
+                                        else if (Session.SecondaryColorPaletteIndex == colorItemIndex)
+                                        {
+                                            GUI.Box(contentRect, "", Styles.secondaryColorBox);
+                                        }
                                     }
                                 }
-
-                                if (Event.current.isMouse && 
+                                else if (Event.current.isMouse && 
                                     Event.current.type == EventType.MouseDown && 
                                     contentRect.Contains(Event.current.mousePosition) &&
                                     (Event.current.button == 0 || Event.current.button == 1))
