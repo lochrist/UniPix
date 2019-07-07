@@ -4,11 +4,8 @@ Pixel Art Editor for Unity
 
 TODO
 
-If time:
-* Bug with unity logo editing
-* Finish all shortcuts + keep same shortcut in default mode
-
 Not for hackweek:
+* Finish all shortcuts + keep same shortcut in default mode
 * export as gif: https://github.com/simonwittber/uGIF/tree/master/Assets/uGIF/Scripts
 * Some spritesheet syncing is not done
 * UIElements:
@@ -44,14 +41,6 @@ Features:
     * Erase
 * Primary Color + Secondary color
 
-
-Things to might do or share for Copenhagen:
-* Create ui in uielement (if already done in imgui)
-* add more tools.
-* tool api so it is possible to register tools?
-* Add a shortcut to open the quicksearch tool with only texture and image visible!
-* 
-
 Good inspirations
 
 
@@ -67,68 +56,6 @@ Good inspirations
 
 
 ou Pixel Art drawing app, created as a unity game that runs on ipad and that uses the Eventservice to communicate with the different instances?
-
-
-Video ideas:
-
-- Introducing
-    - Open Pix
-- In Pix layout
-    - Edit unity:
-        - layer
-        - Bucket
-        - rectangle
-        - opacity
-        - clone unity layer
-        - change color
-        - set opacity
-- Open sprite sheet (scavenger)
-    - Delete + brush
-    - sync
-- Open multi srite
-    - show animation
-- But wait there is more (scratch sound)
-- In its own process (new faster tune)
-- Pix in it own process:
-    - Own menu
-    - Own undo
-    - Drag and drop across process
-    - Edit and sync
-- The end
-
-
-- quick enumeration of all features while using the pixel art editor
-    - layers
-        - opacity
-        - merging
-    - multi frames
-    - animation preview
-    - import from texture2D, sprite, jpg, png 
-    - export as separate frames or spritesheet
-    - synchronize with source asset
-        - Show how the scene with idle animation updates?
-    - grid + grid settings
-    - tools:
-        - pencil
-        - eraser
-        - bucket
-        - dithering
-    - Color picker
-    - Primary / Secondary color + switch
-    - palette
-    - undo/redo
-    - everything has a shorcuts
-    - but every unity pixel art editor should have that...
-
-- In its own process with its own EditorMode:
-    - separate undo-queue
-    - not impacted by global selection
-    - sync with master instance
-    - its own menubar and shortcuts!
-    - drag and drop across instances
-- Can even be started standalone:
-    - create shortcut with proper command line switch on the project
-
 
 Comments
 - Mode:
