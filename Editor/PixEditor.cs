@@ -261,6 +261,7 @@ namespace UniPix
             }
         }
 
+        Action m_UpdateGrid;
         Rect m_CanvasRect;
         Rect m_StatusRect;
         Rect m_ViewportRect;
@@ -273,6 +274,7 @@ namespace UniPix
         Rect m_FramePreviewRect;
         Rect m_RightPanelRect;
         Texture2D m_TransparentTex;
+        Texture2D m_GridTex;
         System.Diagnostics.Stopwatch m_Timer = new System.Diagnostics.Stopwatch();
         bool m_IsPanning;
         Vector2 m_PanStart;
@@ -314,10 +316,13 @@ namespace UniPix
 
             Undo.undoRedoPerformed -= OnUndo;
             Undo.undoRedoPerformed += OnUndo;
+
+            m_UpdateGrid = Underscore.Debounce(UpdateGridTex, 700);
         }
 
         private void OnDisable()
         {
+            Underscore.ClearDebounce(m_UpdateGrid);
             s_Session = null;
         }
 
@@ -701,7 +706,13 @@ namespace UniPix
 
             var xScale = Session.Image.Width * Session.ZoomLevel;
             var yScale = Session.Image.Height * Session.ZoomLevel;
-            Session.ScaledImgRect = new Rect(Session.ImageOffsetX, Session.ImageOffsetY, xScale, yScale);
+            var scaledImgRect = new Rect(Session.ImageOffsetX, Session.ImageOffsetY, xScale, yScale);
+            if (scaledImgRect != Session.ScaledImgRect)
+            {
+                Session.ScaledImgRect = scaledImgRect;
+                m_GridTex = null;
+                m_UpdateGrid();
+            }
 
             if (Event.current.type == EventType.Repaint)
                 EditorGUI.DrawRect(m_CanvasRect, new Color(0.4f, 0.4f, 0.4f));
@@ -731,7 +742,10 @@ namespace UniPix
 
                 if (Event.current.type == EventType.Repaint && Session.ShowGrid && Session.ZoomLevel > 2)
                 {
-                    DrawGrid();
+                    // using (new DebugLogTimer("Draw grid"))
+                    {
+                        DrawGrid();
+                    }
                 }
 
                 if (Event.current.type == EventType.Repaint && Session.HasOverlay)
@@ -764,8 +778,60 @@ namespace UniPix
 
         private void DrawGrid()
         {
-            // TODO: is it possible to have a transparent texture that maps pixel perfect to the grid with the grid.
+            if (m_GridTex != null)
+            {
+                var rect = Session.ScaledImgRect;
+                GUI.DrawTexture(Session.ScaledImgRect, m_GridTex, ScaleMode.ScaleToFit);
+            }
+            else
+            {
+                DrawGridFromRect();
+            }
+        }
 
+        private void UpdateGridTex()
+        {
+            using (new DebugLogTimer("Gen grid"))
+            {
+                m_GridTex = PixUtils.CreateTexture((int)Session.ScaledImgRect.width, (int)Session.ScaledImgRect.height);
+                var pixels = m_GridTex.GetPixels();
+                for (int i = 0; i < pixels.Length; ++i)
+                    pixels[i] = Color.clear;
+                m_GridTex.SetPixels(pixels);
+
+                var zoom = (int)Session.ZoomLevel;
+                var gridStep = Session.GridSize * zoom;
+                for (int x = 0; x < m_GridTex.width; x += gridStep)
+                {
+                    for (int y = 0; y < m_GridTex.height; ++y)
+                    {
+                        m_GridTex.SetPixel(x, y, Session.GridColor);
+                    }
+                }
+                for (int y = 0; y < m_GridTex.height; ++y)
+                {
+                    m_GridTex.SetPixel(m_GridTex.width - 1, y, Session.GridColor);
+                }
+                // Then x axis
+                for (int y = 0; y < m_GridTex.height; y += gridStep)
+                {
+                    for (int x = 0; x < m_GridTex.width; ++x)
+                    {
+                        m_GridTex.SetPixel(x, y, Session.GridColor);
+                    }
+                }
+                for (int x = 0; x < m_GridTex.width; ++x)
+                {
+                    m_GridTex.SetPixel(x, m_GridTex.height - 1, Session.GridColor);
+                }
+
+                m_GridTex.Apply();
+                Repaint();
+            }
+        }
+
+        private void DrawGridFromRect()
+        {
             for (int x = 0; x <= Session.Image.Width; x += Session.GridSize)
             {
                 float posX = Session.ScaledImgRect.xMin + Session.ZoomLevel * x;
@@ -972,6 +1038,11 @@ namespace UniPix
             if (GUILayout.Button("Center"))
             {
                 PixCommands.FrameImage(Session);
+            }
+
+            if (GUILayout.Button("Debounce"))
+            {
+                m_Debounce();
             }
 
             GUILayout.EndHorizontal();

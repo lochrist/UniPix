@@ -10,6 +10,184 @@ using System.Xml.Serialization;
 
 namespace UniPix
 {
+    internal class DebugLogTimer : IDisposable
+    {
+        private System.Diagnostics.Stopwatch m_Timer;
+        public string msg { get; set; }
+
+        public DebugLogTimer(string m)
+        {
+            msg = m;
+            m_Timer = System.Diagnostics.Stopwatch.StartNew();
+        }
+
+        public static DebugLogTimer Start(string m)
+        {
+            return new DebugLogTimer(m);
+        }
+
+        public void Dispose()
+        {
+            m_Timer.Stop();
+            Debug.LogFormat(LogType.Log, LogOption.NoStacktrace, null, msg + " - " + m_Timer.ElapsedMilliseconds + "ms");
+        }
+    }
+
+    internal static class Underscore
+    {
+        internal class TimeoutData
+        {
+            public Action callback;
+            public System.Diagnostics.Stopwatch timer;
+            public long timeout;
+        };
+
+        internal class DebounceData
+        {
+            public Action callback;
+            public System.Diagnostics.Stopwatch timer;
+            public long timeout;
+            public Action debounced;
+        };
+        static List<DebounceData> s_Debouncees = new List<DebounceData>();
+        static List<TimeoutData> s_TimeoutCallbacks = new List<TimeoutData>();
+        static bool s_IsUpdating;
+
+        public static Action SetTimeout(Action callback, int timeout)
+        {
+            if (s_TimeoutCallbacks.FindIndex(td => td.callback == callback) != -1)
+            {
+                throw new Exception("Already schedule for timeout");
+            }
+            var data = new TimeoutData()
+            {
+                callback = callback,
+                timer = new System.Diagnostics.Stopwatch(),
+                timeout = timeout
+            };
+            data.timer.Start();
+            s_TimeoutCallbacks.Add(data);
+            CheckUdpate();
+            return () => ClearTimeout(callback);
+        }
+
+        public static Action Debounce(Action callback, int timeout)
+        {
+            if (s_Debouncees.FindIndex(td => td.callback == callback) != -1)
+            {
+                throw new Exception("Already debounced");
+            }
+            var debounceData = new DebounceData()
+            {
+                callback = callback,
+                timer = new System.Diagnostics.Stopwatch(),
+                timeout = timeout
+            };
+            debounceData.debounced = () =>
+            {
+                var index = s_Debouncees.FindIndex(td => td.callback == callback);
+                if (index != -1)
+                {
+                    var now = System.Diagnostics.Stopwatch.GetTimestamp();
+
+                    if (s_Debouncees[index].timer.IsRunning)
+                    {
+                        s_Debouncees[index].timer.Restart();
+                    }
+                    else
+                    {
+                        s_Debouncees[index].timer.Reset();
+                        s_Debouncees[index].timer.Start();
+                    }
+                    CheckUdpate();
+                }
+            };
+
+            s_Debouncees.Add(debounceData);
+            CheckUdpate();
+            return debounceData.debounced;
+        }
+
+        public static void ClearDebounce(Action debounced)
+        {
+            s_Debouncees.RemoveAll(d => d.debounced == debounced);
+            CheckUdpate();
+        }
+
+        public static void ClearTimeout(Action callback)
+        {
+            s_TimeoutCallbacks.RemoveAll(td => td.callback == callback);
+            CheckUdpate();
+        }
+
+        private static void CheckUdpate()
+        {
+            if (s_IsUpdating)
+            {
+                if (s_Debouncees.FindIndex(d => d.timer.IsRunning) == -1 && s_TimeoutCallbacks.Count == 0)
+                {
+                    EditorApplication.update -= OnUpdate;
+                    s_IsUpdating = false;
+                }
+            }
+            else
+            {
+                if (s_Debouncees.FindIndex(d => d.timer.IsRunning) != -1 || s_TimeoutCallbacks.Count > 0)
+                {
+                    EditorApplication.update += OnUpdate;
+                    s_IsUpdating = true;
+                }
+            }
+        }
+
+        private static void OnUpdate()
+        {
+            var checkUpdate = false;
+            var now = System.Diagnostics.Stopwatch.GetTimestamp();
+            for(var i = s_TimeoutCallbacks.Count - 1; i >= 0; i--)
+            {
+                if (s_TimeoutCallbacks[i].timer.ElapsedMilliseconds >= s_TimeoutCallbacks[i].timeout)
+                {
+                    var callback = s_TimeoutCallbacks[i].callback;
+                    s_TimeoutCallbacks.RemoveAt(i);
+                    checkUpdate = true;
+                    try
+                    {
+                        callback();
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                }
+            }
+
+            for (var i = s_Debouncees.Count - 1; i >= 0; i--)
+            {
+                if (s_Debouncees[i].timer.IsRunning && s_Debouncees[i].timer.ElapsedMilliseconds >= s_Debouncees[i].timeout)
+                {
+                    s_Debouncees[i].timer.Stop();
+                    var callback = s_Debouncees[i].callback;
+                    checkUpdate = true;
+                    try
+                    {
+                        callback();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                }
+            }
+
+            if (checkUpdate)
+            {
+                CheckUdpate();
+            }
+        }
+    }
+
+
     public static class PixUtils
     {
         public static PixImage CreateImage(int width, int height, Color baseColor)
