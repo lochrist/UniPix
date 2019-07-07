@@ -1040,11 +1040,6 @@ namespace UniPix
                 PixCommands.FrameImage(Session);
             }
 
-            if (GUILayout.Button("Debounce"))
-            {
-                m_Debounce();
-            }
-
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
