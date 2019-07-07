@@ -88,6 +88,7 @@ namespace UniPix
         public int CurrentToolIndex;
 
         public Vector2 CanvasSize;
+
         public float ImageOffsetX;
         public float ImageOffsetY;
         public Rect ScaledImgRect;
@@ -279,6 +280,13 @@ namespace UniPix
         PixTool CurrentTool => m_Tools[Session.CurrentToolIndex];
         PixTool[] m_Tools;
 
+        public void UpdateCanvasSize()
+        {
+            Session.CanvasSize = new Vector2(
+                Math.Max(position.width, minSize.x) - Styles.kLeftPanelWidth - Styles.kRightPanelWidth - 2 * Styles.kMargin,
+                Math.Max(position.height, minSize.y) - Styles.kToolbarHeight - Styles.kStatusbarHeight);
+        }
+
         private void OnEnable()
         {
             titleContent = new GUIContent("UniPix");
@@ -297,7 +305,7 @@ namespace UniPix
             Session.CurrentToolIndex = 0;
             s_Session = Session;
 
-            Session.CanvasSize = new Vector2(position.width - Styles.kLeftPanelWidth - Styles.kRightPanelWidth - 2 * Styles.kMargin, position.height - Styles.kToolbarHeight - Styles.kStatusbarHeight);
+            
             PixCommands.LoadPix(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
 
             m_TransparentTex = PixUtils.CreateTexture(1, 1);
@@ -307,6 +315,13 @@ namespace UniPix
 
             Undo.undoRedoPerformed -= OnUndo;
             Undo.undoRedoPerformed += OnUndo;
+
+            Debug.Log("OnEnable");
+        }
+
+        private void Awake()
+        {
+            Debug.Log("Awake");
         }
 
         private void OnDisable()
@@ -372,7 +387,7 @@ namespace UniPix
             }
 
             { // Column 3
-                Session.CanvasSize = new Vector2(position.width - Styles.kLeftPanelWidth - Styles.kRightPanelWidth - 2 * Styles.kMargin, verticalMaxHeight);
+                UpdateCanvasSize();
                 m_CanvasRect = new Rect(m_FramePreviewRect.xMax + Styles.kMargin,
                     m_ToolbarRect.yMax + Styles.kMargin,
                     Session.CanvasSize.x, Session.CanvasSize.y);
@@ -994,7 +1009,9 @@ namespace UniPix
         [MenuItem("Window/UniPix", false, 1100)]
         static void ShowUniPix()
         {
-            GetWindow<PixEditor>();
+            var pixEditor = GetWindow<PixEditor>();
+            pixEditor.UpdateCanvasSize();
+            PixCommands.FrameImage(pixEditor.Session);
         }
 
         [UsedImplicitly, MenuItem("Tools/Refresh Styles &r")]

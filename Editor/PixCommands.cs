@@ -358,6 +358,7 @@ namespace UniPix
         public static void EditInPix(UnityEngine.Object[] sources)
         {
             var pix = EditorWindow.GetWindow<PixEditor>();
+            pix.UpdateCanvasSize();
             LoadPix(pix.Session, sources);
         }
 
