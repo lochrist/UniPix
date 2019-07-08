@@ -7,11 +7,6 @@ using UnityEngine;
 
 public class LayoutUtils
 {
-    public static void MainViewFullScreen()
-    {
-
-    }
-
     [MenuItem("Layout/Pix Browser No Docking")]
     public static void PixBrowserNoDocking()
     {
@@ -324,6 +319,4 @@ public class LayoutUtils
         cw.rootView.position = new Rect(0, 0, cw.position.width, cw.position.height);
         cw.Show(ShowMode.MainWindow, true, false, true);
     }
-
-
 }

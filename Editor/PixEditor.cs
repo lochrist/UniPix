@@ -134,8 +134,8 @@ namespace UniPix
     {
         public static string packageName = "com.unity.unipix";
         public static string packageFolderName = $"Packages/{packageName}";
-        public static PixSession s_Session;
         public PixSession Session;
+
         public static class Prefs
         {
             public static string kPrefix = "unixpix.";
@@ -295,6 +295,8 @@ namespace UniPix
             minSize = new Vector2(Styles.kLeftPanelWidth + Styles.kRightPanelWidth + 100, 400);
             Session = PixSession.Create();
 
+            PixMode.s_Session = Session;
+
             m_Tools = new PixTool[] {
                 new BrushTool(),
                 new EraseTool(),
@@ -305,7 +307,6 @@ namespace UniPix
                 new DitheringTool()
             };
             Session.CurrentToolIndex = 0;
-            s_Session = Session;
             UpdateCanvasSize();
             PixCommands.LoadPix(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
 
@@ -323,7 +324,7 @@ namespace UniPix
         private void OnDisable()
         {
             Underscore.ClearDebounce(m_UpdateGrid);
-            s_Session = null;
+            PixMode.s_Session = null;
         }
 
         private void OnGUI()

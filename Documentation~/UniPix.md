@@ -17,29 +17,9 @@ Not for hackweek:
 	* Do we want to have palette as a separate asset?
 	* See https://worms2d.info/Palette_file
 
-
-Features:
-* Advance deployment:
-    * In its own process
-    * with its own undo stack
-    * with its own mode
-        * Menu items
-        * shortcut
-        * Layouts
-* Animation
-* Layers
-* Generate (bound to?) Unity Sprite
-* Export png, as spritesheet, as gif
-* Palette
-* Undo/Redo
 * Tools:
     * Selection
     * Brush / Spray tool
-    * Eye dropper
-    * Zoom
-    * Show grid
-    * Erase
-* Primary Color + Secondary color
 
 Good inspirations
 
