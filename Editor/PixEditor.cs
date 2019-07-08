@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
+using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
 namespace UniPix
@@ -1020,6 +1021,34 @@ namespace UniPix
         private static bool OpenInPixValidate()
         {
             return Selection.objects.Any(PixUtils.IsValidPixSource);
+        }
+
+        static bool m_IsTracking;
+        [MenuItem("Tools/Track performance _F9")]
+        private static void TogglePerformanceTracking()
+        {
+            if (m_IsTracking)
+            {
+                Debug.Log("Stop tracking");
+                m_IsTracking = false;
+                var rawFile = $"D:/work/performancetracking/draw_block_{GUID.Generate()}_deep.raw";
+                ProfilerDriver.SaveProfile(rawFile);
+                ProfilerDriver.profileEditor = false;
+                ProfilerDriver.enabled = false;
+                // ProfilerDriver.SaveProfile();
+
+                ProfilerDriver.LoadProfile(rawFile, false);
+                var win = GetWindow<ProfilerWindow>();
+                win.Show();
+            }
+            else
+            {
+                Debug.Log("Start tracking");
+                m_IsTracking = true;
+                // ProfilerDriver.deepProfiling = true;
+                ProfilerDriver.profileEditor = true;
+                ProfilerDriver.enabled = true;
+            }
         }
 
         #endregion
