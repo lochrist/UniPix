@@ -6,6 +6,9 @@ TODO
 
 Not for hackweek:
 * Finish all shortcuts + keep same shortcut in default mode
+  * Bug de mode:
+    * shortcut pas dispo dans le shortcut manager
+    * Seems to have double bindings for Up/Down
 * export as gif: https://github.com/simonwittber/uGIF/tree/master/Assets/uGIF/Scripts
 * Some spritesheet syncing is not done
 * UIElements:
@@ -43,6 +46,8 @@ Comments
     - validate if we use shortcut_id in mode file if it conflicts with shortcut manager (does the shortcut manager overrides the mode file?)
     - Lots of trouble generating the Close left without docking
     - Window menu difficult to map
+- Shortcut:
+  - up arrow + down arrow doesn't map?
 
 - In Window -> fails
 {name = "Project" menu_item_id = "Window/General/UniPix"}

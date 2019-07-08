@@ -62,13 +62,23 @@ namespace UniPix
         [CommandHandler("UniPix/GotoNextFrame")]
         private static void GotoNextFrame(CommandExecuteContext context)
         {
-
+            var nextFrameIndex = s_Session.CurrentFrameIndex + 1;
+            if (nextFrameIndex >= s_Session.Image.Frames.Count)
+            {
+                nextFrameIndex = 0;
+            }
+            PixCommands.SetCurrentFrame(s_Session, nextFrameIndex);
         }
 
         [CommandHandler("UniPix/GotoPreviousFrame")]
         private static void GotoPreviousFrame(CommandExecuteContext context)
         {
-
+            var nextFrameIndex = s_Session.CurrentFrameIndex - 1;
+            if (nextFrameIndex < 0)
+            {
+                nextFrameIndex = s_Session.Image.Frames.Count - 1;
+            }
+            PixCommands.SetCurrentFrame(s_Session, nextFrameIndex);
         }
 
         [CommandHandler("UniPix/DeleteCurrentFrame")]

@@ -40,8 +40,9 @@ unipix = {
         {
             name = "Frame"
             children = [
-                { name = "Go to next" command_id = "UniPix/GotoNextFrame" shortcut="_Up Arrow"}
-                { name = "Go to previous" command_id = "UniPix/GotoPreviousFrame" shortcut="_Down Arrow"}
+                // Find the proper shortcut
+                { name = "Go to next" command_id = "UniPix/GotoNextFrame" shortcut="_UP"}
+                { name = "Go to previous" command_id = "UniPix/GotoPreviousFrame" shortcut="_DOWN"}
                 null
                 { name = "New Frame" command_id = "UniPix/NewFrame" shortcut="%N"}
                 { name = "Clone current" command_id = "UniPix/CloneCurrentFrame" shortcut="&%N"}
@@ -144,9 +145,6 @@ unipix = {
     }
 
     shortcuts = [
-        /*
-        "Packages/com.unity.northstar/Profiles/NorthDefault.shortcut",
-        "Packages/com.unity.northstar/Profiles/North.shortcut"
-        */
+        "Packages/com.unity.UniPix/Editor/Mode/Default.shortcut",
     ]
 }
