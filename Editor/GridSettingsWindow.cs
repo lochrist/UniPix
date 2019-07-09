@@ -40,6 +40,7 @@ namespace UniPix
                 s_Editor.Session.ShowGrid = GUILayout.Toggle(s_Editor.Session.ShowGrid, "Show");
                 if (EditorGUI.EndChangeCheck())
                 {
+                    s_Editor.ResetGrid();
                     s_Editor.Repaint();
                 }
 
@@ -49,6 +50,7 @@ namespace UniPix
                 s_Editor.Session.GridSize = (int)GUILayout.HorizontalSlider(s_Editor.Session.GridSize, 1, 6, GUILayout.ExpandWidth(true));
                 if (EditorGUI.EndChangeCheck())
                 {
+                    s_Editor.ResetGrid();
                     s_Editor.Repaint();
                 }
                 GUILayout.EndHorizontal();
@@ -57,6 +59,7 @@ namespace UniPix
                 s_Editor.Session.GridColor = EditorGUILayout.ColorField("Color", s_Editor.Session.GridColor);
                 if (EditorGUI.EndChangeCheck())
                 {
+                    s_Editor.ResetGrid();
                     s_Editor.Repaint();
                 }
 

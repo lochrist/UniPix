@@ -127,6 +127,7 @@ namespace UniPix
         public bool IsDebugDraw;
         public bool ShowGrid = true;
         public int GridSize = 1;
+        public int GridPixelSize => (int)ZoomLevel * 3 * GridSize;
         public Color GridColor = Color.black;
     }
 
@@ -159,6 +160,8 @@ namespace UniPix
             public const float kFramePreviewBtn = 25;
             public const int kNbToolsPerRow = (int)kToolPaletteWidth / (int)kToolSize;
             public const int kFramePreviewSize = (int)(kFramePreviewWidth - 2 * kMargin - scrollbarWidth);
+
+            public static Color canvasColor = new Color(0.4f, 0.4f, 0.4f);
 
             public static GUIContent newLayer = new GUIContent(Icons.plus, "Create new layer");
             public static GUIContent cloneLayer = new GUIContent(Icons.duplicateLayer, "Duplicate layer");
@@ -261,7 +264,6 @@ namespace UniPix
             }
         }
 
-        Action m_UpdateGrid;
         Rect m_CanvasRect;
         Rect m_StatusRect;
         Rect m_ViewportRect;
@@ -317,13 +319,16 @@ namespace UniPix
 
             Undo.undoRedoPerformed -= OnUndo;
             Undo.undoRedoPerformed += OnUndo;
+        }
 
-            m_UpdateGrid = Underscore.Debounce(UpdateGridTex, 700);
+        internal void ResetGrid()
+        {
+            m_GridTex = null;
+            UpdateGridTex();
         }
 
         private void OnDisable()
         {
-            Underscore.ClearDebounce(m_UpdateGrid);
             PixMode.s_Session = null;
         }
 
@@ -707,23 +712,29 @@ namespace UniPix
 
             var xScale = Session.Image.Width * Session.ZoomLevel;
             var yScale = Session.Image.Height * Session.ZoomLevel;
-            var scaledImgRect = new Rect(Session.ImageOffsetX, Session.ImageOffsetY, xScale, yScale);
-            if (scaledImgRect != Session.ScaledImgRect)
+            Session.ScaledImgRect = new Rect(Session.ImageOffsetX, Session.ImageOffsetY, xScale, yScale);
+            if (m_GridTex == null || Session.GridPixelSize != m_GridTex.width || Session.GridPixelSize != m_GridTex.height)
             {
-                Session.ScaledImgRect = scaledImgRect;
-                m_GridTex = null;
-                m_UpdateGrid();
+                ResetGrid();
             }
 
             if (Event.current.type == EventType.Repaint)
-                EditorGUI.DrawRect(m_CanvasRect, new Color(0.4f, 0.4f, 0.4f));
+                EditorGUI.DrawRect(m_CanvasRect, Styles.canvasColor);
 
             GUILayout.BeginArea(m_CanvasRect);
             {
                 if (Event.current.type == EventType.Repaint)
                 {
-                    EditorGUI.DrawTextureTransparent(Session.ScaledImgRect, m_TransparentTex);
                     var tex = Session.CurrentFrame.Texture;
+                    GUI.DrawTextureWithTexCoords(
+                        Session.ScaledImgRect,
+                        EditorGUI.transparentCheckerTexture,
+                        new Rect(
+                            0,
+                            0,
+                            Session.ScaledImgRect.width / 4 / Session.ZoomLevel,
+                            Session.ScaledImgRect.height / 4 / Session.ZoomLevel),
+                        false);
                     GUI.DrawTexture(Session.ScaledImgRect, tex);
                 }
                 if (Session.ScaledImgRect.Contains(Event.current.mousePosition))
@@ -782,7 +793,9 @@ namespace UniPix
             if (m_GridTex != null)
             {
                 var rect = Session.ScaledImgRect;
-                GUI.DrawTexture(Session.ScaledImgRect, m_GridTex, ScaleMode.ScaleToFit);
+                GUI.DrawTextureWithTexCoords(Session.ScaledImgRect, m_GridTex, new Rect(0, 0, Session.ScaledImgRect.width / m_GridTex.width, Session.ScaledImgRect.height / m_GridTex.height));
+                EditorGUI.DrawRect(new Rect(Session.ScaledImgRect.xMax, Session.ScaledImgRect.yMin, 1, Session.ScaledImgRect.height), Session.GridColor);
+                EditorGUI.DrawRect(new Rect(Session.ScaledImgRect.xMin, Session.ScaledImgRect.yMin, Session.ScaledImgRect.width, 1), Session.GridColor);
             }
             else
             {
@@ -794,38 +807,31 @@ namespace UniPix
         {
             using (new DebugLogTimer("Gen grid"))
             {
-                m_GridTex = PixUtils.CreateTexture((int)Session.ScaledImgRect.width, (int)Session.ScaledImgRect.height);
+                var zoom = (int)Session.ZoomLevel;
+                var gridSize = zoom * 3 * Session.GridSize;
+                m_GridTex = PixUtils.CreateTexture(gridSize, gridSize);
+                m_GridTex.wrapMode = TextureWrapMode.Repeat;
                 var pixels = m_GridTex.GetPixels();
                 for (int i = 0; i < pixels.Length; ++i)
                     pixels[i] = Color.clear;
                 m_GridTex.SetPixels(pixels);
 
-                var zoom = (int)Session.ZoomLevel;
                 var gridStep = Session.GridSize * zoom;
-                for (int x = 0; x < m_GridTex.width; x += gridStep)
+                for (int x = 0; x < gridSize; x += gridStep)
                 {
-                    for (int y = 0; y < m_GridTex.height; ++y)
+                    for (int y = 0; y < gridSize; ++y)
                     {
                         m_GridTex.SetPixel(x, y, Session.GridColor);
                     }
-                }
-                for (int y = 0; y < m_GridTex.height; ++y)
-                {
-                    m_GridTex.SetPixel(m_GridTex.width - 1, y, Session.GridColor);
                 }
                 // Then x axis
-                for (int y = 0; y < m_GridTex.height; y += gridStep)
+                for (int y = 0; y < gridSize; y += gridStep)
                 {
-                    for (int x = 0; x < m_GridTex.width; ++x)
+                    for (int x = 0; x < gridSize; ++x)
                     {
                         m_GridTex.SetPixel(x, y, Session.GridColor);
                     }
                 }
-                for (int x = 0; x < m_GridTex.width; ++x)
-                {
-                    m_GridTex.SetPixel(x, m_GridTex.height - 1, Session.GridColor);
-                }
-
                 m_GridTex.Apply();
                 Repaint();
             }
@@ -887,6 +893,7 @@ namespace UniPix
 
         private void DrawColorPalette()
         {
+
             // Draw Tiles with each different colors in image
             // allow save + load of a palette
             using (new GUILayout.VerticalScope(Styles.pixBox))
@@ -1134,7 +1141,6 @@ namespace UniPix
                 ProfilerDriver.enabled = true;
             }
         }
-
         #endregion
     }
 }
