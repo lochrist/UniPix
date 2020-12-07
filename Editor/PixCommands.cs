@@ -436,6 +436,35 @@ namespace UniPix
             session.ZoomLevel -= 2f;
             session.ZoomLevel = Mathf.Max(1, session.ZoomLevel);
         }
+
+        public static void ToggleGrid(PixSession session, PixEditor editor)
+        {
+            session.ShowGrid = !session.ShowGrid;
+            editor.ResetGrid();
+        }
+
+        public static void SetGridSize(PixSession session, PixEditor editor, int gridSize)
+        {
+            session.GridSize = gridSize;
+            editor.ResetGrid();
+        }
+
+        public static void SetGridColor(PixSession session, PixEditor editor, Color color)
+        {
+            session.GridColor = color;
+            editor.ResetGrid();
+        }
+
+        public static void ToggleAnimation(PixSession session)
+        {
+            session.IsPreviewPlaying = !session.IsPreviewPlaying;
+            session.PreviewTimer = 0;
+        }
+
+        public static void SetPreviewFps(PixSession session, int fps)
+        {
+            session.PreviewFps = fps;
+        }
         #endregion
 
         // TODO: should it be part of the model?

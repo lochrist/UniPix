@@ -37,29 +37,29 @@ namespace UniPix
             {
                 GUILayout.Label("Grid");
                 EditorGUI.BeginChangeCheck();
-                s_Editor.Session.ShowGrid = GUILayout.Toggle(s_Editor.Session.ShowGrid, "Show");
+                GUILayout.Toggle(s_Editor.Session.ShowGrid, "Show");
                 if (EditorGUI.EndChangeCheck())
                 {
-                    s_Editor.ResetGrid();
+                    PixCommands.ToggleGrid(s_Editor.Session, s_Editor);
                     s_Editor.Repaint();
                 }
 
                 GUILayout.BeginHorizontal();
                 GUILayout.Label($"Size {s_Editor.Session.GridSize}", GUILayout.ExpandWidth(false));
                 EditorGUI.BeginChangeCheck();
-                s_Editor.Session.GridSize = (int)GUILayout.HorizontalSlider(s_Editor.Session.GridSize, 1, 6, GUILayout.ExpandWidth(true));
+                var gridSize = (int)GUILayout.HorizontalSlider(s_Editor.Session.GridSize, 1, 6, GUILayout.ExpandWidth(true));
                 if (EditorGUI.EndChangeCheck())
                 {
-                    s_Editor.ResetGrid();
+                    PixCommands.SetGridSize(s_Editor.Session, s_Editor, gridSize);
                     s_Editor.Repaint();
                 }
                 GUILayout.EndHorizontal();
 
                 EditorGUI.BeginChangeCheck();
-                s_Editor.Session.GridColor = EditorGUILayout.ColorField("Color", s_Editor.Session.GridColor);
+                var color = EditorGUILayout.ColorField("Color", s_Editor.Session.GridColor);
                 if (EditorGUI.EndChangeCheck())
                 {
-                    s_Editor.ResetGrid();
+                    PixCommands.SetGridColor(s_Editor.Session, s_Editor, color);
                     s_Editor.Repaint();
                 }
 

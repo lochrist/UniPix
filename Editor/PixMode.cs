@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace UniPix
@@ -9,6 +6,7 @@ namespace UniPix
     public static class PixMode
     {
         internal static PixSession s_Session;
+        internal static PixEditor s_Editor;
         [CommandHandler("UniPix/NewImage")]
         private static void NewImage(CommandExecuteContext context)
         {
@@ -161,31 +159,39 @@ namespace UniPix
         [CommandHandler("UniPix/CenterCanvas")]
         private static void CenterImage(CommandExecuteContext context)
         {
-
+            PixCommands.FrameImage(s_Session);
         }
 
         [CommandHandler("UniPix/ToggleGrid")]
         private static void ToggleGrid(CommandExecuteContext context)
         {
-
+            PixCommands.ToggleGrid(s_Session, s_Editor);
         }
 
         [CommandHandler("UniPix/ToggleAnimation")]
         private static void ToggleAnimation(CommandExecuteContext context)
         {
-
+            PixCommands.ToggleAnimation(s_Session);
         }
 
         [CommandHandler("UniPix/IncreaseAnimationSpeed")]
         private static void IncreaseAnimationSpeed(CommandExecuteContext context)
         {
-
+            var newFps = s_Session.PreviewFps + 1;
+            if (newFps <= PixSession.k_MaxPreviewFps)
+            {
+                PixCommands.SetPreviewFps(s_Session, newFps);
+            }
         }
 
         [CommandHandler("UniPix/DecreaseAnimationSpeed")]
         private static void DecreaseAnimationSpeed(CommandExecuteContext context)
         {
-
+            var newFps = s_Session.PreviewFps - 1;
+            if (newFps >= PixSession.k_MinPreviewFps)
+            {
+                PixCommands.SetPreviewFps(s_Session, newFps);
+            }
         }
 
         [CommandHandler("UniPix/ActivateBrush")]

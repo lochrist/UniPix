@@ -118,6 +118,10 @@ namespace UniPix
         {
             return PixUtils.ImgCoordToPixelIndex(Image, imgCoordX, imgCoordY);
         }
+
+        public const int k_MinPreviewFps = 1;
+        public const int k_MaxPreviewFps = 24;
+
         public int PreviewFps = 4;
         public int PreviewFrameIndex = 0;
         public bool IsPreviewPlaying = true;
@@ -298,6 +302,7 @@ namespace UniPix
             Session = PixSession.Create();
 
             PixMode.s_Session = Session;
+            PixMode.s_Editor = this;
 
             m_Tools = new PixTool[] {
                 new BrushTool(),
@@ -886,8 +891,13 @@ namespace UniPix
             var labelRect = new Rect(frameRect.x, frameRect.yMax, 35, 15);
 
             GUI.Label(labelRect, $"{Session.PreviewFps}fps");
-            Session.PreviewFps = (int)GUI.HorizontalSlider(new Rect(labelRect.xMax, labelRect.y,
-                    frameRect.width - labelRect.width - Styles.kMargin, labelRect.height), Session.PreviewFps, 0, 24);
+            EditorGUI.BeginChangeCheck();
+            var previewFps = (int)GUI.HorizontalSlider(new Rect(labelRect.xMax, labelRect.y,
+                    frameRect.width - labelRect.width - Styles.kMargin, labelRect.height), Session.PreviewFps, PixSession.k_MinPreviewFps, PixSession.k_MaxPreviewFps);
+            if (EditorGUI.EndChangeCheck())
+            {
+                PixCommands.SetPreviewFps(Session, previewFps);
+            }
         }
 
         private void DrawColorPalette()
