@@ -129,11 +129,19 @@ unipix = {
         }
     ]
 
+	/*
     layouts = [
         "Packages/com.unity.UniPix/Editor/Layouts/Pix.wlt"
         "Packages/com.unity.UniPix/Editor/Layouts/Browse.wlt"
         "Packages/com.unity.UniPix/Editor/Layouts/Debug.wlt"
     ]
+	*/
+
+	layout = {
+        top_view = null
+        center_view = "PixEditor"
+        bottom_view = null
+    }
 
     pane_types = [
         "ProjectBrowser"

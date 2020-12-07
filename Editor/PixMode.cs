@@ -229,46 +229,6 @@ namespace UniPix
         {
 
         }
-
-        [CommandHandler("UniPix/OpenProjectBrowse")]
-        private static void OpenProjectBrowse(CommandExecuteContext context)
-        {
-            LayoutUtils.CreateProject();
-        }
-
-        private static void LoadLayout(string name)
-        {
-            if (ModeService.currentId == "unipix")
-            {
-                var layouts = ModeService.GetModeDataSectionList<string>(ModeService.currentIndex, "layouts");
-                foreach (var layout in layouts)
-                {
-                    var layoutName = Path.GetFileNameWithoutExtension(layout);
-                    if (name == layoutName)
-                    {
-                        WindowLayout.LoadWindowLayout(layout, false);
-                    }
-                }
-            }
-        }
-
-        [CommandHandler("UniPix/Layout/Pix")]
-        private static void LayoutPix(CommandExecuteContext context)
-        {
-            LoadLayout("Pix");
-        }
-
-        [CommandHandler("UniPix/Layout/PixBrowse")]
-        private static void LayoutPixBrowse(CommandExecuteContext context)
-        {
-            LoadLayout("Browse");
-        }
-
-        [CommandHandler("UniPix/Layout/PixDebug")]
-        private static void LayoutPixDebug(CommandExecuteContext context)
-        {
-            LoadLayout("Debug");
-        }
     }
 }
 

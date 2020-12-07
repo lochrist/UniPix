@@ -1,11 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using JetBrains.Annotations;
-using UniPix;
-using Unity.MPE;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace UniPix
@@ -19,13 +14,13 @@ namespace UniPix
 
         #region Slave
 
-        [UsedImplicitly, RoleProvider(k_RoleName, ProcessEvent.UMP_EVENT_CREATE)]
+        [UsedImplicitly, UnityEditor.MPE.RoleProvider(k_RoleName, UnityEditor.MPE.ProcessEvent.Create)]
         private static void CreatePixProcess()
         {
             Debug.Log("Uni Pix created");
         }
 
-        [UsedImplicitly, RoleProvider(k_RoleName, ProcessEvent.UMP_EVENT_INITIALIZE)]
+        [UsedImplicitly, UnityEditor.MPE.RoleProvider(k_RoleName, UnityEditor.MPE.ProcessEvent.Initialize)]
         private static void InitializePixProcess()
         {
             Debug.Log("Uni Pix Initialize");
@@ -41,7 +36,7 @@ namespace UniPix
             }
         }
 
-        [UsedImplicitly, RoleProvider(k_RoleName, ProcessEvent.UMP_EVENT_AFTER_DOMAIN_RELOAD)]
+        [UsedImplicitly, UnityEditor.MPE.RoleProvider(k_RoleName, UnityEditor.MPE.ProcessEvent.AfterDomainReload)]
         private static void AfterDomainReloadPix()
         {
             Debug.Log("Uni Pix Domain Reload");
@@ -71,7 +66,7 @@ namespace UniPix
                 args.Add(path);
             }
 
-            ProcessService.LaunchSlave(k_RoleName, args.ToArray());
+            UnityEditor.MPE.ProcessService.Launch(k_RoleName, args.ToArray());
         }
 
         [MenuItem("Window/UniPix (isolated)", false, 1105)]

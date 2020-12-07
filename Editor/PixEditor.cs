@@ -592,7 +592,7 @@ namespace UniPix
             }
 
             // TODO : indicate which colors corresponds to which MouseButton
-            // TODO: PAlette editing: remove from palette. Add new color??
+            // TODO: Palette editing: remove from palette. Add new color??
 
             GUILayout.EndArea();
         }
@@ -805,7 +805,7 @@ namespace UniPix
 
         private void UpdateGridTex()
         {
-            using (new DebugLogTimer("Gen grid"))
+            // using (new DebugLogTimer("Gen grid"))
             {
                 var zoom = (int)Session.ZoomLevel;
                 var gridSize = zoom * 3 * Session.GridSize;
@@ -1091,10 +1091,10 @@ namespace UniPix
         [UsedImplicitly, MenuItem("Tools/Refresh Styles &r")]
         static void RefreshStyles()
         {
-            Unity.MPE.ChannelService.Start();
+            UnityEditor.MPE.ChannelService.Start();
 
             Unsupported.ClearSkinCache();
-            InternalEditorUtility.RequestScriptReload();
+            EditorUtility.RequestScriptReload();
             InternalEditorUtility.RepaintAllViews();
             Debug.Log("Style refreshed");
         }
