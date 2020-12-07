@@ -1088,17 +1088,6 @@ namespace UniPix
             PixCommands.FrameImage(pixEditor.Session);
         }
 
-        [UsedImplicitly, MenuItem("Tools/Refresh Styles &r")]
-        static void RefreshStyles()
-        {
-            UnityEditor.MPE.ChannelService.Start();
-
-            Unsupported.ClearSkinCache();
-            EditorUtility.RequestScriptReload();
-            InternalEditorUtility.RepaintAllViews();
-            Debug.Log("Style refreshed");
-        }
-
         [UsedImplicitly, MenuItem("Assets/Open in UniPix", false, 180000)]
         private static void OpenInPix()
         { 
@@ -1113,33 +1102,36 @@ namespace UniPix
         {
             return Selection.objects.Any(PixUtils.IsValidPixSource);
         }
+        #endregion
 
-        static bool m_IsTracking;
-        [MenuItem("Tools/Track performance _F9")]
-        private static void TogglePerformanceTracking()
+        #region Debug Menu
+        [UsedImplicitly, MenuItem("UniPix Debug/Refresh Styles &r")]
+        static void RefreshStyles()
         {
-            if (m_IsTracking)
-            {
-                Debug.Log("Stop tracking");
-                m_IsTracking = false;
-                var rawFile = $"D:/work/performancetracking/draw_block_{GUID.Generate()}_deep.raw";
-                ProfilerDriver.SaveProfile(rawFile);
-                ProfilerDriver.profileEditor = false;
-                ProfilerDriver.enabled = false;
-                // ProfilerDriver.SaveProfile();
+            UnityEditor.MPE.ChannelService.Start();
 
-                ProfilerDriver.LoadProfile(rawFile, false);
-                var win = GetWindow<ProfilerWindow>();
-                win.Show();
-            }
-            else
-            {
-                Debug.Log("Start tracking");
-                m_IsTracking = true;
-                // ProfilerDriver.deepProfiling = true;
-                ProfilerDriver.profileEditor = true;
-                ProfilerDriver.enabled = true;
-            }
+            Unsupported.ClearSkinCache();
+            EditorUtility.RequestScriptReload();
+            InternalEditorUtility.RepaintAllViews();
+            Debug.Log("Style refreshed");
+        }
+
+        [UsedImplicitly, MenuItem("UniPix Debug/Dynamic Pix Layout", false, 10000)]
+        static void DynPixLayout()
+        {
+            PixMode.LayoutPix(null);
+        }
+
+        [UsedImplicitly, MenuItem("UniPix Debug/Dynamic Pix Browse Layout", false, 10000)]
+        static void DynPixBrowseLayout()
+        {
+            PixMode.LayoutPixBrowse(null);
+        }
+
+        [UsedImplicitly, MenuItem("UniPix Debug/Dynamic Pix Debug Layout", false, 10000)]
+        static void DynPixDebugLayout()
+        {
+            PixMode.LayoutPixDebug(null);
         }
         #endregion
     }

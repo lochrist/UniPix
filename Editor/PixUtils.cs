@@ -552,10 +552,9 @@ namespace UniPix
         {
             if (s_HasARGV == null)
             {
-                // UnityEditor.PackageManager.UI.PackageManagerWindow.SelectPackageAndFilter
                 var assembly = typeof(Application).Assembly;
                 var managerType = assembly.GetTypes().First(t => t.Name == "Application");
-                var methodInfo = managerType.GetMethod("HasARGV", BindingFlags.Static | BindingFlags.NonPublic);
+                var methodInfo = managerType.GetMethod("HasARGV", BindingFlags.Static | BindingFlags.Public);
                 s_HasARGV = argName => (bool)methodInfo.Invoke(null, new[] { argName });
             }
 
@@ -567,14 +566,27 @@ namespace UniPix
         {
             if (s_GetARGV == null)
             {
-                // UnityEditor.PackageManager.UI.PackageManagerWindow.SelectPackageAndFilter
                 var assembly = typeof(Application).Assembly;
                 var managerType = assembly.GetTypes().First(t => t.Name == "Application");
-                var methodInfo = managerType.GetMethod("GetValueForARGV", BindingFlags.Static | BindingFlags.NonPublic);
+                var methodInfo = managerType.GetMethod("GetValueForARGV", BindingFlags.Static | BindingFlags.Public);
                 s_GetARGV = argName => methodInfo.Invoke(null, new[] { argName }) as string;
             }
 
             return s_GetARGV(name);
+        }
+
+        private static Action<bool, string> s_LoadDynamicLayout;
+        public static void LoadDynamicLayout(bool keepMainWindow, string layoutSpecification)
+        {
+            if (s_LoadDynamicLayout == null)
+            {
+                var assembly = typeof(EditorStyles).Assembly;
+                var managerType = assembly.GetTypes().First(t => t.Name == "WindowLayout");
+                var methodInfo = managerType.GetMethod("LoadDynamicLayout", BindingFlags.Static | BindingFlags.Public);
+                s_LoadDynamicLayout = (_keepMainWindow, _layoutSpec) => methodInfo.Invoke(null, new[] { (object)_keepMainWindow, _layoutSpec });
+            }
+
+            s_LoadDynamicLayout(keepMainWindow, layoutSpecification);
         }
     }
 }

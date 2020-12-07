@@ -229,6 +229,90 @@ namespace UniPix
         {
 
         }
+
+        [CommandHandler("UniPix/Layout/Dyn_Lyt_Pix")]
+        internal static void LayoutPix(CommandExecuteContext context)
+        {
+            PixUtils.LoadDynamicLayout(true,
+@"{
+    top_view = null
+    center_view = ""PixEditor""
+    bottom_view = null
+    restore_saved_layout = true
+}");
+        }
+
+        [CommandHandler("UniPix/Layout/Dyn_Lyt_PixBrowse")]
+        internal static void LayoutPixBrowse(CommandExecuteContext context)
+        {
+            PixUtils.LoadDynamicLayout(true,
+@"{
+    top_view = null
+    center_view = {
+        horizontal = true
+        children = [
+            { 
+                size = 0.2
+                tabs = true
+                children = [
+                    { class_name = ""ProjectBrowser"" }
+                ] 
+            }
+            {
+                size = 0.8
+                tabs = true
+                children = [
+                    { class_name = ""PixEditor"" }
+                ]
+            }
+        ]
+    }
+    bottom_view = null
+    restore_saved_layout = true
+}");
+        }
+
+        [CommandHandler("UniPix/Layout/Dyn_Lyt_PixDebug")]
+        internal static void LayoutPixDebug(CommandExecuteContext context)
+        {
+            PixUtils.LoadDynamicLayout(true,
+@"{
+    top_view = null
+    center_view = {
+        horizontal = true
+        children = [
+            { 
+                vertical = true
+                size = 0.4
+                children = [
+                    { 
+                        size = 0.5
+                        tabs = true
+                        children = [
+                            { class_name = ""ProjectBrowser"" }
+                        ] 
+                    }
+                    { 
+                        size = 0.5
+                        tabs = true
+                        children = [
+                            { class_name = ""ConsoleWindow"" }
+                        ] 
+                    }
+                ]
+            }
+            {
+                size = 0.6
+                tabs = true
+                children = [
+                    { class_name = ""PixEditor"" }
+                ]
+            }
+        ]
+    }
+    bottom_view = null
+    restore_saved_layout = true
+}");
+        }
     }
 }
-

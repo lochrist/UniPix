@@ -97,11 +97,6 @@ unipix = {
             children = [
                 {name = "UniPix" menu_item_id = "Window/UniPix"}
                 {name = "Project Bundle" command_id = "UniPix/OpenProjectBrowse"}
-                /*
-                // Doesn't work
-                {name = "Project" menu_item_id = "Window/General/UniPix"}
-                {name = "Console" menu_item_id = "Window/General/UniPix"}
-                */
                 {
                     name = "General"
                     children = [
@@ -119,6 +114,9 @@ unipix = {
                     children = [
                         { name = "Refresh Modes" command_id = "ModeService/Refresh" shortcut="&r" }
                         { name = "Default Mode" command_id = "UniPix/GotoDefaultMode" }
+						{name = "Pix Layout" command_id = "UniPix/Layout/Dyn_Lyt_Pix"}
+						{name = "Pix Browse Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixBrowse"}
+						{name = "Pix Debug Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixDebug"}
                     ]
                 }
             ]
@@ -128,20 +126,21 @@ unipix = {
             children = "*"
         }
     ]
-
-	/*
+	
     layouts = [
         "Packages/com.unity.UniPix/Editor/Layouts/Pix.wlt"
         "Packages/com.unity.UniPix/Editor/Layouts/Browse.wlt"
         "Packages/com.unity.UniPix/Editor/Layouts/Debug.wlt"
     ]
-	*/
-
+	
+	/*
 	layout = {
         top_view = null
         center_view = "PixEditor"
         bottom_view = null
+		restore_saved_layout = true
     }
+	*/
 
     pane_types = [
         "ProjectBrowser"
