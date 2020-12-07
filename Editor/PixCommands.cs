@@ -64,23 +64,28 @@ namespace UniPix
             return LoadPix(session, new [] { contentToLoad } );
         }
 
-        public static void CreatePix(PixSession session, int w, int h)
+        public static void CreatePix(PixSession session, int w, int h, bool selectPath)
         {
-            string path = EditorUtility.SaveFilePanel(
-                "Create UniPix",
-                "Assets/", "Pix.unipix", "asset");
-            if (path == "")
+            var img = PixUtils.CreateImage(w, h, Color.clear);
+
+            if (selectPath)
             {
-                return;
+                string path = EditorUtility.SaveFilePanel(
+                    "Create UniPix",
+                    "Assets/", "Pix.unipix", "asset");
+                if (path == "")
+                {
+                    return;
+                }
+
+                path = FileUtil.GetProjectRelativePath(path);
+
+                AssetDatabase.CreateAsset(img, path);
+                EditorUtility.SetDirty(img);
+                AssetDatabase.SaveAssets();
             }
-
-            path = FileUtil.GetProjectRelativePath(path);
-            PixImage img = PixUtils.CreateImage(w, h, Color.clear);
-            AssetDatabase.CreateAsset(img, path);
-            EditorUtility.SetDirty(img);
-            AssetDatabase.SaveAssets();
-
-            LoadPix(session, AssetDatabase.GetAssetPath(img));
+            
+            LoadPix(session, new [] { img });
         }
 
         public static void SavePix(PixSession session)

@@ -990,7 +990,7 @@ namespace UniPix
             {
                 if (GUILayout.Button(Styles.newContent, EditorStyles.toolbarButton))
                 {
-                    PixCommands.CreatePix(Session, 32, 32);
+                    PixCommands.CreatePix(Session, 32, 32, false);
                     Repaint();
                 }
 
