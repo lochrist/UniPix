@@ -60,9 +60,8 @@ namespace UniPix
             {
                 path = FileUtil.GetProjectRelativePath(path);
             }
-            session.Image = AssetDatabase.LoadAssetAtPath<PixImage>(path);
-            InitImageSession(session);
-            return true;
+            var contentToLoad = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
+            return LoadPix(session, new [] { contentToLoad } );
         }
 
         public static void CreatePix(PixSession session, int w, int h)

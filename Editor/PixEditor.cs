@@ -176,8 +176,8 @@ namespace UniPix
             public static GUIContent newContent = new GUIContent(Icons.newImage, "New Image");
             public static GUIContent loadContent = new GUIContent(Icons.folder, "Load Image");
             public static GUIContent saveContent = new GUIContent(Icons.diskette, "Save Image");
-            public static GUIContent gridSettingsContent = new GUIContent(Icons.cog);
-            public static GUIContent exportContent = new GUIContent(Icons.export);
+            public static GUIContent gridSettingsContent = new GUIContent(Icons.cog, "Settings");
+            public static GUIContent exportContent = new GUIContent(Icons.export, "Export Current Image");
             public static GUIContent syncContent = new GUIContent(Icons.counterClockwiseRotation, "Save and sync Sources");
             public static GUIContent colorSwitcherContent = new GUIContent(Icons.colorSwapAndArrow, "Swap Primary and Secondary");
 
