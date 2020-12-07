@@ -425,6 +425,17 @@ namespace UniPix
             session.ImageOffsetX = imageOffset.x;
             session.ImageOffsetY = imageOffset.y;
         }
+
+        public static void IncreaseZoom(PixSession session)
+        {
+            session.ZoomLevel += 2f;
+        }
+
+        public static void DecreaseZoom(PixSession session)
+        {
+            session.ZoomLevel -= 2f;
+            session.ZoomLevel = Mathf.Max(1, session.ZoomLevel);
+        }
         #endregion
 
         // TODO: should it be part of the model?
@@ -503,7 +514,7 @@ namespace UniPix
             DirtyImage(session);
         }
 
-        public static void CloneLayer(PixSession session)
+        public static void CloneCurrentLayer(PixSession session)
         {
             RecordUndo(session, "Clone Layer");
             var clonedLayer = session.CurrentFrame.AddLayer(session.CurrentLayerIndex + 1);
@@ -516,7 +527,7 @@ namespace UniPix
             DirtyImage(session);
         }
 
-        public static void DeleteLayer(PixSession session)
+        public static void DeleteCurrentLayer(PixSession session)
         {
             RecordUndo(session, "Delete Layer");
             session.CurrentFrame.Layers.Remove(session.CurrentLayer);
@@ -544,6 +555,38 @@ namespace UniPix
             DirtyImage(session);
         }
 
+        public static void NextLayer(PixSession session)
+        {
+            var newLayerIndex = session.CurrentLayerIndex + 1;
+            if (newLayerIndex >= session.CurrentFrame.Layers.Count)
+            {
+                newLayerIndex = 0;
+            }
+            SetCurrentLayer(session, newLayerIndex);
+        }
+
+        public static void PreviousLayer(PixSession session)
+        {
+            var newLayerIndex = session.CurrentLayerIndex - 1;
+            if (newLayerIndex < 0)
+            {
+                newLayerIndex = session.CurrentFrame.Layers.Count - 1;
+            }
+            SetCurrentLayer(session, newLayerIndex);
+        }
+
+        public static void MoveCurrentLayerDown(PixSession session)
+        {
+            if (session.CurrentLayerIndex - 1 >= 0)
+                SwapLayers(session, session.CurrentLayerIndex, session.CurrentLayerIndex - 1);
+        }
+
+        public static void MoveCurrentLayerUp(PixSession session)
+        {
+            if (session.CurrentLayerIndex - 1 < session.CurrentFrame.Layers.Count)
+                SwapLayers(session, session.CurrentLayerIndex, session.CurrentLayerIndex + 1);
+        }
+
         public static void SwapLayers(PixSession session, int layerIndex1, int layerIndex2)
         {
             RecordUndo(session, "Move Layer");
@@ -558,6 +601,12 @@ namespace UniPix
                 session.CurrentLayerIndex = layerIndex1;
 
             DirtyImage(session);
+        }
+
+        public static void MergeLayers(PixSession session)
+        {
+            if (session.CurrentLayerIndex > 0)
+                PixCommands.MergeLayers(session, session.CurrentLayerIndex, session.CurrentLayerIndex - 1);
         }
 
         public static void MergeLayers(PixSession session, int src1, int dst2)

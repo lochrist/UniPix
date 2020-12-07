@@ -84,78 +84,78 @@ namespace UniPix
         [CommandHandler("UniPix/DeleteCurrentFrame")]
         private static void DeleteCurrentFrame(CommandExecuteContext context)
         {
-
+            PixCommands.DeleteFrame(s_Session, s_Session.CurrentFrameIndex);
         }
 
         [CommandHandler("UniPix/CloneCurrentFrame")]
         private static void CloneCurrentFrame(CommandExecuteContext context)
         {
-
+            PixCommands.CloneFrame(s_Session, s_Session.CurrentFrameIndex);
         }
 
         [CommandHandler("UniPix/NewFrame")]
         private static void NewFrame(CommandExecuteContext context)
         {
-
+            PixCommands.NewFrame(s_Session);
         }
 
         [CommandHandler("UniPix/GotoNextLayer")]
         private static void GotoNextLayer(CommandExecuteContext context)
         {
-
+            PixCommands.NextLayer(s_Session);
         }
 
         [CommandHandler("UniPix/GotoPreviousLayer")]
-        private static void GotoPreviousLAyer(CommandExecuteContext context)
+        private static void GotoPreviousLayer(CommandExecuteContext context)
         {
-
+            PixCommands.PreviousLayer(s_Session);
         }
 
         [CommandHandler("UniPix/DeleteCurrentLayer")]
         private static void DeleteCurrentLayer(CommandExecuteContext context)
         {
-
+            PixCommands.DeleteCurrentLayer(s_Session);
         }
 
         [CommandHandler("UniPix/CloneCurrentLayer")]
         private static void CloneCurrentLayer(CommandExecuteContext context)
         {
-
+            PixCommands.CloneCurrentLayer(s_Session);
         }
 
         [CommandHandler("UniPix/NewLayer")]
         private static void NewLayer(CommandExecuteContext context)
         {
-
+            PixCommands.CreateLayer(s_Session);
         }
 
         [CommandHandler("UniPix/MergeCurrentLayer")]
         private static void MergeCurrentLayer(CommandExecuteContext context)
         {
-
+            PixCommands.MergeLayers(s_Session);
         }
 
         [CommandHandler("UniPix/MoveLayerUp")]
         private static void MoveLayerUp(CommandExecuteContext context)
         {
-
+            PixCommands.MoveCurrentLayerUp(s_Session);
         }
         [CommandHandler("UniPix/MoveLayerDown")]
         private static void MoveLayerDown(CommandExecuteContext context)
         {
-
+            PixCommands.MoveCurrentLayerDown(s_Session);
         }
 
         [CommandHandler("UniPix/Zoom")]
         private static void Zoom(CommandExecuteContext context)
         {
-
+            PixCommands.IncreaseZoom(s_Session);
         }
 
         [CommandHandler("UniPix/ZoomBack")]
         private static void ZoomBack(CommandExecuteContext context)
         {
-
+            PixCommands.DecreaseZoom(s_Session);
         }
 
         [CommandHandler("UniPix/CenterCanvas")]
@@ -281,19 +281,26 @@ namespace UniPix
     center_view = {
         horizontal = true
         children = [
+            {
+                size = 0.2
+                tabs = true
+                children = [
+                    { class_name = ""ProjectBrowser"" }
+                ]
+            }
             { 
                 vertical = true
-                size = 0.4
+                size = 0.6
                 children = [
                     { 
-                        size = 0.5
+                        size = 0.7
                         tabs = true
                         children = [
-                            { class_name = ""ProjectBrowser"" }
+                            { class_name = ""PixEditor"" }
                         ] 
                     }
                     { 
-                        size = 0.5
+                        size = 0.3
                         tabs = true
                         children = [
                             { class_name = ""ConsoleWindow"" }
@@ -302,10 +309,10 @@ namespace UniPix
                 ]
             }
             {
-                size = 0.6
+                size = 0.2
                 tabs = true
                 children = [
-                    { class_name = ""PixEditor"" }
+                    { class_name = ""InspectorWindow"" }
                 ]
             }
         ]

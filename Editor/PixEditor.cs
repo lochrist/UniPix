@@ -447,12 +447,11 @@ namespace UniPix
                 }
                 if (e.keyCode == KeyCode.UpArrow)
                 {
-                    Session.ZoomLevel += 2f;
+                    PixCommands.IncreaseZoom(Session);
                 }
                 if (e.keyCode == KeyCode.DownArrow)
                 {
-                    Session.ZoomLevel -= 2f;
-                    Session.ZoomLevel = Mathf.Max(1, Session.ZoomLevel);
+                    PixCommands.DecreaseZoom(Session);
                 }
                 Repaint();
             }
@@ -485,7 +484,7 @@ namespace UniPix
 
                     if (GUILayout.Button(Styles.cloneLayer, Styles.layerToolbarBtn))
                     {
-                        PixCommands.CloneLayer(Session);
+                        PixCommands.CloneCurrentLayer(Session);
                         Repaint();
                         GUIUtility.ExitGUI();
                     }
@@ -494,7 +493,7 @@ namespace UniPix
                     {
                         if (GUILayout.Button(Styles.moveLayerUp, Styles.layerToolbarBtn))
                         {
-                            PixCommands.SwapLayers(Session, Session.CurrentLayerIndex, Session.CurrentLayerIndex + 1);
+                            PixCommands.MoveCurrentLayerUp(Session);
                             Repaint();
                             GUIUtility.ExitGUI();
                         }
@@ -504,14 +503,14 @@ namespace UniPix
                     {
                         if (GUILayout.Button(Styles.moveLayerDown, Styles.layerToolbarBtn))
                         {
-                            PixCommands.SwapLayers(Session, Session.CurrentLayerIndex, Session.CurrentLayerIndex - 1);
+                            PixCommands.MoveCurrentLayerDown(Session);
                             Repaint();
                             GUIUtility.ExitGUI();
                         }
 
                         if (GUILayout.Button(Styles.mergeLayer, Styles.layerToolbarBtn))
                         {
-                            PixCommands.MergeLayers(Session, Session.CurrentLayerIndex, Session.CurrentLayerIndex - 1);
+                            PixCommands.MergeLayers(Session);
                             Repaint();
                             GUIUtility.ExitGUI();
                         }
@@ -519,7 +518,7 @@ namespace UniPix
 
                     if (GUILayout.Button(Styles.deleteLayer, Styles.layerToolbarBtn))
                     {
-                        PixCommands.DeleteLayer(Session);
+                        PixCommands.DeleteCurrentLayer(Session);
                         Repaint();
                         GUIUtility.ExitGUI();
                     }

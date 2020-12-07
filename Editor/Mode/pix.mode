@@ -41,8 +41,8 @@ unipix = {
             name = "Frame"
             children = [
                 // Find the proper shortcut
-                { name = "Go to next" command_id = "UniPix/GotoNextFrame" shortcut="_UP"}
-                { name = "Go to previous" command_id = "UniPix/GotoPreviousFrame" shortcut="_DOWN"}
+                { name = "Go to previous" command_id = "UniPix/GotoPreviousFrame" shortcut="_UP"}
+                { name = "Go to next" command_id = "UniPix/GotoNextFrame" shortcut="_DOWN"}
                 null
                 { name = "New Frame" command_id = "UniPix/NewFrame" shortcut="%N"}
                 { name = "Clone current" command_id = "UniPix/CloneCurrentFrame" shortcut="&%N"}
@@ -52,8 +52,8 @@ unipix = {
         {
             name = "Layer"
             children = [
-                { name = "Go to next" command_id = "UniPix/GotoNextLayer" shortcut="&t"}
-                { name = "Go to previous" command_id = "UniPix/GotoPreviousLayer" shortcut="%t" }
+                { name = "Go to previous" command_id = "UniPix/GotoPreviousLayer" shortcut="&t"}
+                { name = "Go to next" command_id = "UniPix/GotoNextLayer" shortcut="%t" }
                 null
                 { name = "New Layer" command_id = "UniPix/NewLayer" }
                 { name = "Clone current" command_id = "UniPix/CloneCurrentLayer" shortcut="#t" }
