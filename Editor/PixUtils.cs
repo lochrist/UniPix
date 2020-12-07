@@ -5,6 +5,7 @@ using UnityEditor;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Xml.Serialization;
 
@@ -535,6 +536,45 @@ namespace UniPix
         public static bool IsValidPixSource(UnityEngine.Object obj)
         {
             return obj is PixImage || obj is Sprite || obj is Texture2D;
+        }
+
+        public static Texture2D GetTransparentCheckerTexture()
+        {
+            if (EditorGUIUtility.isProSkin)
+            {
+                return EditorGUIUtility.LoadRequired("Previews/Textures/textureCheckerDark.png") as Texture2D;
+            }
+            return EditorGUIUtility.LoadRequired("Previews/Textures/textureChecker.png") as Texture2D;
+        }
+
+        private static Func<string, bool> s_HasARGV;
+        public static bool HasARGV(string name)
+        {
+            if (s_HasARGV == null)
+            {
+                // UnityEditor.PackageManager.UI.PackageManagerWindow.SelectPackageAndFilter
+                var assembly = typeof(Application).Assembly;
+                var managerType = assembly.GetTypes().First(t => t.Name == "Application");
+                var methodInfo = managerType.GetMethod("HasARGV", BindingFlags.Static | BindingFlags.NonPublic);
+                s_HasARGV = argName => (bool)methodInfo.Invoke(null, new[] { argName });
+            }
+
+            return s_HasARGV(name);
+        }
+
+        private static Func<string, string> s_GetARGV;
+        public static string GetValueForARGV(string name)
+        {
+            if (s_GetARGV == null)
+            {
+                // UnityEditor.PackageManager.UI.PackageManagerWindow.SelectPackageAndFilter
+                var assembly = typeof(Application).Assembly;
+                var managerType = assembly.GetTypes().First(t => t.Name == "Application");
+                var methodInfo = managerType.GetMethod("GetValueForARGV", BindingFlags.Static | BindingFlags.NonPublic);
+                s_GetARGV = argName => methodInfo.Invoke(null, new[] { argName }) as string;
+            }
+
+            return s_GetARGV(name);
         }
     }
 }

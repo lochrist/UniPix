@@ -728,7 +728,7 @@ namespace UniPix
                     var tex = Session.CurrentFrame.Texture;
                     GUI.DrawTextureWithTexCoords(
                         Session.ScaledImgRect,
-                        EditorGUI.transparentCheckerTexture,
+                        PixUtils.GetTransparentCheckerTexture(),
                         new Rect(
                             0,
                             0,

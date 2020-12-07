@@ -25,9 +25,9 @@ namespace UniPix
         {
             Debug.Log("Uni Pix Initialize");
 
-            if (Application.HasARGV(k_PixPath))
+            if (PixUtils.HasARGV(k_PixPath))
             {
-                var prefabPath = Application.GetValueForARGV(k_PixPath).Replace("\\", "/");
+                var prefabPath = PixUtils.GetValueForARGV(k_PixPath).Replace("\\", "/");
                 var obj = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(prefabPath);
                 if (PixUtils.IsValidPixSource(obj))
                 {
@@ -39,11 +39,7 @@ namespace UniPix
         [UsedImplicitly, UnityEditor.MPE.RoleProvider(k_RoleName, UnityEditor.MPE.ProcessEvent.AfterDomainReload)]
         private static void AfterDomainReloadPix()
         {
-            Debug.Log("Uni Pix Domain Reload");
-            EditorApplication.updateMainWindowTitle += titleDescriptor =>
-            {
-                titleDescriptor.title = "UniPix 0.42";
-            };
+            
         }
 
         #endregion
