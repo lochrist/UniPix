@@ -4,7 +4,9 @@
     shortcut = "#t" // Shift + T
 */
 unipix = {
+    startup = true
     label = "UniPix"
+    version = "1.0"
     menus = [
         {
             name = "File" // Name of the top level menu item
