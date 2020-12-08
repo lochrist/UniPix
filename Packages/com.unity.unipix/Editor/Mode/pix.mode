@@ -7,6 +7,7 @@ unipix = {
     startup = true
     label = "UniPix"
     version = "1.0"
+
     menus = [
         {
             name = "File" // Name of the top level menu item
@@ -14,7 +15,7 @@ unipix = {
                 {name = "New..." command_id = "UniPix/NewImage" shortcut="%n"}
                 {name = "Open..." command_id = "UniPix/Open" shortcut="%o"}
                 null
-                { name = "Save" command_id = "UniPix/Save" shortcut="%s"}
+                { name = "Save" command_id = "UniPix/Save" shortcut="%s"} // Fix me cannot override menu
                 { name = "Sync" command_id = "UniPix/Sync" shortcut="%&s"}
                 null
                 { name = "Export Current Frame" command_id = "UniPix/ExportCurrentFrame" }
@@ -38,9 +39,10 @@ unipix = {
 
                 null, // This is a separator
 
-                {name="Shortcuts..."}
-                {name="Project Settings..."}
-                { name = "Open C# Project" menu_item_id = "Assets/Open C# Project" } // Doesn't seem to work anymore
+                { name="Shortcuts..." }
+                { name="Preferences..." }
+                { name="Project Settings..." }
+                { name = "Open C# Project" original_name = "Assets/Open C# Project" } // Doesn't seem to work anymore
             ]
         }
         //{ name = "Assets" children = "*" }
@@ -103,13 +105,13 @@ unipix = {
                 {
                     name = "Debug"
                     children = [
-                        { name = "Refresh Modes" command_id = "ModeService/Refresh" shortcut="&r" }
                         { name = "Default Mode" command_id = "UniPix/GotoDefaultMode" }
 						{ name = "Pix Layout" command_id = "UniPix/Layout/Dyn_Lyt_Pix" }
 						{ name = "Pix Browse Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixBrowse" }
 						{ name = "Pix Debug Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixDebug" }
-                        { name = "Reload Mode" command_id = "ReloadMode" shortcut="&r" }
-                        { name = "Print Roots" command_id = "PrintRoots" }
+                        null
+                        { name = "Build App" command_id = "BuildApp" }
+                        { name = "Reload App" command_id = "ReloadMode" shortcut="&r" }
                     ]
                 }
             ]
@@ -155,7 +157,52 @@ unipix = {
         allow_asset_creation = true
     }
 
+    /*
     shortcuts = [
         "Packages/com.unity.unipix/Editor/Mode/Default.shortcut",
+    ]
+    */
+
+    build_exclude_patterns = [
+        "\\.pdb$"
+        "\\.dwlt$"
+        "\\.log$"
+        "\\.(hg|git|vs)/"
+        "Temp/"
+        "(il2cpp|obj|Logs)/"
+        "Data/MonoBleedingEdge/bin"
+        "Data/MonoBleedingEdge/lib/(?!.+(4\\.7\\.1\\-api|unity|unityjit)/)"
+        "Data/NetCore"
+        "Data/Resources/GI"
+        "Data/Resources/Licensing"
+        "Data/Resources/Collab"
+        "Data/Resources/OpenCL"
+        "Data/Resources/OpenRL"
+        "Data/Resources/Collab"
+        "Data/Resources/PackageManager/Editor/.+tgz$"
+        "Data/Resources/PackageManager/Diagnostics"
+        "Data/Resources/PackageManager/PackageTemplates"
+        "Data/Resources/PackageManager/ProjectTemplates"
+        "Data/Resources/PackageManager/BuiltInPackages/(?!.+(imgui|jsonserialize)/)"
+        "Data/Tools/BuildPlayerDataGenerator"
+        "Data/Tools/CacheServer"
+        "Data/Tools/FSBTool"
+        "Data/Tools/ILPostProcessorRunner"
+        "Data/Tools/InternalCallRegistrationWriter"
+        "Data/Tools/macosx"
+        "Data/Tools/MapFileParser"
+        "Data/Tools/nodejs"
+        "Data/Tools/VersionControl"
+        "Data/UnityETWProvider"
+        "^Calc.dll"
+        "^cudart64_90.dll"
+        "^cudnn64_7.dll"
+        "^libmp3lame.dll"
+        "^MIOpen.dll"
+        "^RadeonML-DirectML.dll"
+        "^RadeonML-MIOpen.dll"
+        "^RadeonRays.dll"
+        "^tbbmalloc.dll"
+        "^RadeonRays.dll"
     ]
 }
