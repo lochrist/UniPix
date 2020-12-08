@@ -158,6 +158,6 @@ unipix = {
     }
 
     shortcuts = [
-        "Packages/com.unity.UniPix/Editor/Mode/Default.shortcut",
+        "Packages/com.unity.unipix/Editor/Mode/Default.shortcut",
     ]
 }
