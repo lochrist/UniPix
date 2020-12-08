@@ -122,6 +122,8 @@ unipix = {
 						{name = "Pix Layout" command_id = "UniPix/Layout/Dyn_Lyt_Pix"}
 						{name = "Pix Browse Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixBrowse"}
 						{name = "Pix Debug Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixDebug"}
+                        { name = "Reload Mode" command_id = "ReloadMode" shortcut="&r" }
+                        { name = "Print Roots" command_id = "PrintRoots" }
                     ]
                 }
             ]
