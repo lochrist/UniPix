@@ -1134,22 +1134,28 @@ namespace UniPix
             Debug.Log("Style refreshed");
         }
 
+        [UsedImplicitly, MenuItem("UniPix Debug/Go to PixMode", false, 10000)]
+        static void SwitchToPix()
+        {
+            ModeService.ChangeModeById("unipix");
+        }
+
         [UsedImplicitly, MenuItem("UniPix Debug/Dynamic Pix Layout", false, 10000)]
         static void DynPixLayout()
         {
-            PixMode.LayoutPix(null);
+            PixMode.LayoutDynPix(null);
         }
 
         [UsedImplicitly, MenuItem("UniPix Debug/Dynamic Pix Browse Layout", false, 10000)]
         static void DynPixBrowseLayout()
         {
-            PixMode.LayoutPixBrowse(null);
+            PixMode.LayoutDynPixBrowse(null);
         }
 
         [UsedImplicitly, MenuItem("UniPix Debug/Dynamic Pix Debug Layout", false, 10000)]
         static void DynPixDebugLayout()
         {
-            PixMode.LayoutPixDebug(null);
+            PixMode.LayoutDynPixDebug(null);
         }
         #endregion
     }

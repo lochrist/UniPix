@@ -554,7 +554,7 @@ namespace UniPix
             {
                 var assembly = typeof(Application).Assembly;
                 var managerType = assembly.GetTypes().First(t => t.Name == "Application");
-                var methodInfo = managerType.GetMethod("HasARGV", BindingFlags.Static | BindingFlags.Public);
+                var methodInfo = managerType.GetMethod("HasARGV", BindingFlags.Static | BindingFlags.NonPublic);
                 s_HasARGV = argName => (bool)methodInfo.Invoke(null, new[] { argName });
             }
 
@@ -568,11 +568,25 @@ namespace UniPix
             {
                 var assembly = typeof(Application).Assembly;
                 var managerType = assembly.GetTypes().First(t => t.Name == "Application");
-                var methodInfo = managerType.GetMethod("GetValueForARGV", BindingFlags.Static | BindingFlags.Public);
+                var methodInfo = managerType.GetMethod("GetValueForARGV", BindingFlags.Static | BindingFlags.NonPublic);
                 s_GetARGV = argName => methodInfo.Invoke(null, new[] { argName }) as string;
             }
 
             return s_GetARGV(name);
+        }
+
+        private static Action<string, bool> s_LoadWindowLayout;
+        public static void LoadWindowLayout(string path)
+        {
+            if (s_LoadWindowLayout == null)
+            {
+                var assembly = typeof(EditorStyles).Assembly;
+                var managerType = assembly.GetTypes().First(t => t.Name == "WindowLayout");
+                var methodInfo = managerType.GetMethods(BindingFlags.Static | BindingFlags.Public).FirstOrDefault(mi => mi.Name == "LoadWindowLayout" && mi.GetParameters().Length == 2);
+                s_LoadWindowLayout = (_path, newProjectLayoutWasCreated) => methodInfo.Invoke(null, new[] { _path, (object)newProjectLayoutWasCreated });
+            }
+
+            s_LoadWindowLayout(path, false);
         }
 
         private static Action<bool, string> s_LoadDynamicLayout;
