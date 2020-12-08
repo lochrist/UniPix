@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Xml.Serialization;
+using UnityEditor.Graphs;
 
 namespace UniPix
 {
@@ -372,9 +373,15 @@ namespace UniPix
         {
             var tex = frame.Texture;
             var frameRect = GUILayoutUtility.GetRect(PixEditor.Styles.kFramePreviewSize, PixEditor.Styles.kFramePreviewWidth, PixEditor.Styles.pixBox, GUILayout.Width(PixEditor.Styles.kFramePreviewSize), GUILayout.Height(PixEditor.Styles.kFramePreviewSize));
-            GUI.Box(frameRect, "", currentFrame ? PixEditor.Styles.selectedPixBox : PixEditor.Styles.pixBox);
-            GUI.DrawTexture(frameRect, tex, ScaleMode.ScaleToFit);
+            DrawFrame(frameRect, tex, currentFrame);
             return frameRect;
+        }
+
+        public static void DrawFrame(Rect frameRect, Texture2D tex, bool currentFrame)
+        {
+            GUI.Box(frameRect, "", currentFrame ? PixEditor.Styles.selectedPixBox : PixEditor.Styles.pixBox);
+            var texRect = new Rect(frameRect.xMin + PixEditor.Styles.kMargin, frameRect.yMin + PixEditor.Styles.kMargin, frameRect.width - 2 * PixEditor.Styles.kMargin, frameRect.height - 2 * PixEditor.Styles.kMargin);
+            GUI.DrawTexture(texRect, tex, ScaleMode.ScaleToFit);
         }
 
         public static string GetBasePath(string path)

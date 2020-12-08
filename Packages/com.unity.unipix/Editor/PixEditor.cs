@@ -131,7 +131,15 @@ namespace UniPix
         public Vector2 FrameScroll = new Vector2(0, 0);
         public Vector2 RightPanelScroll = new Vector2(0, 0);
         public bool IsDebugDraw;
+
+        public const int k_MinCheckPatternSize = 1;
+        public const int k_MaxCheckPatternSize = 16;
+        public bool ShowCheckerPattern = true;
+        public int CheckPatternSize = 2;
+
         public bool ShowGrid = true;
+        public const int k_MinGridSize = 1;
+        public const int k_MaxGridSize = 6;
         public int GridSize = 1;
         public int GridPixelSize => (int)ZoomLevel * 3 * GridSize;
         public Color GridColor = Color.black;
@@ -741,15 +749,18 @@ namespace UniPix
                 if (Event.current.type == EventType.Repaint)
                 {
                     var tex = Session.CurrentFrame.Texture;
-                    GUI.DrawTextureWithTexCoords(
-                        Session.ScaledImgRect,
-                        PixUtils.GetTransparentCheckerTexture(),
-                        new Rect(
-                            0,
-                            0,
-                            Session.ScaledImgRect.width / 4 / Session.ZoomLevel,
-                            Session.ScaledImgRect.height / 4 / Session.ZoomLevel),
-                        false);
+                    if (Session.ShowCheckerPattern)
+                    {
+                        GUI.DrawTextureWithTexCoords(
+                            Session.ScaledImgRect,
+                            PixUtils.GetTransparentCheckerTexture(),
+                            new Rect(
+                                0,
+                                0,
+                                Session.ScaledImgRect.width / Session.CheckPatternSize / Session.ZoomLevel,
+                                Session.ScaledImgRect.height / Session.CheckPatternSize / Session.ZoomLevel),
+                            false);
+                    }
                     GUI.DrawTexture(Session.ScaledImgRect, tex);
                 }
                 if (Session.ScaledImgRect.Contains(Event.current.mousePosition))
@@ -887,8 +898,7 @@ namespace UniPix
             {
                 if (Event.current.type == EventType.Repaint)
                 {
-                    GUI.Box(frameRect, "", Styles.pixBox);
-                    GUI.DrawTexture(frameRect, tex, ScaleMode.ScaleToFit);
+                    PixUtils.DrawFrame(frameRect, tex, false);
                 }
                 
                 if (Event.current.type == EventType.MouseDown && frameRect.Contains(Event.current.mousePosition))

@@ -47,7 +47,7 @@ namespace UniPix
                 GUILayout.BeginHorizontal();
                 GUILayout.Label($"Size {s_Editor.Session.GridSize}", GUILayout.ExpandWidth(false));
                 EditorGUI.BeginChangeCheck();
-                var gridSize = (int)GUILayout.HorizontalSlider(s_Editor.Session.GridSize, 1, 6, GUILayout.ExpandWidth(true));
+                var gridSize = (int)GUILayout.HorizontalSlider(s_Editor.Session.GridSize, PixSession.k_MinGridSize, PixSession.k_MaxGridSize, GUILayout.ExpandWidth(true));
                 if (EditorGUI.EndChangeCheck())
                 {
                     PixCommands.SetGridSize(s_Editor.Session, s_Editor, gridSize);
@@ -62,6 +62,24 @@ namespace UniPix
                     PixCommands.SetGridColor(s_Editor.Session, s_Editor, color);
                     s_Editor.Repaint();
                 }
+                GUILayout.Space(5);
+                GUILayout.Label("Checkerboard");
+                EditorGUI.BeginChangeCheck();
+                s_Editor.Session.ShowCheckerPattern = GUILayout.Toggle(s_Editor.Session.ShowCheckerPattern, "Show");
+                if (EditorGUI.EndChangeCheck())
+                {
+                    s_Editor.Repaint();
+                }
+
+                GUILayout.BeginHorizontal();
+                GUILayout.Label($"Size {s_Editor.Session.CheckPatternSize}", GUILayout.ExpandWidth(false));
+                EditorGUI.BeginChangeCheck();
+                s_Editor.Session.CheckPatternSize = (int)GUILayout.HorizontalSlider(s_Editor.Session.CheckPatternSize, PixSession.k_MinCheckPatternSize, PixSession.k_MaxCheckPatternSize, GUILayout.ExpandWidth(true));
+                if (EditorGUI.EndChangeCheck())
+                {
+                    s_Editor.Repaint();
+                }
+                GUILayout.EndHorizontal();
 
                 GUILayout.FlexibleSpace();
             }
@@ -73,7 +91,7 @@ namespace UniPix
             var screenRect = new Rect(screenPos, rect.size);
             var gridSettings = ScriptableObject.CreateInstance<GridSettingsWindow>();
             s_Editor = editor;
-            gridSettings.ShowAsDropDown(screenRect, new Vector2(100, 85));
+            gridSettings.ShowAsDropDown(screenRect, new Vector2(100, 140));
             return true;
         }
     }
