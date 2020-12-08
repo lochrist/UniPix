@@ -4,7 +4,9 @@
     shortcut = "#t" // Shift + T
 */
 unipix = {
+    startup = true
     label = "UniPix"
+    version = "1.0"
     menus = [
         {
             name = "File" // Name of the top level menu item
@@ -18,6 +20,8 @@ unipix = {
                 { name = "Export Current Frame" command_id = "UniPix/ExportCurrentFrame" }
                 { name = "Export Frames" command_id = "UniPix/ExportFrames" }
                 { name = "Export SpriteSheet" command_id = "UniPix/ExportSpriteSheet" }
+                null
+                { name = "Exit" }
             ]
         }
         {
@@ -35,12 +39,11 @@ unipix = {
                 null, // This is a separator
 
                 {name="Shortcuts..."}
+                {name="Project Settings..."}
             ]
         }
-        {
-            name = "Assets"
-            children = "*"
-        }
+        { name = "Assets" children = "*" } // for debugging
+        { name = "Workspaces" children = "*" }
         {
             name = "Frame"
             children = [
@@ -103,11 +106,9 @@ unipix = {
                 {name = "Project Bundle" command_id = "UniPix/OpenProjectBrowse"}
                 {
                     name = "General"
-                    children = [
-                        {name = "Project"}
-                        {name = "Console"}
-                    ]
+                    children = "*"
                 }
+                {name = "Package Manager" }
                 null
                 {name = "Pix Layout" command_id = "UniPix/Layout/Pix" shortcut="%#1"}
                 {name = "Pix Browse Layout" command_id = "UniPix/Layout/PixBrowse" shortcut="%#2"}
@@ -125,10 +126,11 @@ unipix = {
                 }
             ]
         }
-        {
-            name = "Help"
-            children = "*"
-        }
+
+        { name = "Help" children = [ { name = "About Unity" } ]}
+
+        { name = "GameObject" exclude = true }
+        { name = "Component" exclude = true }
     ]
 	
     layouts = [
