@@ -107,7 +107,8 @@ namespace UniPix
                     m_Start = session.CursorImgCoord;
                 }
                 else if (Event.current.type == EventType.MouseDrag)
-                {                    session.ClearOverlay();
+                {
+                    session.ClearOverlay();
                     var pixels = session.Overlay.GetPixels();
                     var strokeColor = StrokeColor(session);
                     if (Event.current.control)
@@ -145,6 +146,7 @@ namespace UniPix
             return false;
         }
     }
+
 
     public class LineTool : PixTool
     {
@@ -186,6 +188,44 @@ namespace UniPix
                         var strokeColor = StrokeColor(session);
                         PixUtils.DrawLine(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
                     }
+                }
+                return true;
+            }
+            return false;
+        }
+    }
+
+    public class RectangleSelection : PixTool
+    {
+        public static string kName = "Selection";
+        bool m_Active;
+        Vector2Int m_Start;
+        public RectangleSelection()
+        {
+            Name = kName;
+            Content = new GUIContent(Icons.rectangle, "Rectangle Selection");
+        }
+
+        public override bool OnEvent(Event current, PixSession session)
+        {
+            if (!m_Active)
+                DrawCursor(session);
+            if (Event.current.isMouse &&
+                (Event.current.button == 0 || Event.current.button == 1))
+            {
+                if (Event.current.type == EventType.MouseDown)
+                {
+                    m_Active = true;
+                    m_Start = session.CursorImgCoord;
+                }
+                else if (Event.current.type == EventType.MouseDrag)
+                {
+                    
+                }
+                else if (Event.current.type == EventType.MouseUp)
+                {
+                    
+                    m_Active = false;
                 }
                 return true;
             }

@@ -323,7 +323,8 @@ namespace UniPix
                 new BucketFullTool(), 
                 new LineTool(), 
                 new RectangleTool(),
-                new DitheringTool()
+                new DitheringTool(),
+                new RectangleSelection()
             };
             Session.CurrentToolIndex = 0;
             UpdateCanvasSize();
