@@ -134,20 +134,19 @@ unipix = {
     ]
 	
     layouts = [
-        "Packages/com.unity.UniPix/Editor/Layouts/Pix.wlt"
-        "Packages/com.unity.UniPix/Editor/Layouts/Browse.wlt"
-        "Packages/com.unity.UniPix/Editor/Layouts/Debug.wlt"
+        "Packages/com.unity.unioix/Editor/Layouts/Pix.wlt"
+        "Packages/com.unity.unioix/Editor/Layouts/Browse.wlt"
+        "Packages/com.unity.unioix/Editor/Layouts/Debug.wlt"
     ]
 	
-	/*
+	/*	
 	layout = {
         top_view = null
         center_view = "PixEditor"
         bottom_view = null
-		restore_saved_layout = true
+		restore_saved_layout = false
     }
 	*/
-
     pane_types = [
         "ProjectBrowser"
         "ConsoleWindow"
