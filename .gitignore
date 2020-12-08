@@ -15,3 +15,9 @@ npm-debug.log
 build.sh.meta
 build.bat.meta
 .idea/
+Logs/
+*.csproj
+*.sln
+.vsconfig
+ProjectSettings/
+UserSettings/
