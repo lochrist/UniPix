@@ -124,8 +124,8 @@ static class UnityApp
     {
         ModeService.Refresh(c);
         AssetDatabase.Refresh();
-        EditorUtility.RequestScriptReload();
         EditorUtility.RebuildAllMenus();
+        UpdateWorkspaces();
     }
 
     [CommandHandler(nameof(BuildApp), CommandHint.Menu)]

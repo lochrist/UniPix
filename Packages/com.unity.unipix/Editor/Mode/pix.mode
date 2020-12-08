@@ -40,12 +40,13 @@ unipix = {
 
                 {name="Shortcuts..."}
                 {name="Project Settings..."}
+                { name = "Open C# Project" menu_item_id = "Assets/Open C# Project" } // Doesn't seem to work anymore
             ]
         }
-        { name = "Assets" children = "*" } // for debugging
+        //{ name = "Assets" children = "*" }
         { name = "Workspaces" children = "*" }
         {
-            name = "Frame"
+            name = "Frames"
             children = [
                 // Find the proper shortcut
                 { name = "Go to previous" command_id = "UniPix/GotoPreviousFrame" shortcut="_UP"}
@@ -57,7 +58,7 @@ unipix = {
             ]
         }
         {
-            name = "Layer"
+            name = "Layers"
             children = [
                 { name = "Go to previous" command_id = "UniPix/GotoPreviousLayer" shortcut="&t"}
                 { name = "Go to next" command_id = "UniPix/GotoNextLayer" shortcut="%t" }
@@ -86,7 +87,7 @@ unipix = {
             ]
         }
         {
-            name = "Tool"
+            name = "Tools"
             children = [
                 { name = "Brush" command_id = "UniPix/ActivateBrush" shortcut="_b"}
                 { name = "Eraser" command_id = "UniPix/ActivateEraser" shortcut="_e"}
@@ -97,6 +98,20 @@ unipix = {
                 { name = "Next Color" command_id = "UniPix/IncreaseColor" shortcut="_."}
                 { name = "Previous Color" command_id = "UniPix/DecreaseColor" shortcut="_,"}
                 { name = "Swap Color" command_id = "UniPix/SwapColor" shortcut="_x"}
+
+                null
+                {
+                    name = "Debug"
+                    children = [
+                        { name = "Refresh Modes" command_id = "ModeService/Refresh" shortcut="&r" }
+                        { name = "Default Mode" command_id = "UniPix/GotoDefaultMode" }
+						{ name = "Pix Layout" command_id = "UniPix/Layout/Dyn_Lyt_Pix" }
+						{ name = "Pix Browse Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixBrowse" }
+						{ name = "Pix Debug Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixDebug" }
+                        { name = "Reload Mode" command_id = "ReloadMode" shortcut="&r" }
+                        { name = "Print Roots" command_id = "PrintRoots" }
+                    ]
+                }
             ]
         }
         {
@@ -113,19 +128,6 @@ unipix = {
                 {name = "Pix Layout" command_id = "UniPix/Layout/Pix" shortcut="%#1"}
                 {name = "Pix Browse Layout" command_id = "UniPix/Layout/PixBrowse" shortcut="%#2"}
                 {name = "Pix Debug Layout" command_id = "UniPix/Layout/PixDebug" shortcut="%#3"}
-                null
-                {
-                    name = "Debug"
-                    children = [
-                        { name = "Refresh Modes" command_id = "ModeService/Refresh" shortcut="&r" }
-                        { name = "Default Mode" command_id = "UniPix/GotoDefaultMode" }
-						{name = "Pix Layout" command_id = "UniPix/Layout/Dyn_Lyt_Pix"}
-						{name = "Pix Browse Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixBrowse"}
-						{name = "Pix Debug Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixDebug"}
-                        { name = "Reload Mode" command_id = "ReloadMode" shortcut="&r" }
-                        { name = "Print Roots" command_id = "PrintRoots" }
-                    ]
-                }
             ]
         }
 
@@ -135,28 +137,22 @@ unipix = {
         { name = "Component" exclude = true }
     ]
 	
-    layouts = [
-        "Packages/com.unity.UniPix/Editor/Layouts/Pix.wlt"
-        "Packages/com.unity.UniPix/Editor/Layouts/Browse.wlt"
-        "Packages/com.unity.UniPix/Editor/Layouts/Debug.wlt"
-    ]
-	
-	/*
 	layout = {
         top_view = null
+        //bottom_view = null
         center_view = "PixEditor"
-        bottom_view = null
-		restore_saved_layout = true
+		restore_saved_layout = false
     }
-	*/
-
-    pane_types = [
-        "ProjectBrowser"
-        "ConsoleWindow"
-    ]
 
     capabilities = {
+        // Never save this mode as the current
+        remember = false
+
+        // Update the layout when switching to safe mode.
         layout_switching = true
+        layout_window_menu = false
+        status_bar_extra_features = false
+        allow_asset_creation = true
     }
 
     shortcuts = [
