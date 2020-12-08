@@ -112,6 +112,8 @@ namespace UniPix
             }
         }
 
+        public const int k_MinBrushSize = 1;
+        public const int k_MaxBrushSize = 6;
         public int BrushSize = 1;
         public Palette Palette;
         public int ImgCoordToPixelIndex(int imgCoordX, int imgCoordY)
@@ -134,6 +136,7 @@ namespace UniPix
         public int GridPixelSize => (int)ZoomLevel * 3 * GridSize;
         public Color GridColor = Color.black;
     }
+
 
     public class PixEditor : EditorWindow
     {
@@ -287,6 +290,7 @@ namespace UniPix
 
         PixTool CurrentTool => m_Tools[Session.CurrentToolIndex];
         PixTool[] m_Tools;
+        public PixTool[] Tools => m_Tools;
 
         public void UpdateCanvasSize()
         {
@@ -572,7 +576,12 @@ namespace UniPix
             GUILayout.BeginArea(m_ToolsPaletteRect);
 
             GUILayout.Label("Brush Size", Styles.layerHeader);
-            Session.BrushSize = (int)PixUtils.Slider($"{Session.BrushSize}", Session.BrushSize, 1, 6, Styles.brushSlider);
+            EditorGUI.BeginChangeCheck();
+            var brushSize = (int)PixUtils.Slider($"{Session.BrushSize}", Session.BrushSize, 1, 6, Styles.brushSlider);
+            if (EditorGUI.EndChangeCheck())
+            {
+                PixCommands.SetBrushSize(Session, brushSize);
+            }
 
             GUILayout.Label("Tools", Styles.layerHeader);
 

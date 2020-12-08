@@ -85,7 +85,7 @@ unipix = {
                 { name = "Eraser" command_id = "UniPix/ActivateEraser" shortcut="_e"}
                 null
                 { name = "Increase Brush" command_id = "UniPix/IncreaseBrushSize" shortcut="_]"}
-                { name = "Decrease Brush" command_id = "UniPix/IncreaseBrushSize" shortcut="_["}
+                { name = "Decrease Brush" command_id = "UniPix/DecreaseBrushSize" shortcut="_["}
                 null
                 { name = "Next Color" command_id = "UniPix/IncreaseColor" shortcut="_."}
                 { name = "Previous Color" command_id = "UniPix/DecreaseColor" shortcut="_,"}

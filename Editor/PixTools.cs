@@ -36,9 +36,10 @@ namespace UniPix
 
     public class BrushTool : PixTool
     {
+        public static string kName = "Brush";
         public BrushTool()
         {
-            Name = "Brush";
+            Name = kName;
             Content = new GUIContent(Icons.pencil, "Brush tool");
         }
 
@@ -62,9 +63,10 @@ namespace UniPix
 
     public class EraseTool : PixTool
     {
+        public static string kName = "Eraser";
         public EraseTool()
         {
-            Name = "Erase";
+            Name = kName;
             Content = new GUIContent(Icons.eraser, "Eraser");
         }
 
@@ -83,11 +85,12 @@ namespace UniPix
 
     public class RectangleTool : PixTool
     {
+        public static string kName = "Rectangle";
         bool m_Active;
         Vector2Int m_Start;
         public RectangleTool()
         {
-            Name = "Rectangle";
+            Name = kName;
             Content = new GUIContent(Icons.rectangle, "Rectangle (hold Ctrl for filled)");
         }
 
@@ -145,10 +148,11 @@ namespace UniPix
 
     public class LineTool : PixTool
     {
+        public static string kName = "Line";
         Vector2Int m_Start;
         public LineTool()
         {
-            Name = "Line";
+            Name = kName;
             Content = new GUIContent(Icons.stroke, "Line");
         }
 
@@ -191,9 +195,10 @@ namespace UniPix
 
     public class BucketTool : PixTool
     {
+        public static string kName = "Bucket";
         public BucketTool()
         {
-            Name = "Bucket";
+            Name = kName;
             Content = new GUIContent(Icons.bucket, "Bucket");
         }
 
@@ -220,9 +225,10 @@ namespace UniPix
 
     public class BucketFullTool : PixTool
     {
+        public static string kName = "BucketFull";
         public BucketFullTool()
         {
-            Name = "BucketFull";
+            Name = kName;
             Content = new GUIContent(Icons.bucketFull, "Full Frame Bucket");
         }
 
@@ -250,9 +256,10 @@ namespace UniPix
 
     public class DitheringTool : PixTool
     {
+        public static string kName = "Dithering";
         public DitheringTool()
         {
-            Name = "Dithering";
+            Name = kName;
             Content = new GUIContent(Icons.dithering, "Dithering");
         }
 

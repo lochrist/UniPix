@@ -197,25 +197,25 @@ namespace UniPix
         [CommandHandler("UniPix/ActivateBrush")]
         private static void ActivateBrush(CommandExecuteContext context)
         {
-
+            PixCommands.SetTool(s_Session, s_Editor, BrushTool.kName);
         }
 
         [CommandHandler("UniPix/ActivateEraser")]
         private static void ActivateEraser(CommandExecuteContext context)
         {
-
+            PixCommands.SetTool(s_Session, s_Editor, EraseTool.kName);
         }
 
         [CommandHandler("UniPix/IncreaseBrushSize")]
         private static void IncreaseBrushSize(CommandExecuteContext context)
         {
-
+            PixCommands.SetBrushSize(s_Session, s_Session.BrushSize + 1);
         }
 
         [CommandHandler("UniPix/DecreaseBrushSize")]
         private static void DecreaseBrushSize(CommandExecuteContext context)
         {
-
+            PixCommands.SetBrushSize(s_Session, s_Session.BrushSize - 1);
         }
 
         [CommandHandler("UniPix/IncreaseColor")]

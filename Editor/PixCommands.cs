@@ -465,6 +465,22 @@ namespace UniPix
         {
             session.PreviewFps = fps;
         }
+
+        public static void SetTool(PixSession session, PixEditor editor, string toolName)
+        {
+            var index = Array.FindIndex(editor.Tools, tool => tool.Name == toolName);
+            if (index != -1)
+                session.CurrentToolIndex = index;
+        }
+
+        public static void SetBrushSize(PixSession session, int brushSize)
+        {
+            if (brushSize < PixSession.k_MinBrushSize)
+                brushSize = PixSession.k_MinBrushSize;
+            if (brushSize > PixSession.k_MaxBrushSize)
+                brushSize = PixSession.k_MaxBrushSize;
+            session.BrushSize = brushSize;
+        }
         #endregion
 
         // TODO: should it be part of the model?
