@@ -38,6 +38,10 @@ unipix = {
             ]
         }
         {
+            name = "Assets"
+            children = "*"
+        }
+        {
             name = "Frame"
             children = [
                 // Find the proper shortcut
