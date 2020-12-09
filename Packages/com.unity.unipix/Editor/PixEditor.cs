@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Profiling;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace UniPix
@@ -292,13 +294,11 @@ namespace UniPix
         Rect m_RightPanelRect;
         Texture2D m_TransparentTex;
         Texture2D m_GridTex;
-        System.Diagnostics.Stopwatch m_Timer = new System.Diagnostics.Stopwatch();
         bool m_IsPanning;
         Vector2 m_PanStart;
 
-        PixTool CurrentTool => m_Tools[Session.CurrentToolIndex];
-        PixTool[] m_Tools;
-        public PixTool[] Tools => m_Tools;
+        PixTool CurrentTool => Tools[Session.CurrentToolIndex];
+        public PixTool[] Tools;
 
         public void UpdateCanvasSize()
         {
@@ -316,7 +316,7 @@ namespace UniPix
             PixMode.s_Session = Session;
             PixMode.s_Editor = this;
 
-            m_Tools = new PixTool[] {
+            Tools = new PixTool[] {
                 new BrushTool(),
                 new EraseTool(),
                 new BucketTool(), 
@@ -354,30 +354,33 @@ namespace UniPix
 
         private void OnGUI()
         {
-            m_Timer.Restart();
-            ProcessEvents();
-            ComputeLayout();
-            DrawToolbar();
-            if (Session.IsDebugDraw)
+            // using (new EditorPerformanceTracker("PixMode"))
             {
-                DrawDebugArea();
-            }
-            // else
-            {
-                DrawToolPalette();
-                DrawAnimationPreview();
-                DrawFrames();
-                DrawColorSwitcher();
-                DrawCanvas();
+                ProcessEvents();
+                ComputeLayout();
+                DrawToolbar();
+                if (Session.IsDebugDraw)
+                {
+                    DrawDebugArea();
+                }
 
-                GUILayout.BeginArea(m_RightPanelRect);
-                Session.RightPanelScroll = GUILayout.BeginScrollView(Session.RightPanelScroll);
-                DrawLayers();
-                DrawColorPalette();
-                DrawFrameSource();
-                GUILayout.EndScrollView();
-                GUILayout.EndArea();
-                DrawStatus();
+                // else
+                {
+                    DrawToolPalette();
+                    DrawAnimationPreview();
+                    DrawFrames();
+                    DrawColorSwitcher();
+                    DrawCanvas();
+
+                    GUILayout.BeginArea(m_RightPanelRect);
+                    Session.RightPanelScroll = GUILayout.BeginScrollView(Session.RightPanelScroll);
+                    DrawLayers();
+                    DrawColorPalette();
+                    DrawFrameSource();
+                    GUILayout.EndScrollView();
+                    GUILayout.EndArea();
+                    DrawStatus();
+                }
             }
         }
 
@@ -398,7 +401,7 @@ namespace UniPix
                 m_ToolsPaletteRect = new Rect(m_ToolbarRect.x, 
                     m_AnimPreviewRect.yMax + kToolsSpacing, 
                     Styles.kToolPaletteWidth, 
-                    (m_Tools.Length) * (Styles.kToolSize + Styles.kMargin));
+                    (Tools.Length) * (Styles.kToolSize + Styles.kMargin));
             }
 
             { // Column 2
@@ -545,7 +548,7 @@ namespace UniPix
                 }
 
                 EditorGUI.BeginChangeCheck();
-                var opacity = PixUtils.Slider($"Opacity {(int)(Session.CurrentLayer.Opacity * 100)}%",
+                var opacity = PixUI.Slider($"Opacity {(int)(Session.CurrentLayer.Opacity * 100)}%",
                     Session.CurrentLayer.Opacity, 0f, 1f, Styles.layerOpacitySlider
                     );
                 if (EditorGUI.EndChangeCheck())
@@ -588,7 +591,7 @@ namespace UniPix
 
             GUILayout.Label("Brush Size", Styles.layerHeader);
             EditorGUI.BeginChangeCheck();
-            var brushSize = (int)PixUtils.Slider($"{Session.BrushSize}", Session.BrushSize, 1, 6, Styles.brushSlider);
+            var brushSize = (int)PixUI.Slider($"{Session.BrushSize}", Session.BrushSize, 1, 6, Styles.brushSlider);
             if (EditorGUI.EndChangeCheck())
             {
                 PixCommands.SetBrushSize(Session, brushSize);
@@ -597,16 +600,16 @@ namespace UniPix
             GUILayout.Label("Tools", Styles.layerHeader);
 
             var toolsRect = GUILayoutUtility.GetRect(m_ToolsPaletteRect.width, 100);
-            var nbRows = (m_Tools.Length / Styles.kNbToolsPerRow) + 1;
+            var nbRows = (Tools.Length / Styles.kNbToolsPerRow) + 1;
             var toolIndex = 0;
             for(var rowIndex = 0; rowIndex < nbRows; ++rowIndex)
             {
                 var toolY = toolsRect.y + rowIndex * Styles.kToolSize + Styles.kMargin;
                 for (var toolColumn = 0; toolColumn < Styles.kNbToolsPerRow; ++toolColumn, ++toolIndex)
                 {
-                    if (toolIndex >= m_Tools.Length)
+                    if (toolIndex >= Tools.Length)
                         break;
-                    var tool = m_Tools[toolIndex];
+                    var tool = Tools[toolIndex];
                     var toolRect = new Rect(Styles.kMargin + toolColumn * (Styles.kMargin + Styles.kToolSize), toolY, Styles.kToolSize, Styles.kToolSize);
                     if (GUI.Toggle(toolRect, toolIndex == Session.CurrentToolIndex, tool.Content, GUI.skin.button))
                     {
@@ -630,7 +633,7 @@ namespace UniPix
             var eventUsed = false;
             foreach (var frame in Session.Image.Frames)
             {
-                var frameRect = PixUtils.LayoutFrameTile(frame, frameIndex == Session.CurrentFrameIndex);
+                var frameRect = PixUI.LayoutFrameTile(frame, frameIndex == Session.CurrentFrameIndex);
                 if (frameRect.Contains(Event.current.mousePosition))
                 {
                     if (GUI.Button(new Rect(frameRect.x + Styles.kMargin, frameRect.y + Styles.kMargin, Styles.kFramePreviewBtn, 
@@ -899,7 +902,7 @@ namespace UniPix
             {
                 if (Event.current.type == EventType.Repaint)
                 {
-                    PixUtils.DrawFrame(frameRect, tex, false);
+                    PixUI.DrawFrame(frameRect, tex, false);
                 }
                 
                 if (Event.current.type == EventType.MouseDown && frameRect.Contains(Event.current.mousePosition))
@@ -986,7 +989,7 @@ namespace UniPix
             {
                 GUILayout.Label("Frame Source", Styles.layerHeader);
 
-                using (new PixUtils.FieldWidthScope(45, 45))
+                using (new PixUI.FieldWidthScope(45, 45))
                 {
                     EditorGUI.BeginChangeCheck();
                     var sprite = (Sprite)EditorGUILayout.ObjectField("Sprite", Session.CurrentFrame.SourceSprite, typeof(Sprite), false);
@@ -1086,8 +1089,6 @@ namespace UniPix
             if (Session.CurrentLayerIndex != -1)
                 status += $"<b>Layer:</b> {Session.CurrentLayer.Name}  ";
             status += $"<b>Mouse:</b>[{Session.CursorImgCoord.x}, {Session.CursorImgCoord.y}]  ";
-            m_Timer.Stop();
-            status += $"<b>Fps:</b>{m_Timer.ElapsedMilliseconds} ";
             GUI.Label(m_StatusRect, status, Styles.statusLabel);
         }
 

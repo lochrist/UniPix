@@ -5,7 +5,7 @@ namespace UniPix
 {
     public class PixTool
     {
-        readonly Color kCursorColor = new Color(1, 1, 1, 0.5f);
+        public static readonly Color kCursorColor = new Color(1, 1, 1, 0.5f);
         public string Name;
         public Texture2D Icon;
         public GUIContent Content;
@@ -197,39 +197,117 @@ namespace UniPix
 
     public class RectangleSelection : PixTool
     {
+        enum Mode
+        {
+            Selection,
+            Move
+        }
+
         public static string kName = "Selection";
-        bool m_Active;
-        Vector2Int m_Start;
+        Vector2Int m_ClickDownCoord;
+        RectInt m_RectSelection;
+        Mode m_Mode;
+
         public RectangleSelection()
         {
             Name = kName;
-            Content = new GUIContent(Icons.rectangle, "Rectangle Selection");
+            Content = new GUIContent(Icons.rectSelect, "Rectangle Selection");
+            Clear();
         }
 
         public override bool OnEvent(Event current, PixSession session)
         {
-            if (!m_Active)
-                DrawCursor(session);
+            if (Event.current.type == EventType.Repaint)
+            {
+                if (!HasSelection())
+                {
+                    DrawCursor(session);
+                }
+            }
+            
             if (Event.current.isMouse &&
                 (Event.current.button == 0 || Event.current.button == 1))
             {
                 if (Event.current.type == EventType.MouseDown)
                 {
-                    m_Active = true;
-                    m_Start = session.CursorImgCoord;
+                    m_ClickDownCoord = session.CursorImgCoord;
+                    if (HasSelection() && m_RectSelection.Contains(session.CursorImgCoord))
+                    {
+                        // Prepare to move selection
+                        m_Mode = Mode.Move;
+                    }
+                    else
+                    {
+                        m_Mode = Mode.Selection;
+                        UpdateSelection(session, m_ClickDownCoord);
+                    }
                 }
                 else if (Event.current.type == EventType.MouseDrag)
                 {
-                    
+                    if (m_Mode == Mode.Selection)
+                    {
+                        UpdateSelection(session, session.CursorImgCoord);
+                    }
+                    else
+                    {
+
+                    }
                 }
                 else if (Event.current.type == EventType.MouseUp)
                 {
-                    
-                    m_Active = false;
+                    if (m_Mode == Mode.Selection)
+                    {
+                        m_ClickDownCoord = new Vector2Int(-1, -1);
+                    }
+                    else
+                    {
+
+                    }
                 }
+
                 return true;
             }
             return false;
+        }
+
+        void UpdateSelection(PixSession session, Vector2Int newPos)
+        {
+            m_RectSelection.xMin = Mathf.Min(m_ClickDownCoord.x, newPos.x);
+            m_RectSelection.xMax = Mathf.Max(m_ClickDownCoord.x, newPos.x);
+            m_RectSelection.yMin = Mathf.Min(m_ClickDownCoord.y, newPos.y);
+            m_RectSelection.yMax = Mathf.Max(m_ClickDownCoord.y, newPos.y);
+            if (m_RectSelection.width <= 0)
+                m_RectSelection.width = 1;
+            if (m_RectSelection.height <= 0)
+                m_RectSelection.height = 1;
+
+            session.ClearOverlay();
+            var pixels = session.Overlay.GetPixels();
+            PixUtils.DrawFilledRectangle(session.Image, m_ClickDownCoord, newPos, PixTool.kCursorColor, pixels);
+            session.Overlay.SetPixels(pixels);
+            session.Overlay.Apply();
+        }
+
+        void Clear()
+        {
+            m_ClickDownCoord = new Vector2Int(-1, -1);
+            m_RectSelection = new RectInt(-1, -1, 0, 0);
+            m_Mode = Mode.Selection;
+        }
+
+        bool IsMouseDown()
+        {
+            return m_ClickDownCoord.x != -1 && m_ClickDownCoord.y != -1;
+        }
+
+        bool HasSelection()
+        {
+            return m_RectSelection.x != -1 && m_RectSelection.y != -1 && m_RectSelection.width > 0 && m_RectSelection.height > 0;
+        }
+
+        void DrawSelection(PixSession session)
+        {
+            EditorGUI.DrawRect(new Rect(m_RectSelection.x * session.ZoomLevel, m_RectSelection.y * session.ZoomLevel, m_RectSelection.width * session.ZoomLevel, m_RectSelection.height * session.ZoomLevel), PixTool.kCursorColor);
         }
     }
 
