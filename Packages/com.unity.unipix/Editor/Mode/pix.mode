@@ -106,7 +106,7 @@ unipix = {
                     name = "Debug"
                     children = [
                         { name = "Default Mode" command_id = "UniPix/GotoDefaultMode" }
-			{ name = "Dynamic Pix Layout" command_id = "UniPix/Layout/Dyn_Lyt_Pix"}
+			            { name = "Dynamic Pix Layout" command_id = "UniPix/Layout/Dyn_Lyt_Pix"}
                         { name = "Dynamic Pix Browse Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixBrowse"}
                         { name = "Dynamic Pix Debug Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixDebug"}
 
@@ -193,8 +193,12 @@ unipix = {
         "Data/Tools/macosx"
         "Data/Tools/MapFileParser"
         "Data/Tools/nodejs"
+        "Data/Tools/netcorerun"
+        "Data/Tools/Roslyn"
+        "Data/Tools/ScriptUpdater"
         "Data/Tools/VersionControl"
         "Data/UnityETWProvider"
+        "Data/ScriptCompilationBuildProgram/"
         "^Calc.dll"
         "^cudart64_90.dll"
         "^cudnn64_7.dll"
@@ -205,5 +209,7 @@ unipix = {
         "^RadeonRays.dll"
         "^tbbmalloc.dll"
         "^RadeonRays.dll"
+        "usymtool.exe"
+        "bee_backend.exe"
     ]
 }
