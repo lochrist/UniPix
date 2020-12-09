@@ -154,16 +154,11 @@ public static class PixCore
     public static Region GetRegion(PixImage img, RectInt regionRect, Color[] input)
     {
         var region = new Region(regionRect.width, regionRect.height);
-
         var regionIndex = 0;
-        for (var x = regionRect.xMin; x <= regionRect.xMax; ++x)
+        IterateImgRect(img, regionRect, (x, y, pixelIndex) =>
         {
-            for (var y = regionRect.yMin; y <= regionRect.yMax; ++y)
-            {
-                var pixelIndex = ImgCoordToPixelIndex(img, x, y);
-                region.Pixels[regionIndex++] = input[pixelIndex];
-            }
-        }
+            region.Pixels[regionIndex++] = input[pixelIndex];
+        });
 
         return null;
     }
@@ -171,19 +166,27 @@ public static class PixCore
     public static void DrawRegion(PixImage img, Vector2Int origin, Region region, Color[] output)
     {
         var r = new RectInt(origin.x, origin.y, region.Width, region.Height);
-        r = ClipRectangle(img, r);
         var regionPixelIndex = 0;
-        for (var x = r.xMin; x <= r.xMax; ++x)
+        IterateImgRect(img, r, (x, y, pixelIndex) =>
         {
-            for (var y = r.yMin; y <= r.yMin; ++y)
+            output[pixelIndex] = region.Pixels[regionPixelIndex++];
+        });
+    }
+
+    public static void IterateImgRect(PixImage img, RectInt r, Action<int, int, int> action)
+    {
+        r = ClipRectangleToImg(img, r);
+        for (var x = r.xMin; x < r.xMax; ++x)
+        {
+            for (var y = r.yMin; y < r.yMax; ++y)
             {
                 var pixelIndex = ImgCoordToPixelIndex(img, x, y);
-                output[pixelIndex] = region.Pixels[regionPixelIndex++];
+                action(x, y, pixelIndex);
             }
         }
     }
 
-    public static RectInt ClipRectangle(PixImage img, RectInt rect)
+    public static RectInt ClipRectangleToImg(PixImage img, RectInt rect)
     {
         var minX = Mathf.Max(rect.x, 0);
         var minY = Mathf.Max(rect.y, 0);
@@ -198,7 +201,7 @@ public static class PixCore
         var maxX = Mathf.Max(p1.x, p2.x);
         var minY = Mathf.Min(p1.y, p2.y);
         var maxY = Mathf.Max(p1.y, p2.y);
-        return new RectInt(minX, minY, maxX - minX, maxY - minY);
+        return new RectInt(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 
     public static void DrawRectangle(PixImage img, Vector2Int start, Vector2Int end, Color color, int brushSize, Color[] output)
@@ -206,22 +209,16 @@ public static class PixCore
         DrawRectangle(img, GetRect(start, end), color, brushSize, output);
     }
 
-
-    public static void DrawRectangle(PixImage img, RectInt rect, Color color, int brushSize, Color[] output)
+    public static void DrawRectangle(PixImage img, RectInt r, Color color, int brushSize, Color[] output)
     {
-        var r = ClipRectangle(img, rect);
-        for (var x = r.xMin; x <= r.xMax; ++x)
+        IterateImgRect(img, r, (x, y, pixelIndex) =>
         {
-            for (var y = r.yMin; y <= r.yMax; ++y)
+            if (x < r.xMin + brushSize || y < r.yMin + brushSize ||
+                x >= r.xMax - brushSize || y >= r.yMax - brushSize)
             {
-                if (x < r.xMin + brushSize || y < r.yMin + brushSize ||
-                    x > r.xMax - brushSize || y > r.yMax - brushSize)
-                {
-                    var pixelIndex = ImgCoordToPixelIndex(img, x, y);
-                    output[pixelIndex] = color;
-                }
+                output[pixelIndex] = color;
             }
-        }
+        });
     }
 
     public static void DrawFilledRectangle(PixImage img, Vector2Int start, Vector2Int end, Color color, Color[] output)
@@ -231,15 +228,10 @@ public static class PixCore
 
     public static void DrawFilledRectangle(PixImage img, RectInt rect, Color color, Color[] output)
     {
-        rect = ClipRectangle(img, rect);
-        for (var x = rect.xMin; x <= rect.xMax; ++x)
+        IterateImgRect(img, rect, (x, y, pixelIndex) =>
         {
-            for (var y = rect.yMin; y <= rect.yMax; ++y)
-            {
-                var pixelIndex = ImgCoordToPixelIndex(img, x, y);
-                output[pixelIndex] = color;
-            }
-        }
+            output[pixelIndex] = color;
+        });
     }
 
     public static void DrawLine(PixImage img, Vector2Int start, Vector2Int end, Color color, int brushSize, Color[] output)

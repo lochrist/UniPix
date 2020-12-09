@@ -316,11 +316,7 @@ namespace UniPix
 
         void UpdateSelection(PixSession session, Vector2Int newPos)
         {
-            m_RectSelection.xMin = Mathf.Min(m_ClickDownCoord.x, newPos.x);
-            m_RectSelection.xMax = Mathf.Max(m_ClickDownCoord.x, newPos.x);
-            m_RectSelection.yMin = Mathf.Min(m_ClickDownCoord.y, newPos.y);
-            m_RectSelection.yMax = Mathf.Max(m_ClickDownCoord.y, newPos.y);
-
+            m_RectSelection = PixCore.GetRect(m_ClickDownCoord, newPos);
             session.ClearOverlay();
             var pixels = session.Overlay.GetPixels();
             PixCore.DrawFilledRectangle(session.Image, m_ClickDownCoord, newPos, PixTool.kCursorColor, pixels);

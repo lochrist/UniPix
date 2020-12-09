@@ -218,6 +218,13 @@ namespace UniPix
     public class EngineTests
     {
         [Test]
+        public void TestBoundaries()
+        {
+            var rect = new RectInt(0, 0, 2, 2);
+            Debug.Log($"r: xMin:{rect.xMin} yMin:{rect.yMin} xMax:{rect.xMax} yMin:{rect.yMax}");
+        }
+
+        [Test]
         public void TestWriteImage()
         {
             var img2 = PixImage2.CreateDummyImg();
