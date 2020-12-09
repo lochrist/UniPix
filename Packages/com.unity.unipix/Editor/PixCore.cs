@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UniPix;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public static class PixCore
 {
@@ -135,18 +137,85 @@ public static class PixCore
         return imgCoordX + y * img.Width;
     }
 
+    public class Region
+    {
+        public int Width;
+        public int Height;
+        public Color[] Pixels;
+
+        public Region(int width, int height)
+        {
+            Width = width;
+            Height = height;
+            Pixels = new Color[Width * Height];
+        }
+    }
+
+    public static Region GetRegion(PixImage img, RectInt regionRect, Color[] input)
+    {
+        var region = new Region(regionRect.width, regionRect.height);
+
+        var regionIndex = 0;
+        for (var x = regionRect.xMin; x <= regionRect.xMax; ++x)
+        {
+            for (var y = regionRect.yMin; y <= regionRect.yMax; ++y)
+            {
+                var pixelIndex = ImgCoordToPixelIndex(img, x, y);
+                region.Pixels[regionIndex++] = input[pixelIndex];
+            }
+        }
+
+        return null;
+    }
+
+    public static void DrawRegion(PixImage img, Vector2Int origin, Region region, Color[] output)
+    {
+        var r = new RectInt(origin.x, origin.y, region.Width, region.Height);
+        r = ClipRectangle(img, r);
+        var regionPixelIndex = 0;
+        for (var x = r.xMin; x <= r.xMax; ++x)
+        {
+            for (var y = r.yMin; y <= r.yMin; ++y)
+            {
+                var pixelIndex = ImgCoordToPixelIndex(img, x, y);
+                output[pixelIndex] = region.Pixels[regionPixelIndex++];
+            }
+        }
+    }
+
+    public static RectInt ClipRectangle(PixImage img, RectInt rect)
+    {
+        var minX = Mathf.Max(rect.x, 0);
+        var minY = Mathf.Max(rect.y, 0);
+        var maxX = Mathf.Min(minX + rect.width, img.Width);
+        var maxY = Mathf.Min(minY + rect.height, img.Height);
+        return new RectInt(minX, minY, maxX - minX, maxY - minY);
+    }
+
+    public static RectInt GetRect(Vector2Int p1, Vector2Int p2)
+    {
+        var minX = Mathf.Min(p1.x, p2.x);
+        var maxX = Mathf.Max(p1.x, p2.x);
+        var minY = Mathf.Min(p1.y, p2.y);
+        var maxY = Mathf.Max(p1.y, p2.y);
+        return new RectInt(minX, minY, maxX - minX, maxY - minY);
+    }
+
     public static void DrawRectangle(PixImage img, Vector2Int start, Vector2Int end, Color color, int brushSize, Color[] output)
     {
-        var minX = Mathf.Min(start.x, end.x);
-        var maxX = Mathf.Max(start.x, end.x);
-        var minY = Mathf.Min(start.y, end.y);
-        var maxY = Mathf.Max(start.y, end.y);
-        for (int x = minX; x <= maxX; ++x)
+        DrawRectangle(img, GetRect(start, end), color, brushSize, output);
+    }
+
+
+    public static void DrawRectangle(PixImage img, RectInt rect, Color color, int brushSize, Color[] output)
+    {
+        var r = ClipRectangle(img, rect);
+        for (var x = r.xMin; x <= r.xMax; ++x)
         {
-            for (int y = minY; y <= maxY; ++y)
+            for (var y = r.yMin; y <= r.yMax; ++y)
             {
-                if (x < minX + brushSize || y < minY + brushSize ||
-                    x > maxX - brushSize || y > maxY - brushSize)
+                if (x < r.xMin + brushSize || y < r.yMin + brushSize ||
+                    x > r.xMax - brushSize || y > r.yMax - brushSize)
                 {
                     var pixelIndex = ImgCoordToPixelIndex(img, x, y);
                     output[pixelIndex] = color;
@@ -157,13 +226,15 @@ public static class PixCore
 
     public static void DrawFilledRectangle(PixImage img, Vector2Int start, Vector2Int end, Color color, Color[] output)
     {
-        var minX = Mathf.Min(start.x, end.x);
-        var maxX = Mathf.Max(start.x, end.x);
-        var minY = Mathf.Min(start.y, end.y);
-        var maxY = Mathf.Max(start.y, end.y);
-        for (int x = minX; x <= maxX; ++x)
+        DrawFilledRectangle(img, GetRect(start, end), color, output);
+    }
+
+    public static void DrawFilledRectangle(PixImage img, RectInt rect, Color color, Color[] output)
+    {
+        rect = ClipRectangle(img, rect);
+        for (var x = rect.xMin; x <= rect.xMax; ++x)
         {
-            for (int y = minY; y <= maxY; ++y)
+            for (var y = rect.yMin; y <= rect.yMax; ++y)
             {
                 var pixelIndex = ImgCoordToPixelIndex(img, x, y);
                 output[pixelIndex] = color;

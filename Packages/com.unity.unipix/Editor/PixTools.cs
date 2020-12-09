@@ -21,6 +21,15 @@ namespace UniPix
                 (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag);
         }
 
+        public virtual void OnEnable(PixSession session)
+        {
+        }
+
+        public virtual void OnDisable(PixSession session)
+        {
+
+        }
+
         public virtual void DrawCursor(PixSession session)
         {
             var brushRect = session.BrushRect;
@@ -207,6 +216,7 @@ namespace UniPix
         Vector2Int m_ClickDownCoord;
         RectInt m_RectSelection;
         Mode m_Mode;
+        PixCore.Region m_Region;
 
         public RectangleSelection()
         {
@@ -235,9 +245,17 @@ namespace UniPix
                     {
                         // Prepare to move selection
                         m_Mode = Mode.Move;
+                        m_Region = PixCore.GetRegion(session.Image, m_RectSelection, session.CurrentLayer.Pixels);
+
+                        using (new PixCommands.SessionChangeScope(session, "Rect Select"))
+                        {
+                            // Remove our region from the current layer.
+                            PixCore.DrawFilledRectangle(session.Image, m_RectSelection, new Color(0, 0, 0, 0), session.CurrentLayer.Pixels);
+                        }
                     }
                     else
                     {
+                        ApplyRegion(session);
                         m_Mode = Mode.Selection;
                         UpdateSelection(session, m_ClickDownCoord);
                     }
@@ -250,7 +268,7 @@ namespace UniPix
                     }
                     else
                     {
-
+                        MoveSelection(session, session.CursorImgCoord);
                     }
                 }
                 else if (Event.current.type == EventType.MouseUp)
@@ -261,7 +279,7 @@ namespace UniPix
                     }
                     else
                     {
-
+                        MoveSelection(session, session.CursorImgCoord);
                     }
                 }
 
@@ -270,16 +288,38 @@ namespace UniPix
             return false;
         }
 
+        public override void OnDisable(PixSession session)
+        {
+            ApplyRegion(session);
+            Clear();
+        }
+
+        void ApplyRegion(PixSession session)
+        {
+            if (m_Mode == Mode.Move && m_Region != null)
+            {
+                using (new PixCommands.SessionChangeScope(session, "Rect Move"))
+                {
+                    PixCore.DrawRegion(session.Image, m_RectSelection.position, m_Region, session.CurrentLayer.Pixels);
+                }
+            }
+        }
+
+        void MoveSelection(PixSession session, Vector2Int newPos)
+        {
+            // Center Selection around the newPos:
+            var x = newPos.x - m_RectSelection.width / 2;
+            var y = newPos.x - m_RectSelection.height / 2;
+            m_RectSelection.x = x;
+            m_RectSelection.y = y;
+        }
+
         void UpdateSelection(PixSession session, Vector2Int newPos)
         {
             m_RectSelection.xMin = Mathf.Min(m_ClickDownCoord.x, newPos.x);
             m_RectSelection.xMax = Mathf.Max(m_ClickDownCoord.x, newPos.x);
             m_RectSelection.yMin = Mathf.Min(m_ClickDownCoord.y, newPos.y);
             m_RectSelection.yMax = Mathf.Max(m_ClickDownCoord.y, newPos.y);
-            if (m_RectSelection.width <= 0)
-                m_RectSelection.width = 1;
-            if (m_RectSelection.height <= 0)
-                m_RectSelection.height = 1;
 
             session.ClearOverlay();
             var pixels = session.Overlay.GetPixels();
@@ -293,6 +333,7 @@ namespace UniPix
             m_ClickDownCoord = new Vector2Int(-1, -1);
             m_RectSelection = new RectInt(-1, -1, 0, 0);
             m_Mode = Mode.Selection;
+            m_Region = null;
         }
 
         bool IsMouseDown()

@@ -326,7 +326,8 @@ namespace UniPix
                 new DitheringTool(),
                 new RectangleSelection()
             };
-            Session.CurrentToolIndex = 0;
+
+            SetCurrentTool(0);
             UpdateCanvasSize();
             PixCommands.LoadPix(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
 
@@ -611,9 +612,12 @@ namespace UniPix
                         break;
                     var tool = Tools[toolIndex];
                     var toolRect = new Rect(Styles.kMargin + toolColumn * (Styles.kMargin + Styles.kToolSize), toolY, Styles.kToolSize, Styles.kToolSize);
-                    if (GUI.Toggle(toolRect, toolIndex == Session.CurrentToolIndex, tool.Content, GUI.skin.button))
+
+                    EditorGUI.BeginChangeCheck();
+                    GUI.Toggle(toolRect, toolIndex == Session.CurrentToolIndex, tool.Content, GUI.skin.button);
+                    if (EditorGUI.EndChangeCheck())
                     {
-                        Session.CurrentToolIndex = toolIndex;
+                        SetCurrentTool(toolIndex);
                     }
                 }
             }
@@ -622,6 +626,14 @@ namespace UniPix
             // TODO: Palette editing: remove from palette. Add new color??
 
             GUILayout.EndArea();
+        }
+
+        private void SetCurrentTool(int currentToolIndex)
+        {
+            if (Session.CurrentToolIndex != -1)
+                Tools[Session.CurrentToolIndex].OnDisable(Session);
+            Session.CurrentToolIndex = currentToolIndex;
+            Tools[Session.CurrentToolIndex].OnEnable(Session);
         }
 
         private void DrawFrames()
