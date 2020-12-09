@@ -244,13 +244,18 @@ namespace UniPix
                     if (HasSelection() && m_RectSelection.Contains(session.CursorImgCoord))
                     {
                         // Prepare to move selection
-                        m_Mode = Mode.Move;
-                        m_Region = PixCore.GetRegion(session.Image, m_RectSelection, session.CurrentLayer.Pixels);
-
-                        using (new PixCommands.SessionChangeScope(session, "Rect Select"))
+                        if (m_Mode != Mode.Move)
                         {
-                            // Remove our region from the current layer.
-                            PixCore.DrawFilledRectangle(session.Image, m_RectSelection, new Color(0, 0, 0, 0), session.CurrentLayer.Pixels);
+                            m_Mode = Mode.Move;
+                            m_Region = PixCore.GetRegion(session.Image, m_RectSelection, session.CurrentLayer.Pixels);
+
+                            using (new PixCommands.SessionChangeScope(session, "Rect Select"))
+                            {
+                                // Remove our region from the current layer.
+                                PixCore.DrawFilledRectangle(session.Image, m_RectSelection, new Color(0, 0, 0, 0), session.CurrentLayer.Pixels);
+                            }
+
+                            UpdateRegionOverlay(session);
                         }
                     }
                     else
@@ -292,6 +297,7 @@ namespace UniPix
         {
             ApplyRegion(session);
             Clear();
+            session.ClearOverlay();
         }
 
         void ApplyRegion(PixSession session)
@@ -308,10 +314,9 @@ namespace UniPix
         void MoveSelection(PixSession session, Vector2Int newPos)
         {
             // Center Selection around the newPos:
-            var x = newPos.x - m_RectSelection.width / 2;
-            var y = newPos.x - m_RectSelection.height / 2;
-            m_RectSelection.x = x;
-            m_RectSelection.y = y;
+            m_RectSelection.x = newPos.x - m_RectSelection.width / 2;
+            m_RectSelection.y = newPos.y - m_RectSelection.height / 2;
+            UpdateRegionOverlay(session);
         }
 
         void UpdateSelection(PixSession session, Vector2Int newPos)
@@ -324,6 +329,19 @@ namespace UniPix
             session.Overlay.Apply();
         }
 
+        void UpdateRegionOverlay(PixSession session)
+        {
+            session.ClearOverlay();
+            var overLayPixels = session.Overlay.GetPixels();
+            PixCore.DrawRegion(session.Image, m_RectSelection.position, m_Region, overLayPixels);
+            PixCore.IterateImgRect(session.Image, m_RectSelection, (x, y, pixelIndex) =>
+            {
+                overLayPixels[pixelIndex] = PixCore.BlendPixel(PixTool.kCursorColor, overLayPixels[pixelIndex]);
+            });
+            session.Overlay.SetPixels(overLayPixels);
+            session.Overlay.Apply();
+        }
+
         void Clear()
         {
             m_ClickDownCoord = new Vector2Int(-1, -1);
@@ -332,19 +350,9 @@ namespace UniPix
             m_Region = null;
         }
 
-        bool IsMouseDown()
-        {
-            return m_ClickDownCoord.x != -1 && m_ClickDownCoord.y != -1;
-        }
-
         bool HasSelection()
         {
             return m_RectSelection.x != -1 && m_RectSelection.y != -1 && m_RectSelection.width > 0 && m_RectSelection.height > 0;
-        }
-
-        void DrawSelection(PixSession session)
-        {
-            EditorGUI.DrawRect(new Rect(m_RectSelection.x * session.ZoomLevel, m_RectSelection.y * session.ZoomLevel, m_RectSelection.width * session.ZoomLevel, m_RectSelection.height * session.ZoomLevel), PixTool.kCursorColor);
         }
     }
 

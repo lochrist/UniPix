@@ -107,7 +107,7 @@ public static class PixCore
     #endregion
 
     #region Draw
-    public static void Blend(Layer srcLayer, Layer dstLayer, Layer result)
+    public static void BlendLayer(Layer srcLayer, Layer dstLayer, Layer result)
     {
         // Simple alpha blend: https://en.wikipedia.org/wiki/Alpha_compositing
         // outA = srcA + dstA (1 - srcA)
@@ -127,6 +127,23 @@ public static class PixCore
                 outA
             );
         }
+    }
+
+    public static Color BlendPixel(Color src, Color dst)
+    {
+        // Simple alpha blend: https://en.wikipedia.org/wiki/Alpha_compositing
+        // outA = srcA + dstA (1 - srcA)
+        // outRGB = (srcRGB * srcA + dstRGB * dstA (1 - srcA)) / outA
+        var srcA = src.a;
+        var dstA = dst.a;
+        var outA = srcA + dstA * (1 - srcA);
+        var safeOutA = outA == 0.0f ? 1.0f : outA;
+        return new Color(
+            (src.r * srcA + dst.r * dstA * (1 - srcA)) / safeOutA,
+            (src.g * srcA + dst.g * dstA * (1 - srcA)) / safeOutA,
+            (src.b * srcA + dst.b * dstA * (1 - srcA)) / safeOutA,
+            outA
+        );
     }
 
     public static int ImgCoordToPixelIndex(PixImage img, int imgCoordX, int imgCoordY)
@@ -160,7 +177,7 @@ public static class PixCore
             region.Pixels[regionIndex++] = input[pixelIndex];
         });
 
-        return null;
+        return region;
     }
 
     public static void DrawRegion(PixImage img, Vector2Int origin, Region region, Color[] output)

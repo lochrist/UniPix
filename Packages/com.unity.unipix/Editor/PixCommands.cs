@@ -660,7 +660,7 @@ namespace UniPix
             var srcLayer1 = session.CurrentFrame.Layers[src1];
             var dstLayer2 = session.CurrentFrame.Layers[dst2];
 
-            PixCore.Blend(srcLayer1, dstLayer2, dstLayer2);
+            PixCore.BlendLayer(srcLayer1, dstLayer2, dstLayer2);
 
             session.CurrentFrame.Layers.Remove(srcLayer1);
 

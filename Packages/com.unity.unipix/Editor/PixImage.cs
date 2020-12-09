@@ -143,7 +143,7 @@ namespace UniPix
             {
                 if (frame.Layers[layerIndex].Visible)
                 {
-                    PixCore.Blend(frame.Layers[layerIndex], frame.BlendedLayer, frame.BlendedLayer);
+                    PixCore.BlendLayer(frame.Layers[layerIndex], frame.BlendedLayer, frame.BlendedLayer);
                 }
             }
 
