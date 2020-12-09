@@ -113,11 +113,11 @@ namespace UniPix
                     var strokeColor = StrokeColor(session);
                     if (Event.current.control)
                     {
-                        PixUtils.DrawFilledRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, pixels);
+                        PixCore.DrawFilledRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, pixels);
                     }
                     else
                     {
-                        PixUtils.DrawRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
+                        PixCore.DrawRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
                     }
                     session.Overlay.SetPixels(pixels);
                     session.Overlay.Apply();
@@ -131,11 +131,11 @@ namespace UniPix
                         var strokeColor = StrokeColor(session);
                         if (Event.current.control)
                         {
-                            PixUtils.DrawFilledRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, pixels);
+                            PixCore.DrawFilledRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, pixels);
                         }
                         else
                         {
-                            PixUtils.DrawRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
+                            PixCore.DrawRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
                         }
                     }
 
@@ -174,7 +174,7 @@ namespace UniPix
                     var pixels = session.Overlay.GetPixels();
                     var strokeColor = StrokeColor(session);
 
-                    PixUtils.DrawLine(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
+                    PixCore.DrawLine(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
 
                     session.Overlay.SetPixels(pixels);
                     session.Overlay.Apply();
@@ -186,7 +186,7 @@ namespace UniPix
                     {
                         var pixels = session.CurrentLayer.Pixels;
                         var strokeColor = StrokeColor(session);
-                        PixUtils.DrawLine(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
+                        PixCore.DrawLine(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
                     }
                 }
                 return true;
@@ -283,7 +283,7 @@ namespace UniPix
 
             session.ClearOverlay();
             var pixels = session.Overlay.GetPixels();
-            PixUtils.DrawFilledRectangle(session.Image, m_ClickDownCoord, newPos, PixTool.kCursorColor, pixels);
+            PixCore.DrawFilledRectangle(session.Image, m_ClickDownCoord, newPos, PixTool.kCursorColor, pixels);
             session.Overlay.SetPixels(pixels);
             session.Overlay.Apply();
         }
@@ -333,7 +333,7 @@ namespace UniPix
                     var strokeColor = StrokeColor(session);
                     var pixelIndex = session.CursorPixelIndex;
                     var currentCursorColor = pixels[pixelIndex];
-                    PixUtils.FloodFill(session.Image, session.CursorImgCoord, currentCursorColor, strokeColor, pixels);
+                    PixCore.FloodFill(session.Image, session.CursorImgCoord, currentCursorColor, strokeColor, pixels);
                 }
                 return true;
             }

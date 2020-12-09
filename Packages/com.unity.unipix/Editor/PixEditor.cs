@@ -31,7 +31,7 @@ namespace UniPix
         public bool HasOverlay => m_Overlay != null;
         public void ClearOverlay(bool apply = true)
         {
-            PixUtils.SetTextureColor(Overlay, Color.clear, apply);
+            PixCore.SetTextureColor(Overlay, Color.clear, apply);
         }
         public void DestroyOverlay()
         {
@@ -47,8 +47,8 @@ namespace UniPix
             {
                 if (m_Overlay == null)
                 {
-                    m_Overlay = PixUtils.CreateTexture(Image.Width, Image.Height);
-                    PixUtils.SetTextureColor(m_Overlay, Color.clear);
+                    m_Overlay = PixCore.CreateTexture(Image.Width, Image.Height);
+                    PixCore.SetTextureColor(m_Overlay, Color.clear);
                 }
                 return m_Overlay;
             }
@@ -120,7 +120,7 @@ namespace UniPix
         public Palette Palette;
         public int ImgCoordToPixelIndex(int imgCoordX, int imgCoordY)
         {
-            return PixUtils.ImgCoordToPixelIndex(Image, imgCoordX, imgCoordY);
+            return PixCore.ImgCoordToPixelIndex(Image, imgCoordX, imgCoordY);
         }
 
         public const int k_MinPreviewFps = 1;
@@ -330,8 +330,8 @@ namespace UniPix
             UpdateCanvasSize();
             PixCommands.LoadPix(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
 
-            m_TransparentTex = PixUtils.CreateTexture(1, 1);
-            PixUtils.SetTextureColor(m_TransparentTex, Color.clear);
+            m_TransparentTex = PixCore.CreateTexture(1, 1);
+            PixCore.SetTextureColor(m_TransparentTex, Color.clear);
 
             wantsMouseMove = true;
 
@@ -757,7 +757,7 @@ namespace UniPix
                     {
                         GUI.DrawTextureWithTexCoords(
                             Session.ScaledImgRect,
-                            PixUtils.GetTransparentCheckerTexture(),
+                            PixUI.GetTransparentCheckerTexture(),
                             new Rect(
                                 0,
                                 0,
@@ -839,7 +839,7 @@ namespace UniPix
             {
                 var zoom = (int)Session.ZoomLevel;
                 var gridSize = zoom * 3 * Session.GridSize;
-                m_GridTex = PixUtils.CreateTexture(gridSize, gridSize);
+                m_GridTex = PixCore.CreateTexture(gridSize, gridSize);
                 m_GridTex.wrapMode = TextureWrapMode.Repeat;
                 var pixels = m_GridTex.GetPixels();
                 for (int i = 0; i < pixels.Length; ++i)

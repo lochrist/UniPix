@@ -31,6 +31,15 @@ public static class PixUI
         GUI.DrawTexture(texRect, tex, ScaleMode.ScaleToFit);
     }
 
+    public static Texture2D GetTransparentCheckerTexture()
+    {
+        if (EditorGUIUtility.isProSkin)
+        {
+            return EditorGUIUtility.LoadRequired("Previews/Textures/textureCheckerDark.png") as Texture2D;
+        }
+        return EditorGUIUtility.LoadRequired("Previews/Textures/textureChecker.png") as Texture2D;
+    }
+
     public struct FieldWidthScope : IDisposable
     {
         float m_LabelWidth;

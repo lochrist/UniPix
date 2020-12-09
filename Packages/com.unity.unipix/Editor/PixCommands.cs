@@ -36,16 +36,16 @@ namespace UniPix
                         var sprites = AssetDatabase.LoadAllAssetsAtPath(texPath).Select(a => a as Sprite).Where(s => s != null).ToArray();                        
                         if (sprites.Length > 0)
                         {
-                            PixUtils.ImportFrames(ref session.Image, sprites);
+                            PixCore.ImportFrames(ref session.Image, sprites);
                         }
                         else
                         {
-                            PixUtils.ImportFrame(ref session.Image, tex);
+                            PixCore.ImportFrame(ref session.Image, tex);
                         }
                     }
                     else if (pixSource is Sprite sprite)
                     {
-                        PixUtils.ImportFrame(ref session.Image, sprite);
+                        PixCore.ImportFrame(ref session.Image, sprite);
                     }
                 }
             }
@@ -66,7 +66,7 @@ namespace UniPix
 
         public static void CreatePix(PixSession session, int w, int h, bool selectPath)
         {
-            var img = PixUtils.CreateImage(w, h, Color.clear);
+            var img = PixCore.CreateImage(w, h, Color.clear);
 
             if (selectPath)
             {
@@ -170,7 +170,7 @@ namespace UniPix
 
         public static void ReplaceSourceSprite(PixSession session, Sprite sourceSprite)
         {
-            var spriteSize = PixUtils.GetSpriteSize(sourceSprite);
+            var spriteSize = PixCore.GetSpriteSize(sourceSprite);
             if (session.CurrentFrame.Width != spriteSize.x || session.CurrentFrame.Height != spriteSize.y)
             {
                 throw new Exception("New sprite size doesn't match frame.");
@@ -240,7 +240,7 @@ namespace UniPix
             var spriteSheetHeight = frameHeight * rows;
             spriteSheetHeight += spriteSheetHeight % frameHeight;
 
-            var spriteSheet = PixUtils.CreateTexture(spriteSheetWidth, spriteSheetHeight);
+            var spriteSheet = PixCore.CreateTexture(spriteSheetWidth, spriteSheetHeight);
             spriteSheet.name = PixUtils.GetBaseName(path);
             var offsetX = 0;
             var offsetY = spriteSheetHeight - frameHeight;
@@ -303,7 +303,7 @@ namespace UniPix
             if (frame.SourceSprite == null)
                 throw new Exception("Not implemented");
 
-            var spriteSize = PixUtils.GetSpriteSize(frame.SourceSprite);
+            var spriteSize = PixCore.GetSpriteSize(frame.SourceSprite);
             if (spriteSize.x != frame.Width || spriteSize.y != frame.Height)
                 throw new Exception("UpdateFrameSprite: Frame doesn't match sprite size");
 
@@ -659,8 +659,8 @@ namespace UniPix
             RecordUndo(session, "Merge Layer");
             var srcLayer1 = session.CurrentFrame.Layers[src1];
             var dstLayer2 = session.CurrentFrame.Layers[dst2];
-            
-            PixUtils.Blend(srcLayer1, dstLayer2, dstLayer2);
+
+            PixCore.Blend(srcLayer1, dstLayer2, dstLayer2);
 
             session.CurrentFrame.Layers.Remove(srcLayer1);
 
@@ -691,7 +691,7 @@ namespace UniPix
         {
             if (session.Image == null)
             {
-                session.Image = PixUtils.CreateImage(32, 32, Color.clear);
+                session.Image = PixCore.CreateImage(32, 32, Color.clear);
             }
 
             UpdateImageTitle(session);
