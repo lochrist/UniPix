@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿using System.IO;
+using System.Net;
+using UnityEditor;
 using UnityEngine;
 
 namespace UniPix
@@ -236,8 +238,26 @@ namespace UniPix
 
         }
 
-        [CommandHandler("UniPix/Layout/Dyn_Lyt_Pix")]
+        [CommandHandler("UniPix/Layout/Pix")]
         internal static void LayoutPix(CommandExecuteContext context)
+        {
+            PixUtils.LoadWindowLayout("Packages/com.unity.UniPix/Editor/Layouts/Pix.wlt");
+        }
+
+        [CommandHandler("UniPix/Layout/PixBrowse")]
+        internal static void LayoutPixBrowse(CommandExecuteContext context)
+        {
+            PixUtils.LoadWindowLayout("Packages/com.unity.UniPix/Editor/Layouts/Browse.wlt");
+        }
+
+        [CommandHandler("UniPix/Layout/PixDebug")]
+        internal static void LayoutPixDebug(CommandExecuteContext context)
+        {
+            PixUtils.LoadWindowLayout("Packages/com.unity.UniPix/Editor/Layouts/Debug.wlt");
+        }
+
+        [CommandHandler("UniPix/Layout/Dyn_Lyt_Pix")]
+        internal static void LayoutDynPix(CommandExecuteContext context)
         {
             PixUtils.LoadDynamicLayout(true,
 @"{
@@ -249,7 +269,7 @@ namespace UniPix
         }
 
         [CommandHandler("UniPix/Layout/Dyn_Lyt_PixBrowse")]
-        internal static void LayoutPixBrowse(CommandExecuteContext context)
+        internal static void LayoutDynPixBrowse(CommandExecuteContext context)
         {
             PixUtils.LoadDynamicLayout(true,
 @"{
@@ -279,7 +299,7 @@ namespace UniPix
         }
 
         [CommandHandler("UniPix/Layout/Dyn_Lyt_PixDebug")]
-        internal static void LayoutPixDebug(CommandExecuteContext context)
+        internal static void LayoutDynPixDebug(CommandExecuteContext context)
         {
             PixUtils.LoadDynamicLayout(true,
 @"{

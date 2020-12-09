@@ -131,7 +131,15 @@ namespace UniPix
         public Vector2 FrameScroll = new Vector2(0, 0);
         public Vector2 RightPanelScroll = new Vector2(0, 0);
         public bool IsDebugDraw;
+
+        public const int k_MinCheckPatternSize = 1;
+        public const int k_MaxCheckPatternSize = 16;
+        public bool ShowCheckerPattern = true;
+        public int CheckPatternSize = 2;
+
         public bool ShowGrid = true;
+        public const int k_MinGridSize = 1;
+        public const int k_MaxGridSize = 6;
         public int GridSize = 1;
         public int GridPixelSize => (int)ZoomLevel * 3 * GridSize;
         public Color GridColor = Color.black;
@@ -328,6 +336,8 @@ namespace UniPix
 
             Undo.undoRedoPerformed -= OnUndo;
             Undo.undoRedoPerformed += OnUndo;
+
+            EditorApplication.delayCall += () => PixCommands.FrameImage(Session);
         }
 
         internal void ResetGrid()
@@ -739,15 +749,18 @@ namespace UniPix
                 if (Event.current.type == EventType.Repaint)
                 {
                     var tex = Session.CurrentFrame.Texture;
-                    GUI.DrawTextureWithTexCoords(
-                        Session.ScaledImgRect,
-                        PixUtils.GetTransparentCheckerTexture(),
-                        new Rect(
-                            0,
-                            0,
-                            Session.ScaledImgRect.width / 4 / Session.ZoomLevel,
-                            Session.ScaledImgRect.height / 4 / Session.ZoomLevel),
-                        false);
+                    if (Session.ShowCheckerPattern)
+                    {
+                        GUI.DrawTextureWithTexCoords(
+                            Session.ScaledImgRect,
+                            PixUtils.GetTransparentCheckerTexture(),
+                            new Rect(
+                                0,
+                                0,
+                                Session.ScaledImgRect.width / Session.CheckPatternSize / Session.ZoomLevel,
+                                Session.ScaledImgRect.height / Session.CheckPatternSize / Session.ZoomLevel),
+                            false);
+                    }
                     GUI.DrawTexture(Session.ScaledImgRect, tex);
                 }
                 if (Session.ScaledImgRect.Contains(Event.current.mousePosition))
@@ -885,8 +898,7 @@ namespace UniPix
             {
                 if (Event.current.type == EventType.Repaint)
                 {
-                    GUI.Box(frameRect, "", Styles.pixBox);
-                    GUI.DrawTexture(frameRect, tex, ScaleMode.ScaleToFit);
+                    PixUtils.DrawFrame(frameRect, tex, false);
                 }
                 
                 if (Event.current.type == EventType.MouseDown && frameRect.Contains(Event.current.mousePosition))
@@ -1004,59 +1016,53 @@ namespace UniPix
             GUILayout.BeginArea(m_ToolbarRect, EditorStyles.toolbar);
             GUILayout.BeginHorizontal();
 
-            if (ModeService.currentId != "unipix")
+            
+            if (GUILayout.Button(Styles.newContent, EditorStyles.toolbarButton))
             {
-                if (GUILayout.Button(Styles.newContent, EditorStyles.toolbarButton))
-                {
-                    PixCommands.CreatePix(Session, 32, 32, false);
-                    Repaint();
-                }
-
-                if (GUILayout.Button(Styles.loadContent, EditorStyles.toolbarButton))
-                {
-                    PixCommands.LoadPix(Session);
-                    Repaint();
-                }
-
-                using (new EditorGUI.DisabledScope(!Session.IsImageDirty && !string.IsNullOrEmpty(Session.ImagePath)))
-                {
-                    if (GUILayout.Button(Styles.saveContent, EditorStyles.toolbarButton))
-                    {
-                        PixCommands.SavePix(Session);
-                    }
-                }
-
-                var syncRect = GUILayoutUtility.GetRect(Styles.syncContent, EditorStyles.toolbarButton);
-                var areAllSourcesSet = Session.Image.Frames.All(f => f.SourceSprite != null);
-                if (!areAllSourcesSet && EditorGUI.DropdownButton(syncRect, Styles.syncContent, FocusType.Passive, EditorStyles.toolbarButton) && SyncWindow.canShow)
-                {
-                    if (SyncWindow.ShowAtPosition(this, syncRect))
-                        GUIUtility.ExitGUI();
-                }
-                else if (GUI.Button(syncRect, Styles.syncContent, EditorStyles.toolbarButton))
-                {
-                    PixCommands.SaveImageSources(Session);
-                }
-
-                var settingsRect = GUILayoutUtility.GetRect(Styles.gridSettingsContent, EditorStyles.toolbarButton);
-                if (EditorGUI.DropdownButton(settingsRect, Styles.gridSettingsContent, FocusType.Passive, EditorStyles.toolbarButton) && GridSettingsWindow.canShow)
-                {
-                    if (GridSettingsWindow.ShowAtPosition(this, settingsRect))
-                        GUIUtility.ExitGUI();
-                }
-
-                var exportRect = GUILayoutUtility.GetRect(Styles.exportContent, EditorStyles.toolbarButton);
-                if (EditorGUI.DropdownButton(exportRect, Styles.exportContent, FocusType.Passive, EditorStyles.toolbarButton) && ExportWindow.canShow)
-                {
-                    if (ExportWindow.ShowAtPosition(this, exportRect))
-                        GUIUtility.ExitGUI();
-                }
-            }
-            else
-            {
-                GUILayout.Space(25);
+                PixCommands.CreatePix(Session, 32, 32, false);
+                Repaint();
             }
 
+            if (GUILayout.Button(Styles.loadContent, EditorStyles.toolbarButton))
+            {
+                PixCommands.LoadPix(Session);
+                Repaint();
+            }
+
+            using (new EditorGUI.DisabledScope(!Session.IsImageDirty && !string.IsNullOrEmpty(Session.ImagePath)))
+            {
+                if (GUILayout.Button(Styles.saveContent, EditorStyles.toolbarButton))
+                {
+                    PixCommands.SavePix(Session);
+                }
+            }
+
+            var syncRect = GUILayoutUtility.GetRect(Styles.syncContent, EditorStyles.toolbarButton);
+            var areAllSourcesSet = Session.Image.Frames.All(f => f.SourceSprite != null);
+            if (!areAllSourcesSet && EditorGUI.DropdownButton(syncRect, Styles.syncContent, FocusType.Passive, EditorStyles.toolbarButton) && SyncWindow.canShow)
+            {
+                if (SyncWindow.ShowAtPosition(this, syncRect))
+                    GUIUtility.ExitGUI();
+            }
+            else if (GUI.Button(syncRect, Styles.syncContent, EditorStyles.toolbarButton))
+            {
+                PixCommands.SaveImageSources(Session);
+            }
+
+            var settingsRect = GUILayoutUtility.GetRect(Styles.gridSettingsContent, EditorStyles.toolbarButton);
+            if (EditorGUI.DropdownButton(settingsRect, Styles.gridSettingsContent, FocusType.Passive, EditorStyles.toolbarButton) && GridSettingsWindow.canShow)
+            {
+                if (GridSettingsWindow.ShowAtPosition(this, settingsRect))
+                    GUIUtility.ExitGUI();
+            }
+
+            var exportRect = GUILayoutUtility.GetRect(Styles.exportContent, EditorStyles.toolbarButton);
+            if (EditorGUI.DropdownButton(exportRect, Styles.exportContent, FocusType.Passive, EditorStyles.toolbarButton) && ExportWindow.canShow)
+            {
+                if (ExportWindow.ShowAtPosition(this, exportRect))
+                    GUIUtility.ExitGUI();
+            }
+            
             GUILayout.Label(Session.ImageTitle, EditorStyles.toolbarTextField, GUILayout.MinWidth(250));
 
             GUILayout.FlexibleSpace();
@@ -1134,22 +1140,28 @@ namespace UniPix
             Debug.Log("Style refreshed");
         }
 
+        [UsedImplicitly, MenuItem("UniPix Debug/Go to PixMode", false, 10000)]
+        static void SwitchToPix()
+        {
+            ModeService.ChangeModeById("unipix");
+        }
+
         [UsedImplicitly, MenuItem("UniPix Debug/Dynamic Pix Layout", false, 10000)]
         static void DynPixLayout()
         {
-            PixMode.LayoutPix(null);
+            PixMode.LayoutDynPix(null);
         }
 
         [UsedImplicitly, MenuItem("UniPix Debug/Dynamic Pix Browse Layout", false, 10000)]
         static void DynPixBrowseLayout()
         {
-            PixMode.LayoutPixBrowse(null);
+            PixMode.LayoutDynPixBrowse(null);
         }
 
         [UsedImplicitly, MenuItem("UniPix Debug/Dynamic Pix Debug Layout", false, 10000)]
         static void DynPixDebugLayout()
         {
-            PixMode.LayoutPixDebug(null);
+            PixMode.LayoutDynPixDebug(null);
         }
         #endregion
     }

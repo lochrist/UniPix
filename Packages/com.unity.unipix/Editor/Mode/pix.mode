@@ -85,7 +85,7 @@ unipix = {
                 null
                 { name = "Toggle Animation" command_id = "UniPix/ToggleAnimation" shortcut="%p"}
                 { name = "Increase Animation Speed" command_id = "UniPix/IncreaseAnimationSpeed" }
-                { name = "Decrease Animation Speed" command_id = "UniPix/DecreaseAnimationSpeed" }
+                { name = "Decrease Animation Speed" command_id = "UniPix/DecreaseAnimationSpeed" }                
             ]
         }
         {
@@ -106,9 +106,10 @@ unipix = {
                     name = "Debug"
                     children = [
                         { name = "Default Mode" command_id = "UniPix/GotoDefaultMode" }
-						{ name = "Pix Layout" command_id = "UniPix/Layout/Dyn_Lyt_Pix" }
-						{ name = "Pix Browse Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixBrowse" }
-						{ name = "Pix Debug Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixDebug" }
+			{ name = "Dynamic Pix Layout" command_id = "UniPix/Layout/Dyn_Lyt_Pix"}
+                        { name = "Dynamic Pix Browse Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixBrowse"}
+                        { name = "Dynamic Pix Debug Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixDebug"}
+
                         null
                         { name = "Build App" command_id = "BuildApp" }
                         { name = "Reload App" command_id = "ReloadMode" shortcut="&r" }

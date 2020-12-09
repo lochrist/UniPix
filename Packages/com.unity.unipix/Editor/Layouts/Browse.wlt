@@ -8,18 +8,18 @@ MonoBehaviour:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
-  m_EditorHideFlags: 0
+  m_EditorHideFlags: 1
   m_Script: {fileID: 12004, guid: 0000000000000000e000000000000000, type: 0}
   m_Name: 
   m_EditorClassIdentifier: 
   m_PixelRect:
     serializedVersion: 2
-    x: 742
-    y: 327
-    width: 1060
-    height: 587
+    x: 488
+    y: 189
+    width: 1206
+    height: 715
   m_ShowMode: 4
-  m_Title: Project
+  m_Title: UniPix
   m_RootView: {fileID: 2}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -42,8 +42,8 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1060
-    height: 587
+    width: 1206
+    height: 715
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
   m_UseTopView: 0
@@ -65,10 +65,10 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 250
+    x: 234
     y: 0
-    width: 810
-    height: 587
+    width: 972
+    height: 715
   m_MinSize: {x: 500, y: 400}
   m_MaxSize: {x: 4000, y: 4000}
   m_ActualView: {fileID: 6}
@@ -93,8 +93,8 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 250
-    height: 587
+    width: 234
+    height: 715
   m_MinSize: {x: 231, y: 269}
   m_MaxSize: {x: 10001, y: 10019}
   m_ActualView: {fileID: 7}
@@ -121,12 +121,12 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 1060
-    height: 587
+    width: 1206
+    height: 715
   m_MinSize: {x: 731, y: 400}
   m_MaxSize: {x: 14001, y: 10019}
   vertical: 0
-  controlID: 1949
+  controlID: 264
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -147,13 +147,13 @@ MonoBehaviour:
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 992
-    y: 327
-    width: 809
-    height: 568
+    x: 722
+    y: 189
+    width: 971
+    height: 696
   m_ViewDataDictionary: {fileID: 0}
   Session:
-    ZoomLevel: 3
+    ZoomLevel: 17
     Image: {fileID: 0}
     ImagePath: 
     ImageTitle: '*Untitled*'
@@ -164,24 +164,24 @@ MonoBehaviour:
     SecondaryColor: {r: 1, g: 1, b: 1, a: 1}
     SecondaryColorPaletteIndex: -1
     CurrentToolIndex: 0
-    CanvasSize: {x: 405, y: 508}
-    ImageOffsetX: 0
-    ImageOffsetY: 197
+    CanvasSize: {x: 567, y: 636}
+    ImageOffsetX: 11.5
+    ImageOffsetY: 46
     ScaledImgRect:
       serializedVersion: 2
-      x: 0
-      y: 197
-      width: 96
-      height: 96
-    CursorImgCoord: {x: 0, y: 7}
-    CursorPos: {x: 2, y: 22}
+      x: 11.5
+      y: 46
+      width: 544
+      height: 544
+    CursorImgCoord: {x: 24, y: 8}
+    CursorPos: {x: 408.5, y: 139}
     BrushSize: 1
     Palette:
       Colors: []
     PreviewFps: 4
     PreviewFrameIndex: 0
     IsPreviewPlaying: 1
-    PreviewTimer: 1329.485
+    PreviewTimer: 35.54061
     FrameScroll: {x: 0, y: 0}
     RightPanelScroll: {x: 0, y: 0}
     IsDebugDraw: 0
@@ -204,15 +204,14 @@ MonoBehaviour:
   m_MaxSize: {x: 10000, y: 10000}
   m_TitleContent:
     m_Text: Project
-    m_Image: {fileID: -5467254957812901981, guid: 0000000000000000d000000000000000,
-      type: 0}
+    m_Image: {fileID: -5467254957812901981, guid: 0000000000000000d000000000000000, type: 0}
     m_Tooltip: 
   m_Pos:
     serializedVersion: 2
-    x: 742
-    y: 327
-    width: 249
-    height: 568
+    x: 488
+    y: 189
+    width: 233
+    height: 696
   m_ViewDataDictionary: {fileID: 0}
   m_SearchFilter:
     m_NameFilter: 
@@ -235,14 +234,14 @@ MonoBehaviour:
   m_LastFolders:
   - Assets
   m_LastFoldersGridSize: -1
-  m_LastProjectPath: D:\work\projects\PixelArt_2020
+  m_LastProjectPath: D:\work\code\UniPix
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 0e470000
-    m_LastClickedID: 18190
-    m_ExpandedIDs: 000000000e47000000ca9a3b
+    m_SelectedIDs: 683c0000
+    m_LastClickedID: 15464
+    m_ExpandedIDs: 00000000683c000000ca9a3bfdffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -270,7 +269,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: ffffffff0e470000
+    m_ExpandedIDs: ffffffff683c0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -325,4 +324,4 @@ MonoBehaviour:
     m_ScrollPosition: {x: 0, y: 0}
     m_GridSize: 16
   m_SkipHiddenPackages: 0
-  m_DirectoriesAreaWidth: 169
+  m_DirectoriesAreaWidth: 120.5
