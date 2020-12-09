@@ -1,10 +1,10 @@
-﻿using UnityEngine;
+﻿#if ENABLE_TESTS
+using UnityEngine;
 using UnityEditor;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
-#if DISABLED
 namespace UniPix
 {
     public static class UniPixMisc
