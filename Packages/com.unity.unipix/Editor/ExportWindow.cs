@@ -31,9 +31,9 @@ namespace UniPix
 
         void OnGUI()
         {
-            using (new GUILayout.VerticalScope(PixEditor.Styles.pixBox))
+            using (new GUILayout.VerticalScope(Styles.pixBox))
             {
-                GUILayout.Label("Export", PixEditor.Styles.layerHeader);
+                GUILayout.Label("Export", Styles.layerHeader);
 
                 var exportMode = -1;
                 if (GUILayout.Button("Export current frame"))

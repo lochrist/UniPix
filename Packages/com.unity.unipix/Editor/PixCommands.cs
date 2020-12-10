@@ -13,14 +13,13 @@ namespace UniPix
         #region SaveAndLoad
         public static bool OpenImage(PixSession session)
         {
-            // TODO useproject: open file must be aware of project specific 
+            var allSupportedExtensions = string.Join("|", PixIO.AllSupportedContentExtensions.Select(ext => $".{ext}"));
+            var allSupportedFiles = string.Join(";", PixIO.AllSupportedContentExtensions.Select(ext => $"*.{ext}"));
             var path = EditorUtility.OpenFilePanel(
-                    "Find Pix (.asset | .png | .jpg)",
+                    $"Find Pix ({allSupportedExtensions})",
                     "Assets/",
-                    "Image Files;*.asset;*.jpg;*.png");
-            if (path == "")
-                return false;
-            return OpenImage(session, path);
+                    $"Image Files;{allSupportedFiles}");
+            return path != "" && OpenImage(session, path);
         }
 
         public static bool OpenImage(PixSession session, UnityEngine.Object[] pixSources)
@@ -32,17 +31,7 @@ namespace UniPix
                 {
                     if (pixSource is Texture2D tex)
                     {
-                        PixIO.MakeReadable(tex);
-                        var texPath = AssetDatabase.GetAssetPath(tex);
-                        var sprites = AssetDatabase.LoadAllAssetsAtPath(texPath).Select(a => a as Sprite).Where(s => s != null).ToArray();                        
-                        if (sprites.Length > 0)
-                        {
-                            PixCore.ImportFrames(ref session.Image, sprites);
-                        }
-                        else
-                        {
-                            PixCore.ImportFrame(ref session.Image, tex);
-                        }
+                        PixCore.ImportFrame(ref session.Image, tex);
                     }
                     else if (pixSource is Sprite sprite)
                     {
@@ -57,12 +46,7 @@ namespace UniPix
 
         public static bool OpenImage(PixSession session, string path)
         {
-            if (Path.IsPathRooted(path))
-            {
-                path = FileUtil.GetProjectRelativePath(path);
-            }
-            var contentToLoad = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
-            return OpenImage(session, new [] { contentToLoad } );
+            return OpenImage(session, PixIO.LoadContents(path) );
         }
 
         public static void NewImage(PixSession session, int w, int h)
@@ -76,24 +60,11 @@ namespace UniPix
             if (session.Image == null)
                 return;
 
-            var assetPath = AssetDatabase.GetAssetPath(session.Image);
-            if (string.IsNullOrEmpty(assetPath))
-            {
-                string path = EditorUtility.SaveFilePanel(
-                    "Create UniPix",
-                    "Assets/", "Pix.unipix", "asset");
-                if (path == "")
-                {
-                    return;
-                }
+            var imgPath = PixIO.SaveImage(session.Image);
+            if (string.IsNullOrEmpty(imgPath))
+                return;
 
-                AssetDatabase.CreateAsset(session.Image, FileUtil.GetProjectRelativePath(path));
-                EditorUtility.SetDirty(session.Image);
-                assetPath = AssetDatabase.GetAssetPath(session.Image);
-            }
-
-            AssetDatabase.SaveAssets();
-            EditorPrefs.SetString(PixEditor.Prefs.kCurrentImg, AssetDatabase.GetAssetPath(session.Image));
+            EditorPrefs.SetString(PixEditor.Prefs.kCurrentImg, imgPath);
             session.IsImageDirty = false;
             UpdateImageTitle(session);
         }

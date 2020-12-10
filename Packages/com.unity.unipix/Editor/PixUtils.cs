@@ -1,15 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Xml.Serialization;
-using UnityEditor.Graphs;
-using UnityEngine.Analytics;
 
 namespace UniPix
 {
@@ -211,14 +206,20 @@ namespace UniPix
             }
         }
 
+        public static string CleanPath(string path)
+        {
+            return path.Replace("\\", "/");
+        }
+
         public static string GetBasePath(string path)
         {
+            path = CleanPath(path);
             if (Path.IsPathRooted(path))
             {
                 path = FileUtil.GetProjectRelativePath(path);
             }
 
-            var directoryName = Path.GetDirectoryName(path).Replace("\\", "/");
+            var directoryName = Path.GetDirectoryName(path);
             return $"{Path.GetDirectoryName(path)}/{GetBaseName(path)}";
         }
 
@@ -232,6 +233,7 @@ namespace UniPix
 
         public static string GetUniquePath(string basePath, string extension, int index = 1)
         {
+            basePath = CleanPath(basePath);
             var path = $"{basePath}_{index}{extension}";
             while (File.Exists(path))
             {

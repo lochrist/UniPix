@@ -24,8 +24,7 @@ namespace UniPix
             }
             if (GUILayout.Button("Edit (isolated)"))
             {
-                // TODO useproject -> put image path in PixImage itself.
-                PixRoleProvider.StartUniPixIsolated(AssetDatabase.GetAssetPath(img));
+                PixRoleProvider.StartUniPixIsolated(img.Path);
             }
             GUILayout.EndHorizontal();
             

@@ -12,141 +12,6 @@ using Object = UnityEngine.Object;
 
 namespace UniPix
 {
-    [System.Serializable]
-    public class PixSession
-    {
-        public static PixSession Create()
-        {
-            var session = new PixSession();
-            session.ImageSessionState = ScriptableObject.CreateInstance<PixImageSessionState>();
-            return session;
-        }
-
-        public float ZoomLevel = 20f;
-
-        public PixImage Image;
-
-        Texture2D m_Overlay;
-
-        public bool HasOverlay => m_Overlay != null;
-        public void ClearOverlay(bool apply = true)
-        {
-            PixCore.SetTextureColor(Overlay, Color.clear, apply);
-        }
-        public void DestroyOverlay()
-        {
-            if (m_Overlay)
-            {
-                Object.DestroyImmediate(m_Overlay);
-            }
-            m_Overlay = null;
-        }
-        public Texture2D Overlay
-        {
-            get
-            {
-                if (m_Overlay == null)
-                {
-                    m_Overlay = PixCore.CreateTexture(Image.Width, Image.Height);
-                    PixCore.SetTextureColor(m_Overlay, Color.clear);
-                }
-                return m_Overlay;
-            }
-        }
-
-        public void SetOverlay(int imgCoordX, int imgCoordY, Color color, bool apply = true)
-        {
-            Overlay.SetPixel(imgCoordX, Overlay.height - imgCoordY - 1, color);
-            if (apply)
-                Overlay.Apply();
-        }
-
-        public string ImageTitle;
-        public bool IsImageDirty;
-
-        public int CurrentLayerIndex
-        {
-            get => ImageSessionState.CurrentLayerIndex;
-            set => ImageSessionState.CurrentLayerIndex = value;
-        }
-
-        public int CurrentFrameIndex
-        {
-            get => ImageSessionState.CurrentFrameIndex;
-            set => ImageSessionState.CurrentFrameIndex = value;
-        }
-
-        public Frame CurrentFrame => Image.Frames[CurrentFrameIndex];
-        public Layer CurrentLayer => CurrentFrame.Layers[CurrentLayerIndex];
-
-        public PixImageSessionState ImageSessionState;
-
-        public Color CurrentColor = new Color(1, 0, 0);
-        public int CurrentColorPaletteIndex = -1;
-        public Color SecondaryColor = Color.black;
-        public int SecondaryColorPaletteIndex = -1;
-
-        public int CurrentToolIndex;
-
-        public Vector2 CanvasSize;
-
-        public float ImageOffsetX;
-        public float ImageOffsetY;
-        public Rect ScaledImgRect;
-        public Vector2Int CursorImgCoord;
-        public Vector2 CursorPos;
-        public int CursorPixelIndex => ImgCoordToPixelIndex(CursorImgCoord.x, CursorImgCoord.y);
-        public RectInt BrushRect {
-            get
-            {
-                var halfBrush = BrushSize / 2;
-                var cursorCoordX = Mathf.Max(CursorImgCoord.x - halfBrush, 0);
-                var cursorCoordY = Mathf.Max(CursorImgCoord.y - halfBrush, 0);
-                var cursorSize = BrushSize;
-                var brushRect = new RectInt(
-                    cursorCoordX,
-                    cursorCoordY,
-                    cursorSize, cursorSize);
-                brushRect.xMax = Mathf.Min(brushRect.xMax, Image.Width);
-                brushRect.yMax = Mathf.Min(brushRect.yMax, Image.Height);
-                return brushRect;
-            }
-        }
-
-        public const int k_MinBrushSize = 1;
-        public const int k_MaxBrushSize = 6;
-        public int BrushSize = 1;
-        public Palette Palette;
-        public int ImgCoordToPixelIndex(int imgCoordX, int imgCoordY)
-        {
-            return PixCore.ImgCoordToPixelIndex(Image, imgCoordX, imgCoordY);
-        }
-
-        public const int k_MinPreviewFps = 1;
-        public const int k_MaxPreviewFps = 24;
-
-        public int PreviewFps = 4;
-        public int PreviewFrameIndex = 0;
-        public bool IsPreviewPlaying = true;
-        public float PreviewTimer;
-        public Vector2 FrameScroll = new Vector2(0, 0);
-        public Vector2 RightPanelScroll = new Vector2(0, 0);
-        public bool IsDebugDraw;
-
-        public const int k_MinCheckPatternSize = 1;
-        public const int k_MaxCheckPatternSize = 16;
-        public bool ShowCheckerPattern = true;
-        public int CheckPatternSize = 2;
-
-        public bool ShowGrid = true;
-        public const int k_MinGridSize = 1;
-        public const int k_MaxGridSize = 6;
-        public int GridSize = 1;
-        public int GridPixelSize => (int)ZoomLevel * 3 * GridSize;
-        public Color GridColor = Color.black;
-    }
-
-
     public class PixEditor : EditorWindow
     {
         public static string packageName = "com.unity.unipix";
@@ -155,131 +20,13 @@ namespace UniPix
 
         public static class Prefs
         {
-            public static string kPrefix = "unixpix.";
+            public static string kPrefix = PixIO.useProject ? "unixpix." : "unipix.app.";
             public static string kCurrentImg = $"{kPrefix}currentImg";
+            public static string kLastSaveImgFolder = $"{kPrefix}lastSaveImg";
+            public static string kLastExportImgFolder = $"{kPrefix}lastExportImg";
+            public static string kLastOpenImgFolder = $"{kPrefix}lastOpenImg";
         }
-        public static class Styles
-        {
-            public const float scrollbarWidth = 13f;
-            public const float kToolPaletteWidth = 100;
-            public const float kFramePreviewWidth = 100;
-            public const float kLeftPanelWidth = kToolPaletteWidth + kFramePreviewWidth;
-            public const float kRightPanelWidth = 200;
-            public const float kToolbarHeight = 25;
-            public const float kStatusbarHeight = 35;
-            public const float kColorSwatchSize = 40;
-            public const float kPaletteItemSize = 25;
-            public const float kLayerHeight = 25;
-            public const float kLayerRectHeight = 6 * kLayerHeight;
-            public const float kMargin = 2;
-            public const float kToolSize = 45;
-            public const float kFramePreviewBtn = 25;
-            public const int kNbToolsPerRow = (int)kToolPaletteWidth / (int)kToolSize;
-            public const int kFramePreviewSize = (int)(kFramePreviewWidth - 2 * kMargin - scrollbarWidth);
-
-            public static Color canvasColor = new Color(0.4f, 0.4f, 0.4f);
-
-            public static GUIContent newLayer = new GUIContent(Icons.plus, "Create new layer");
-            public static GUIContent cloneLayer = new GUIContent(Icons.duplicateLayer, "Duplicate layer");
-            public static GUIContent moveLayerUp = new GUIContent(Icons.arrowUp, "Move layer up");
-            public static GUIContent moveLayerDown = new GUIContent(Icons.arrowDown, "Move layer down");
-            public static GUIContent mergeLayer = new GUIContent(Icons.mergeLayer, "Merge layer");
-            public static GUIContent deleteLayer = new GUIContent(Icons.x, "Delete layer");
-
-            public static GUIContent cloneFrame = new GUIContent(Icons.duplicateLayer, "Clone frame");
-            public static GUIContent deleteFrame = new GUIContent(Icons.x, "Delete frame");
-
-            public static GUIContent newContent = new GUIContent(Icons.newImage, "New Image");
-            public static GUIContent loadContent = new GUIContent(Icons.folder, "Load Image");
-            public static GUIContent saveContent = new GUIContent(Icons.diskette, "Save Image");
-            public static GUIContent gridSettingsContent = new GUIContent(Icons.cog, "Settings");
-            public static GUIContent exportContent = new GUIContent(Icons.export, "Export Current Image");
-            public static GUIContent syncContent = new GUIContent(Icons.counterClockwiseRotation, "Save and sync Sources");
-            public static GUIContent colorSwitcherContent = new GUIContent(Icons.colorSwapAndArrow, "Swap Primary and Secondary");
-
-            public static GUIStyle layerHeader = new GUIStyle(EditorStyles.boldLabel);
-            public static GUIStyle layerName = new GUIStyle(EditorStyles.largeLabel);
-            public static GUIStyle currentLayerName = new GUIStyle(EditorStyles.largeLabel);
-            public static GUIStyle layerOpacitySlider = new GUIStyle(GUI.skin.horizontalSlider)
-            {
-                margin = new RectOffset(0, 15, 0, 0)
-            };
-            public static GUIStyle brushSlider = new GUIStyle(GUI.skin.horizontalSlider)
-            {
-                margin = new RectOffset(0, 17, 0, 0)
-            };
-            public static GUIStyle layerVisible = new GUIStyle(EditorStyles.toggle)
-            {
-                margin = new RectOffset(0, 0, 4, 0),
-                padding = new RectOffset(0, 0, 4, 0)
-            };
-            public static GUIStyle layerLocked = new GUIStyle(EditorStyles.toggle);
-            public static GUIStyle layerToolbarBtn = new GUIStyle(EditorStyles.miniButton)
-            {
-                margin = new RectOffset(0, 0, 0, 0),
-                padding = new RectOffset(0, 0, 0, 0),
-                fixedWidth = 30,
-                fixedHeight = 30
-            };
-
-            public static GUIStyle frameBtn = new GUIStyle(EditorStyles.miniButton)
-            {
-                margin = new RectOffset(0, 0, 0, 0),
-                padding = new RectOffset(2, 2, 2, 2)
-            };
-
-            public static GUIStyle statusLabel = new GUIStyle(EditorStyles.label)
-            {
-                richText = true
-            };
-            public static GUIStyle colorSwap = new GUIStyle()
-            {
-                name = "colorSwap"
-            };
-            public static GUIStyle pixMain = new GUIStyle()
-            {
-                name = "pixmain",
-                padding = new RectOffset(2, 0, 0, 0)
-            };
-
-            public static GUIStyle pixBox = new GUIStyle()
-            {
-                name = "pixbox",
-                margin = new RectOffset(2, 2, 2, 2),
-                padding = new RectOffset(2, 2, 2, 2)
-            };
-
-            public static GUIStyle selectedPixBox = new GUIStyle(pixBox)
-            {
-                name = "selected-pixbox"
-            };
-
-            public static GUIStyle primaryColorBox = new GUIStyle(pixBox)
-            {
-                name = "primary-color-box"
-            };
-
-            public static GUIStyle secondaryColorBox = new GUIStyle(pixBox)
-            {
-                name = "secondary-color-box"
-            };
-
-            public static readonly GUIStyle itemBackground1 = new GUIStyle
-            {
-                name = "pix-item-background1",
-            };
-
-            public static readonly GUIStyle itemBackground2 = new GUIStyle(itemBackground1)
-            {
-                name = "pix-item-background2",
-            };
-
-            static Styles()
-            {
-                currentLayerName.normal.textColor = Color.yellow;
-            }
-        }
-
+        
         Rect m_CanvasRect;
         Rect m_StatusRect;
         Rect m_ViewportRect;
@@ -724,17 +471,8 @@ namespace UniPix
                     case EventType.DragPerform:
                         if (!m_CanvasRect.Contains(Event.current.mousePosition))
                             break;
-                        var objs = DragAndDrop.objectReferences
-                            .Where(PixUtils.IsValidPixSource).ToArray();
 
-                        // TODO useproject -> handle dragAndDrop in PixIO
-                        if (objs.Length == 0 && DragAndDrop.paths.Length > 0)
-                        {
-                            objs = DragAndDrop.paths
-                                .Select(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>)
-                                .Where(PixUtils.IsValidPixSource).ToArray();
-                        }
-
+                        var objs = PixIO.GetDragAndDropContent();
                         if (objs.Length > 0)
                         {
                             DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
