@@ -243,7 +243,7 @@ public static class PixIO
 
     public static void UpdateImageSourceSprites(PixSession session, bool spriteSheet = false)
     {
-        PixCommands.SavePix(session);
+        PixCommands.SaveImage(session);
         if (String.IsNullOrEmpty(session.Image.Path))
         {
             // SavePix was cancelled.

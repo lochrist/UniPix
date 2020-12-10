@@ -11,18 +11,19 @@ namespace UniPix
     public static class PixCommands
     {
         #region SaveAndLoad
-        public static bool LoadPix(PixSession session)
+        public static bool OpenImage(PixSession session)
         {
+            // TODO useproject: open file must be aware of project specific 
             var path = EditorUtility.OpenFilePanel(
-                    "Find Pix (.unipix.asset | .png | .jpg)",
+                    "Find Pix (.asset | .png | .jpg)",
                     "Assets/",
                     "Image Files;*.asset;*.jpg;*.png");
             if (path == "")
                 return false;
-            return LoadPix(session, path);
+            return OpenImage(session, path);
         }
 
-        public static bool LoadPix(PixSession session, UnityEngine.Object[] pixSources)
+        public static bool OpenImage(PixSession session, UnityEngine.Object[] pixSources)
         {
             session.Image = pixSources.FirstOrDefault(s => s is PixImage) as PixImage;
             if (session.Image == null)
@@ -54,17 +55,17 @@ namespace UniPix
             return true;
         }
 
-        public static bool LoadPix(PixSession session, string path)
+        public static bool OpenImage(PixSession session, string path)
         {
             if (Path.IsPathRooted(path))
             {
                 path = FileUtil.GetProjectRelativePath(path);
             }
             var contentToLoad = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path);
-            return LoadPix(session, new [] { contentToLoad } );
+            return OpenImage(session, new [] { contentToLoad } );
         }
 
-        public static void CreatePix(PixSession session, int w, int h, bool selectPath)
+        public static void NewImage(PixSession session, int w, int h, bool selectPath)
         {
             var img = PixCore.CreateImage(w, h, Color.clear);
 
@@ -84,11 +85,11 @@ namespace UniPix
                 EditorUtility.SetDirty(img);
                 AssetDatabase.SaveAssets();
             }
-            
-            LoadPix(session, new [] { img });
+
+            OpenImage(session, new [] { img });
         }
 
-        public static void SavePix(PixSession session)
+        public static void SaveImage(PixSession session)
         {
             if (session.Image == null)
                 return;
@@ -121,7 +122,7 @@ namespace UniPix
         {
             var pix = EditorWindow.GetWindow<PixEditor>();
             pix.UpdateCanvasSize();
-            LoadPix(pix.Session, sources);
+            OpenImage(pix.Session, sources);
         }
 
         public static void SetCurrentFrame(PixSession session, int frameIndex)

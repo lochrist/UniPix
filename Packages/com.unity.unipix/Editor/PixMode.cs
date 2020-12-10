@@ -13,19 +13,19 @@ namespace UniPix
         private static void NewImage(CommandExecuteContext context)
         {
             // TODO: allow selection of image size
-            PixCommands.CreatePix(s_Session, 32, 32, false);
+            PixCommands.NewImage(s_Session, 32, 32, false);
         }
 
         [CommandHandler("UniPix/Open")]
         private static void Open(CommandExecuteContext context)
         {
-            PixCommands.LoadPix(s_Session);
+            PixCommands.OpenImage(s_Session);
         }
 
         [CommandHandler("UniPix/Save")]
         private static void Save(CommandExecuteContext context)
         {
-            PixCommands.SavePix(s_Session);
+            PixCommands.SaveImage(s_Session);
         }
 
         // Project specific

@@ -328,7 +328,7 @@ namespace UniPix
 
             SetCurrentTool(0);
             UpdateCanvasSize();
-            PixCommands.LoadPix(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
+            PixCommands.OpenImage(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
 
             m_TransparentTex = PixCore.CreateTexture(1, 1);
             PixCore.SetTextureColor(m_TransparentTex, Color.clear);
@@ -742,7 +742,7 @@ namespace UniPix
                             {
                                 DragAndDrop.AcceptDrag();
                                 Event.current.Use();
-                                PixCommands.LoadPix(Session, objs);
+                                PixCommands.OpenImage(Session, objs);
                                 GUIUtility.ExitGUI();
                             }
                         }
@@ -1020,7 +1020,7 @@ namespace UniPix
                     GUILayout.FlexibleSpace();
                     if (GUILayout.Button(Styles.syncContent, GUILayout.MaxWidth(32)))
                     {
-                        PixCommands.SavePix(Session);
+                        PixCommands.SaveImage(Session);
                         PixIO.UpdateFrameSourceSprite(Session.CurrentFrame);
                     }
                     GUILayout.EndHorizontal();
@@ -1036,13 +1036,13 @@ namespace UniPix
             
             if (GUILayout.Button(Styles.newContent, EditorStyles.toolbarButton))
             {
-                PixCommands.CreatePix(Session, 32, 32, false);
+                PixCommands.NewImage(Session, 32, 32, false);
                 Repaint();
             }
 
             if (GUILayout.Button(Styles.loadContent, EditorStyles.toolbarButton))
             {
-                PixCommands.LoadPix(Session);
+                PixCommands.OpenImage(Session);
                 Repaint();
             }
 
@@ -1050,7 +1050,7 @@ namespace UniPix
             {
                 if (GUILayout.Button(Styles.saveContent, EditorStyles.toolbarButton))
                 {
-                    PixCommands.SavePix(Session);
+                    PixCommands.SaveImage(Session);
                 }
             }
 
