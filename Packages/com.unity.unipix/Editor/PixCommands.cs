@@ -65,27 +65,9 @@ namespace UniPix
             return OpenImage(session, new [] { contentToLoad } );
         }
 
-        public static void NewImage(PixSession session, int w, int h, bool selectPath)
+        public static void NewImage(PixSession session, int w, int h)
         {
             var img = PixCore.CreateImage(w, h, Color.clear);
-
-            if (selectPath)
-            {
-                string path = EditorUtility.SaveFilePanel(
-                    "Create UniPix",
-                    "Assets/", "Pix", "asset");
-                if (path == "")
-                {
-                    return;
-                }
-
-                path = FileUtil.GetProjectRelativePath(path);
-
-                AssetDatabase.CreateAsset(img, path);
-                EditorUtility.SetDirty(img);
-                AssetDatabase.SaveAssets();
-            }
-
             OpenImage(session, new [] { img });
         }
 

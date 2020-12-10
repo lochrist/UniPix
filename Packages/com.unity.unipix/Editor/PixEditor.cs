@@ -1036,7 +1036,7 @@ namespace UniPix
             
             if (GUILayout.Button(Styles.newContent, EditorStyles.toolbarButton))
             {
-                PixCommands.NewImage(Session, 32, 32, false);
+                PixCommands.NewImage(Session, 32, 32);
                 Repaint();
             }
 
