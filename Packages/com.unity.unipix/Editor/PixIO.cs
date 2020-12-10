@@ -1,4 +1,4 @@
-// #define UNITY_APP
+#define UNITY_APP
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,6 +6,7 @@ using System.Linq;
 using UniPix;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace UniPix
 {
@@ -202,12 +203,12 @@ namespace UniPix
                 imgPath = PixUtils.CleanPath(imgPath);
                 if (useProject)
                 {
-                    if (!imgPath.StartsWith(Application.dataPath))
+                    if (!PixUtils.IsProjectPath(imgPath))
                     {
                         Debug.LogError($"Cannot save outside of project: {imgPath}");
                         return "";
                     }
-                    AssetDatabase.CreateAsset(img, FileUtil.GetProjectRelativePath(imgPath));
+                    AssetDatabase.CreateAsset(img, PixUtils.GetProjectPath(imgPath));
                     EditorUtility.SetDirty(img);
                 }
                 SaveFolderPreference(PixEditor.Prefs.kLastSaveImgFolder, imgPath);
@@ -263,7 +264,7 @@ namespace UniPix
             {
                 AssetDatabase.Refresh();
                 // Slice the sprite:
-                var importer = AssetImporter.GetAtPath(FileUtil.GetProjectRelativePath(path)) as TextureImporter;
+                var importer = AssetImporter.GetAtPath(PixUtils.GetProjectPath(path)) as TextureImporter;
                 if (importer != null)
                 {
                     importer.isReadable = true;
@@ -488,7 +489,7 @@ namespace UniPix
         static void SaveFolderPreference(string prefKey, string path)
         {
             path = PixUtils.CleanPath(path);
-            var folder = Path.HasExtension(path) ? Path.GetDirectoryName(path) : path;
+            var folder = Path.HasExtension(path) ? PixUtils.CleanPath(Path.GetDirectoryName(path)) : path;
             folder = PixUtils.GetProjectPath(folder);
             EditorPrefs.SetString(prefKey, folder);
         }

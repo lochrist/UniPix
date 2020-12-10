@@ -1,5 +1,8 @@
 {
     "name": "UniPix",
+    "references": [
+        "com.unity.app"
+    ],
     "includePlatforms": [
         "Editor"
     ],

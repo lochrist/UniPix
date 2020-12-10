@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#define UNITY_APP
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
@@ -213,9 +214,28 @@ namespace UniPix
 
         public static string GetBasePath(string path)
         {
-            path = CleanPath(path);
             path = GetProjectPath(path);
             return $"{Path.GetDirectoryName(path)}/{GetBaseName(path)}";
+        }
+
+        public class RootDesc
+        {
+            public RootDesc(string root)
+            {
+                rootPath = root;
+                absPath = CleanPath(new FileInfo(rootPath).FullName);
+            }
+            public string rootPath;
+            public string absPath;
+        }
+
+        public static RootDesc[] s_ProjectRoots;
+
+        public static bool IsProjectPath(string path)
+        {
+            path = CleanPath(path);
+            InitProjectRoots();
+            return Path.IsPathRooted(path) && s_ProjectRoots.Any(r => path.StartsWith(r.absPath));
         }
 
         public static string GetProjectPath(string path)
@@ -223,13 +243,31 @@ namespace UniPix
             path = CleanPath(path);
             if (Path.IsPathRooted(path))
             {
-                if (path.StartsWith(Application.dataPath))
+                InitProjectRoots();
+                foreach (var root in s_ProjectRoots)
                 {
-                    path = FileUtil.GetProjectRelativePath(path);
+                    if (path.StartsWith(root.absPath))
+                        return $"{root.rootPath}{path.Replace(root.absPath, "")}";
                 }
             }
 
             return path;
+        }
+
+        private static void InitProjectRoots()
+        {
+            if (s_ProjectRoots == null)
+            {
+                var roots = new List<RootDesc>();
+                roots.Add(new RootDesc("Assets/"));
+#if UNITY_APP
+                foreach (var root in UnityApp.GetAllRoots())
+                {
+                    roots.Add(new RootDesc(root));
+                }
+#endif
+                s_ProjectRoots = roots.ToArray();
+            }
         }
 
         public static string GetBaseName(string path)

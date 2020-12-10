@@ -1,4 +1,4 @@
-// #define UNITY_APP
+#define UNITY_APP
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +10,7 @@ using UnityEngine;
 
 #if UNITY_APP
 [InitializeOnLoad]
-static class UnityApp
+public static class UnityApp
 {
     struct WorkspaceInfo
     {
@@ -34,6 +34,11 @@ static class UnityApp
         WindowLayout.onLayoutLoaded += SetupLayout;
         AssetDatabase.beforeRefresh += RegisterWorkspaces;
         EditorApplication.updateMainWindowTitle += UpdateUnityAppTitle;
+    }
+
+    public static string[] GetAllRoots()
+    {
+        return AssetDatabase.GetRoots();
     }
 
     private static void LoadWorkspaces()
