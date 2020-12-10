@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading;
 using System.Xml.Serialization;
 using UnityEditor.Graphs;
+using UnityEngine.Analytics;
 
 namespace UniPix
 {
@@ -191,42 +192,6 @@ namespace UniPix
 
     public static class PixUtils
     {
-        public static bool MakeReadable(Texture2D tex)
-        {
-            if (tex.isReadable)
-                return true;
-            string assetPath = AssetDatabase.GetAssetPath(tex);
-            return MakeReadable(assetPath, tex);
-        }
-
-        public static bool MakeReadable(string path, Texture2D tex)
-        {
-            if (tex.isReadable)
-                return true;
-
-            var tImporter = AssetImporter.GetAtPath(path) as TextureImporter;
-            if (tImporter != null)
-            {
-                tImporter.isReadable = true;
-                AssetDatabase.ImportAsset(path);
-                AssetDatabase.Refresh();
-                return true;
-            }
-            return false;
-        }
-
-        public static void MakeUncompressed(string path, Texture2D tex)
-        {
-            var tImporter = AssetImporter.GetAtPath(path) as TextureImporter;
-            if (tImporter != null && tImporter.textureCompression != TextureImporterCompression.Uncompressed)
-            {
-                tImporter.textureCompression = TextureImporterCompression.Uncompressed;
-                AssetDatabase.ImportAsset(path);
-                AssetDatabase.Refresh();
-            }
-        }
-
-
         public static void ExtractPaletteFrom(Frame frame, List<Color> colors)
         {
             foreach (var layer in frame.Layers)

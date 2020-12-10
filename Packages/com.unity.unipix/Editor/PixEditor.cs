@@ -377,7 +377,8 @@ namespace UniPix
                     Session.RightPanelScroll = GUILayout.BeginScrollView(Session.RightPanelScroll);
                     DrawLayers();
                     DrawColorPalette();
-                    DrawFrameSource();
+                    if (PixIO.useProject)
+                        DrawFrameSource();
                     GUILayout.EndScrollView();
                     GUILayout.EndArea();
                     DrawStatus();
@@ -1020,7 +1021,7 @@ namespace UniPix
                     if (GUILayout.Button(Styles.syncContent, GUILayout.MaxWidth(32)))
                     {
                         PixCommands.SavePix(Session);
-                        PixCommands.UpdateFrameSprite(Session.CurrentFrame);
+                        PixIO.UpdateFrameSourceSprite(Session.CurrentFrame);
                     }
                     GUILayout.EndHorizontal();
                 }
@@ -1053,18 +1054,21 @@ namespace UniPix
                 }
             }
 
-            var syncRect = GUILayoutUtility.GetRect(Styles.syncContent, EditorStyles.toolbarButton);
-            var areAllSourcesSet = Session.Image.Frames.All(f => f.SourceSprite != null);
-            if (!areAllSourcesSet && EditorGUI.DropdownButton(syncRect, Styles.syncContent, FocusType.Passive, EditorStyles.toolbarButton) && SyncWindow.canShow)
+            if (PixIO.useProject)
             {
-                if (SyncWindow.ShowAtPosition(this, syncRect))
-                    GUIUtility.ExitGUI();
+                var syncRect = GUILayoutUtility.GetRect(Styles.syncContent, EditorStyles.toolbarButton);
+                var areAllSourcesSet = Session.Image.Frames.All(f => f.SourceSprite != null);
+                if (!areAllSourcesSet && EditorGUI.DropdownButton(syncRect, Styles.syncContent, FocusType.Passive, EditorStyles.toolbarButton) && SyncWindow.canShow)
+                {
+                    if (SyncWindow.ShowAtPosition(this, syncRect))
+                        GUIUtility.ExitGUI();
+                }
+                else if (GUI.Button(syncRect, Styles.syncContent, EditorStyles.toolbarButton))
+                {
+                    PixIO.UpdateImageSourceSprites(Session);
+                }
             }
-            else if (GUI.Button(syncRect, Styles.syncContent, EditorStyles.toolbarButton))
-            {
-                PixCommands.SaveImageSources(Session);
-            }
-
+            
             var settingsRect = GUILayoutUtility.GetRect(Styles.gridSettingsContent, EditorStyles.toolbarButton);
             if (EditorGUI.DropdownButton(settingsRect, Styles.gridSettingsContent, FocusType.Passive, EditorStyles.toolbarButton) && GridSettingsWindow.canShow)
             {

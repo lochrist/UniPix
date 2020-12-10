@@ -16,7 +16,7 @@ namespace UniPix
             var path = EditorUtility.OpenFilePanel(
                     "Find Pix (.unipix.asset | .png | .jpg)",
                     "Assets/",
-                    "Image Files;*.unipix.asset;*.jpg;*.png");
+                    "Image Files;*.asset;*.jpg;*.png");
             if (path == "")
                 return false;
             return LoadPix(session, path);
@@ -31,7 +31,7 @@ namespace UniPix
                 {
                     if (pixSource is Texture2D tex)
                     {
-                        PixUtils.MakeReadable(tex);
+                        PixIO.MakeReadable(tex);
                         var texPath = AssetDatabase.GetAssetPath(tex);
                         var sprites = AssetDatabase.LoadAllAssetsAtPath(texPath).Select(a => a as Sprite).Where(s => s != null).ToArray();                        
                         if (sprites.Length > 0)
@@ -72,7 +72,7 @@ namespace UniPix
             {
                 string path = EditorUtility.SaveFilePanel(
                     "Create UniPix",
-                    "Assets/", "Pix.unipix", "asset");
+                    "Assets/", "Pix", "asset");
                 if (path == "")
                 {
                     return;
@@ -114,248 +114,6 @@ namespace UniPix
             session.IsImageDirty = false;
             UpdateImageTitle(session);
         }
-        #endregion
-
-        #region Export
-        public static void SaveImageSources(PixSession session, bool spriteSheet = false)
-        {
-            PixCommands.SavePix(session);
-            if (string.IsNullOrEmpty(session.ImagePath))
-            {
-                // SavePix was cancelled.
-                return;
-            }
-
-            if (spriteSheet)
-            {
-                var linkedFrames = session.Image.Frames.Where(f => f.SourceSprite != null).ToArray();
-                foreach (var linkedFrame in linkedFrames)
-                {
-                    UpdateFrameSprite(linkedFrame);
-                }
-
-                // TODO Export => not linked
-                var unlinkedFrame = session.Image.Frames.Where(f => f.SourceSprite == null).ToArray();
-                var sheet = ExportFramesToSpriteSheet(session, unlinkedFrame);
-                // Need to relink each sprite to their frame.
-            }
-            else
-            {
-                string basePath =null;
-                for (int i = 0; i < session.Image.Frames.Count; i++)
-                {
-                    var frame = session.Image.Frames[i];
-                    if (frame.SourceSprite == null)
-                    {
-                        if (basePath == null)
-                        {
-                            string path = EditorUtility.SaveFilePanel(
-                                "Export as image",
-                                "Assets/", string.IsNullOrEmpty(session.ImagePath) ? "pix.png" : PixUtils.GetBaseName(session.ImagePath), "png");
-                            basePath = path == "" ? PixUtils.GetBasePath(session.ImagePath) : PixUtils.GetBasePath(path);
-                        }
-
-                        // One image per frame
-                        var framePath = PixUtils.GetUniquePath(basePath, ".png", i);
-                        framePath = ExportFrame(frame, framePath);
-                        frame.SourceSprite = AssetDatabase.LoadAssetAtPath<Sprite>(framePath);
-                    }
-                    else
-                    {
-                        UpdateFrameSprite(frame);
-                    }
-                }
-            }
-        }
-
-        public static void ReplaceSourceSprite(PixSession session, Sprite sourceSprite)
-        {
-            var spriteSize = PixCore.GetSpriteSize(sourceSprite);
-            if (session.CurrentFrame.Width != spriteSize.x || session.CurrentFrame.Height != spriteSize.y)
-            {
-                throw new Exception("New sprite size doesn't match frame.");
-            }
-
-            PixUtils.MakeReadable(sourceSprite.texture);
-
-            RecordUndo(session, "Replace Source sprite");
-
-            session.CurrentFrame.SourceSprite = sourceSprite;
-            session.CurrentFrame.Layers.Clear();
-            var layer = session.CurrentFrame.AddLayer();
-            layer.Pixels = sourceSprite.texture.GetPixels((int)sourceSprite.rect.x, (int)sourceSprite.rect.y, spriteSize.x, spriteSize.y);
-            DirtyImage(session);
-        }
-
-        // Export is not linked at all to the image
-        public static string[] ExportFrames(PixSession session, Frame[] frames = null)
-        {
-            // ask user for base name: give image as base name
-            // Save each image separately
-            // Ensure to properly update SpriteMetadata
-            frames = frames ?? session.Image.Frames.ToArray();
-            if (frames.Length == 0)
-                return null;
-
-            var baseFolder = string.IsNullOrEmpty(session.ImagePath) ? "Assets/" : Path.GetDirectoryName(session.ImagePath);
-            var baseName = string.IsNullOrEmpty(session.ImagePath) ? "pix.png" : PixUtils.GetBaseName(session.ImagePath);
-            string path = EditorUtility.SaveFilePanel("Export as image", baseFolder, baseName, "png");
-            if (path == "")
-            {
-                return null;
-            }
-
-            var basePath = PixUtils.GetBasePath(path);
-            var frameFilePaths = new List<string>();
-            for (var i = 0; i < frames.Length; ++i)
-            {
-                var frame = session.Image.Frames[i];
-                frameFilePaths.Add(ExportFrame(frame, PixUtils.GetUniquePath(basePath, ".png", i)));
-            }
-
-            return frameFilePaths.ToArray();
-        }
-
-        // Export is not linked to the image
-        public static string ExportFramesToSpriteSheet(PixSession session, Frame[] frames = null)
-        {
-            // ask user for base name: give image as base name
-            // Save as a sprite sheet
-            // Ensure to properly update SpriteMetadata
-            frames = frames ?? session.Image.Frames.ToArray();
-            var baseFolder = string.IsNullOrEmpty(session.ImagePath) ? "Assets/" : Path.GetDirectoryName(session.ImagePath);
-            var baseName = string.IsNullOrEmpty(session.ImagePath) ? "sprite_sheet.png" : $"{PixUtils.GetBaseName(session.ImagePath)}_sheet";
-            string path = EditorUtility.SaveFilePanel("Save spritesheet", baseFolder, baseName, "png");
-            if (path == "")
-            {
-                return null;
-            }
-
-            var frameWidth = session.Image.Width;
-            var frameHeight = session.Image.Height;
-            var rows = (int)Mathf.Sqrt(frames.Length);
-            var spriteSheetWidth = (frames.Length * frameWidth) / rows;
-            spriteSheetWidth += spriteSheetWidth % frameWidth;
-
-            var spriteSheetHeight = frameHeight * rows;
-            spriteSheetHeight += spriteSheetHeight % frameHeight;
-
-            var spriteSheet = PixCore.CreateTexture(spriteSheetWidth, spriteSheetHeight);
-            spriteSheet.name = PixUtils.GetBaseName(path);
-            var offsetX = 0;
-            var offsetY = spriteSheetHeight - frameHeight;
-
-            for (int i = 0; i < frames.Length; i++)
-            {
-                if (i != 0 && (frameWidth * i) % spriteSheetWidth == 0)
-                {
-                    offsetY -= frameHeight;
-                    offsetX = 0;
-                }
-
-                for (var x = 0; x < frameWidth; x++)
-                {
-                    for (var y = 0; y < frameHeight; y++)
-                    {
-                        var framePixelColor = frames[i].Texture.GetPixel(x, y);
-                        spriteSheet.SetPixel(x + offsetX, y + offsetY, framePixelColor);
-                        spriteSheet.Apply();
-                    }
-                }
-                offsetX += frameWidth;
-            }
-
-            var content = spriteSheet.EncodeToPNG();
-            File.WriteAllBytes(path, content);
-            AssetDatabase.Refresh();
-
-            // Slice the sprite:
-            var importer = AssetImporter.GetAtPath(FileUtil.GetProjectRelativePath(path)) as TextureImporter;
-            if (importer != null)
-            {
-                importer.isReadable = true;
-                importer.spriteImportMode = SpriteImportMode.Multiple;
-
-                var spritesheetMetaData = new List<SpriteMetaData>();
-                for (int x = 0; x < spriteSheet.width; x += frameWidth)
-                {
-                    for (int y = spriteSheet.height; y > 0; y -= frameHeight)
-                    {
-                        SpriteMetaData data = new SpriteMetaData();
-                        data.pivot = new Vector2(0.5f, 0.5f);
-                        data.alignment = 9;
-                        data.name = spriteSheet.name + x + "_" + y;
-                        data.rect = new Rect(x, y - frameHeight, frameWidth, frameHeight);
-                        spritesheetMetaData.Add(data);
-                    }
-                }
-
-                importer.spritesheet = spritesheetMetaData.ToArray();
-                AssetDatabase.Refresh();
-                importer.SaveAndReimport();
-            }
-
-            return path;
-        }
-
-        public static void UpdateFrameSprite(Frame frame)
-        {
-            if (frame.SourceSprite == null)
-                throw new Exception("Not implemented");
-
-            var spriteSize = PixCore.GetSpriteSize(frame.SourceSprite);
-            if (spriteSize.x != frame.Width || spriteSize.y != frame.Height)
-                throw new Exception("UpdateFrameSprite: Frame doesn't match sprite size");
-
-            var texture = frame.SourceSprite.texture;
-            var texturePath = AssetDatabase.GetAssetPath(texture);
-            if (string.IsNullOrEmpty(texturePath))
-                throw new Exception("Texture not bound to a path");
-
-            PixUtils.MakeUncompressed(texturePath, texture);
-
-            var textureRect = frame.SourceSprite.rect;
-            var frameX = 0;
-            var frameY = 0;
-            for (var x = textureRect.x; x < textureRect.xMax; ++x, ++frameX)
-            {
-                for (var y = textureRect.y; y < textureRect.yMax; ++y, ++frameY)
-                {
-                    texture.SetPixel((int)x, (int)y, frame.Texture.GetPixel(frameX, frameY));
-                }
-            }
-            texture.Apply();
-
-            var frameContent = texture.EncodeToPNG();
-            if (frameContent == null)
-                throw new Exception("Texture cannot be converted to PNG: " + texturePath);
-            File.WriteAllBytes(texturePath, frameContent);
-            AssetDatabase.Refresh();
-        }
-
-        private static string ExportFrame(Frame frame, string path)
-        {
-            var updateMetaFile = !File.Exists(path);
-            var frameTex = frame.Texture;
-            var frameContent = frameTex.EncodeToPNG();
-            File.WriteAllBytes(path, frameContent);
-            AssetDatabase.Refresh();
-
-            if (updateMetaFile)
-            {
-                var importer = AssetImporter.GetAtPath(path) as TextureImporter;
-                if (importer != null)
-                {
-                    importer.textureType = TextureImporterType.Sprite;
-                    importer.filterMode = FilterMode.Point;
-                    importer.textureCompression = TextureImporterCompression.Uncompressed;
-                    importer.SaveAndReimport();
-                    AssetDatabase.Refresh();
-                }
-            }
-            return path;
-        }
-
         #endregion
 
         #region UI
@@ -682,6 +440,28 @@ namespace UniPix
                     session.CurrentLayer.Pixels[pixelIndex] = color;
                 }
             }
+            DirtyImage(session);
+        }
+        #endregion
+
+        #region Model Changed Project Specific
+        public static void ReplaceSourceSprite(PixSession session, Sprite sourceSprite)
+        {
+            Debug.Assert(PixIO.useProject);
+            var spriteSize = PixCore.GetSpriteSize(sourceSprite);
+            if (session.CurrentFrame.Width != spriteSize.x || session.CurrentFrame.Height != spriteSize.y)
+            {
+                throw new Exception("New sprite size doesn't match frame.");
+            }
+
+            PixIO.MakeReadable(sourceSprite.texture);
+
+            RecordUndo(session, "Replace Source sprite");
+
+            session.CurrentFrame.SourceSprite = sourceSprite;
+            session.CurrentFrame.Layers.Clear();
+            var layer = session.CurrentFrame.AddLayer();
+            layer.Pixels = sourceSprite.texture.GetPixels((int)sourceSprite.rect.x, (int)sourceSprite.rect.y, spriteSize.x, spriteSize.y);
             DirtyImage(session);
         }
         #endregion

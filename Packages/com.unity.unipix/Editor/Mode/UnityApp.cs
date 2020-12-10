@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEditor.Search;
 using UnityEngine;
 
+#if DISABLED
 [InitializeOnLoad]
 static class UnityApp
 {
@@ -31,7 +32,7 @@ static class UnityApp
 
         WindowLayout.onLayoutLoaded += SetupLayout;
         AssetDatabase.beforeRefresh += RegisterWorkspaces;
-        EditorApplication.updateMainWindowTitle += UpdateUnityAppTitle;
+        // EditorApplication.updateMainWindowTitle += UpdateUnityAppTitle;
     }
 
     private static void LoadWorkspaces()
@@ -90,11 +91,12 @@ static class UnityApp
     {
         UpdateWorkspaces();
     }
-
+    /*
     private static void UpdateUnityAppTitle(ApplicationTitleDescriptor desc)
     {
         desc.title = $"{(string)ModeService.GetModeDataSection("label")} {(string)ModeService.GetModeDataSection("version")}";
     }
+    */
 
     private static WorkspaceInfo AddWorkspace(string workspacePath)
     {
@@ -183,3 +185,4 @@ static class UnityApp
         UpdateWorkspaces();
     }
 }
+#endif
