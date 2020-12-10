@@ -22,6 +22,13 @@ namespace UniPix
             Frames = new List<Frame>();
         }
 
+        string m_Path;
+        public string Path
+        {
+            get => PixIO.GetImagePath(this, m_Path);
+            internal set => m_Path = value;
+        }
+
         public Frame AddFrame(int insertionPoint = -1)
         {
             var frame = new Frame(Width, Height);

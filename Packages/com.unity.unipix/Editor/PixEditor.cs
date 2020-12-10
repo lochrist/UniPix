@@ -61,7 +61,6 @@ namespace UniPix
                 Overlay.Apply();
         }
 
-        public string ImagePath;
         public string ImageTitle;
         public bool IsImageDirty;
 
@@ -728,6 +727,7 @@ namespace UniPix
                         var objs = DragAndDrop.objectReferences
                             .Where(PixUtils.IsValidPixSource).ToArray();
 
+                        // TODO useproject -> handle dragAndDrop in PixIO
                         if (objs.Length == 0 && DragAndDrop.paths.Length > 0)
                         {
                             objs = DragAndDrop.paths
@@ -1046,7 +1046,7 @@ namespace UniPix
                 Repaint();
             }
 
-            using (new EditorGUI.DisabledScope(!Session.IsImageDirty && !string.IsNullOrEmpty(Session.ImagePath)))
+            using (new EditorGUI.DisabledScope(!Session.IsImageDirty && !string.IsNullOrEmpty(Session.Image.Path)))
             {
                 if (GUILayout.Button(Styles.saveContent, EditorStyles.toolbarButton))
                 {

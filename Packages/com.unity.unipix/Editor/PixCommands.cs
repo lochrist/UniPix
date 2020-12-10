@@ -476,7 +476,7 @@ namespace UniPix
 
             UpdateImageTitle(session);
             session.IsImageDirty = false;
-            EditorPrefs.SetString(PixEditor.Prefs.kCurrentImg, string.IsNullOrEmpty(session.ImagePath) ? "" : session.ImagePath);
+            EditorPrefs.SetString(PixEditor.Prefs.kCurrentImg, string.IsNullOrEmpty(session.Image.Path) ? "" : session.Image.Path);
 
             session.CurrentFrameIndex = 0;
             session.CurrentLayerIndex = 0;
@@ -518,14 +518,13 @@ namespace UniPix
 
         private static void UpdateImageTitle(PixSession session)
         {
-            session.ImagePath = AssetDatabase.GetAssetPath(session.Image);
-            if (string.IsNullOrEmpty(session.ImagePath))
+            if (string.IsNullOrEmpty(session.Image.Path))
             {
                 session.ImageTitle = "*Untitled*";
             }
             else
             {
-                session.ImageTitle = session.ImagePath;
+                session.ImageTitle = session.Image.Path;
                 if (session.IsImageDirty)
                 {
                     session.ImageTitle += "*";

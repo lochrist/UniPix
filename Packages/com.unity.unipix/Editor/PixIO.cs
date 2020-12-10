@@ -11,6 +11,11 @@ public static class PixIO
 {
     public static bool useProject = false;
 
+    public static string GetImagePath(PixImage img, string defaultValue)
+    {
+        return useProject ? AssetDatabase.GetAssetPath(img) : defaultValue;
+    }
+
     public static bool MakeReadable(Texture2D tex)
     {
         if (tex.isReadable)
@@ -121,9 +126,11 @@ public static class PixIO
         // ask user for base name: give image as base name
         // Save as a sprite sheet
         // Ensure to properly update SpriteMetadata
+
+        // TODO useproject -> ensure we do not choose Assets folder
         frames = frames ?? session.Image.Frames.ToArray();
-        var baseFolder = String.IsNullOrEmpty(session.ImagePath) ? "Assets/" : Path.GetDirectoryName(session.ImagePath);
-        var baseName = String.IsNullOrEmpty(session.ImagePath) ? "sprite_sheet.png" : $"{PixUtils.GetBaseName(session.ImagePath)}_sheet";
+        var baseFolder = String.IsNullOrEmpty(session.Image.Path) ? "Assets/" : Path.GetDirectoryName(session.Image.Path);
+        var baseName = String.IsNullOrEmpty(session.Image.Path) ? "sprite_sheet.png" : $"{PixUtils.GetBaseName(session.Image.Path)}_sheet";
         string path = EditorUtility.SaveFilePanel("Save spritesheet", baseFolder, baseName, "png");
         if (path == "")
         {
@@ -177,8 +184,9 @@ public static class PixIO
         if (frames.Length == 0)
             return null;
 
-        var baseFolder = String.IsNullOrEmpty(session.ImagePath) ? "Assets/" : Path.GetDirectoryName(session.ImagePath);
-        var baseName = String.IsNullOrEmpty(session.ImagePath) ? "pix.png" : PixUtils.GetBaseName(session.ImagePath);
+        // TODO useproject -> ensure we do not choose Assets folder
+        var baseFolder = String.IsNullOrEmpty(session.Image.Path) ? "Assets/" : Path.GetDirectoryName(session.Image.Path);
+        var baseName = String.IsNullOrEmpty(session.Image.Path) ? "pix.png" : PixUtils.GetBaseName(session.Image.Path);
         string path = EditorUtility.SaveFilePanel("Export as image", baseFolder, baseName, "png");
         if (path == "")
         {
@@ -236,7 +244,7 @@ public static class PixIO
     public static void UpdateImageSourceSprites(PixSession session, bool spriteSheet = false)
     {
         PixCommands.SavePix(session);
-        if (String.IsNullOrEmpty(session.ImagePath))
+        if (String.IsNullOrEmpty(session.Image.Path))
         {
             // SavePix was cancelled.
             return;
@@ -267,8 +275,8 @@ public static class PixIO
                     {
                         string path = EditorUtility.SaveFilePanel(
                             "Export as image",
-                            "Assets/", String.IsNullOrEmpty(session.ImagePath) ? "pix.png" : PixUtils.GetBaseName(session.ImagePath), "png");
-                        basePath = path == "" ? PixUtils.GetBasePath(session.ImagePath) : PixUtils.GetBasePath(path);
+                            "Assets/", String.IsNullOrEmpty(session.Image.Path) ? "pix.png" : PixUtils.GetBaseName(session.Image.Path), "png");
+                        basePath = path == "" ? PixUtils.GetBasePath(session.Image.Path) : PixUtils.GetBasePath(path);
                     }
 
                     // One image per frame

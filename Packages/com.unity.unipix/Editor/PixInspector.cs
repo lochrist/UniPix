@@ -24,11 +24,11 @@ namespace UniPix
             }
             if (GUILayout.Button("Edit (isolated)"))
             {
+                // TODO useproject -> put image path in PixImage itself.
                 PixRoleProvider.StartUniPixIsolated(AssetDatabase.GetAssetPath(img));
             }
             GUILayout.EndHorizontal();
             
-
             EditorGUILayout.IntField("Width", img.Width);
             EditorGUILayout.IntField("Height", img.Height);
 
