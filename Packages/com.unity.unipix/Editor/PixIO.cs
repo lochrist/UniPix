@@ -25,7 +25,7 @@ namespace UniPix
 
         public static string PixImageExtension => useProject ? "asset" : "piximage";
         public static string[] SupportedImgExtensions = { ".png", ".jpg", ".jpeg" };
-        public static string[] AllSupportedContentExtensions = SupportedImgExtensions.Concat(new [] { PixImageExtension }).ToArray();
+        public static string[] AllSupportedContentExtensions = SupportedImgExtensions.Concat(new [] { $".{PixImageExtension}" }).ToArray();
         public static string DefaultSaveFolder => useProject ? "Assets" : "";
         public static string DefaultOpenFolder => useProject ? "Assets" : "";
 
@@ -124,10 +124,10 @@ namespace UniPix
             {
                 if (useProject)
                 {
-                    path = GetProjectPath(path);
+                    path = PixUtils.GetProjectPath(path);
                     if (Path.IsPathRooted(path))
                     {
-                        if (SupportedImgExtensions.Contains(path))
+                        if (SupportedImgExtensions.Contains(ext))
                         {
                             var tex = LoadImage(path);
                             contents = tex != null ? new[] { (UnityEngine.Object)tex } : s_NoContent;
@@ -162,7 +162,7 @@ namespace UniPix
                 }
                 else
                 {
-                    if (SupportedImgExtensions.Contains(path))
+                    if (SupportedImgExtensions.Contains(ext))
                     {
                         var tex = LoadImage(path);
                         contents = tex != null ? new[] { (UnityEngine.Object)tex } : s_NoContent;
@@ -172,6 +172,7 @@ namespace UniPix
                         var jsonDataStr = File.ReadAllText(path);
                         var pixImage = PixImage.CreateImage(32, 32);
                         JsonUtility.FromJsonOverwrite(jsonDataStr, pixImage);
+                        pixImage.Path = path;
                         contents = new[] { (UnityEngine.Object)pixImage };
                     }
                 }
@@ -192,8 +193,8 @@ namespace UniPix
                 var folder = EditorPrefs.GetString(PixEditor.Prefs.kLastSaveImgFolder, DefaultSaveFolder);
                 imgPath = EditorUtility.SaveFilePanel(
                     "Save new Pix Image",
-                    folder, "pixImage", PixImageExtension);
-                if (path == "")
+                    folder, "NewImage", PixImageExtension);
+                if (string.IsNullOrEmpty(imgPath))
                 {
                     return "";
                 }
@@ -201,10 +202,14 @@ namespace UniPix
                 imgPath = PixUtils.CleanPath(imgPath);
                 if (useProject)
                 {
+                    if (!imgPath.StartsWith(Application.dataPath))
+                    {
+                        return "";
+                    }
                     AssetDatabase.CreateAsset(img, FileUtil.GetProjectRelativePath(imgPath));
                     EditorUtility.SetDirty(img);
                 }
-                SaveFolderPreference(PixEditor.Prefs.kLastSaveImgFolder, folder);
+                SaveFolderPreference(PixEditor.Prefs.kLastSaveImgFolder, imgPath);
             }
 
             if (useProject)
@@ -216,6 +221,7 @@ namespace UniPix
             {
                 var jsonPixImage = JsonUtility.ToJson(img);
                 File.WriteAllText(imgPath, jsonPixImage);
+                img.Path = imgPath;
             }
 
             return imgPath;
@@ -252,10 +258,9 @@ namespace UniPix
         {
             var content = spriteSheet.EncodeToPNG();
             File.WriteAllBytes(path, content);
-            if (useProject)
+            if (useProject && path.StartsWith(Application.dataPath))
             {
                 AssetDatabase.Refresh();
-
                 // Slice the sprite:
                 var importer = AssetImporter.GetAtPath(FileUtil.GetProjectRelativePath(path)) as TextureImporter;
                 if (importer != null)
@@ -479,28 +484,11 @@ namespace UniPix
             return success ? tex : null;
         }
 
-        static string GetProjectPath(string path)
-        {
-            path = PixUtils.CleanPath(path);
-            if (Path.IsPathRooted(path))
-            {
-                if (path.StartsWith(Application.dataPath))
-                {
-                    path = FileUtil.GetProjectRelativePath(path);
-                }
-            }
-
-            return path;
-        }
-
         static void SaveFolderPreference(string prefKey, string path)
         {
             path = PixUtils.CleanPath(path);
             var folder = Path.HasExtension(path) ? Path.GetDirectoryName(path) : path;
-            if (useProject && Path.IsPathRooted(folder))
-            {
-                folder = FileUtil.GetProjectRelativePath(folder);
-            }
+            folder = PixUtils.GetProjectPath(folder);
             EditorPrefs.SetString(prefKey, folder);
         }
     }

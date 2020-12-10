@@ -13,8 +13,8 @@ namespace UniPix
         #region SaveAndLoad
         public static bool OpenImage(PixSession session)
         {
-            var allSupportedExtensions = string.Join("|", PixIO.AllSupportedContentExtensions.Select(ext => $".{ext}"));
-            var allSupportedFiles = string.Join(";", PixIO.AllSupportedContentExtensions.Select(ext => $"*.{ext}"));
+            var allSupportedExtensions = string.Join("|", PixIO.AllSupportedContentExtensions.Select(ext => $"{ext}"));
+            var allSupportedFiles = string.Join(";", PixIO.AllSupportedContentExtensions.Select(ext => $"*{ext}"));
             var path = EditorUtility.OpenFilePanel(
                     $"Find Pix ({allSupportedExtensions})",
                     "Assets/",

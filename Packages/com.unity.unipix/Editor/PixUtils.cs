@@ -214,13 +214,22 @@ namespace UniPix
         public static string GetBasePath(string path)
         {
             path = CleanPath(path);
+            path = GetProjectPath(path);
+            return $"{Path.GetDirectoryName(path)}/{GetBaseName(path)}";
+        }
+
+        public static string GetProjectPath(string path)
+        {
+            path = CleanPath(path);
             if (Path.IsPathRooted(path))
             {
-                path = FileUtil.GetProjectRelativePath(path);
+                if (path.StartsWith(Application.dataPath))
+                {
+                    path = FileUtil.GetProjectRelativePath(path);
+                }
             }
 
-            var directoryName = Path.GetDirectoryName(path);
-            return $"{Path.GetDirectoryName(path)}/{GetBaseName(path)}";
+            return path;
         }
 
         public static string GetBaseName(string path)

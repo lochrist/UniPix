@@ -75,7 +75,16 @@ namespace UniPix
 
             SetCurrentTool(0);
             UpdateCanvasSize();
-            PixCommands.OpenImage(Session, EditorPrefs.GetString(Prefs.kCurrentImg, null));
+
+            var initialImage = EditorPrefs.GetString(Prefs.kCurrentImg, null);
+            if (string.IsNullOrEmpty(initialImage))
+            {
+                PixCommands.NewImage(Session, 32, 32);
+            }
+            else
+            {
+                PixCommands.OpenImage(Session, initialImage);
+            }
 
             m_TransparentTex = PixCore.CreateTexture(1, 1);
             PixCore.SetTextureColor(m_TransparentTex, Color.clear);
