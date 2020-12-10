@@ -1,4 +1,4 @@
-#define UNITY_APP
+// #define UNITY_APP
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -204,6 +204,7 @@ namespace UniPix
                 {
                     if (!imgPath.StartsWith(Application.dataPath))
                     {
+                        Debug.LogError($"Cannot save outside of project: {imgPath}");
                         return "";
                     }
                     AssetDatabase.CreateAsset(img, FileUtil.GetProjectRelativePath(imgPath));
