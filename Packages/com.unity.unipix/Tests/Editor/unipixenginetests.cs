@@ -1,28 +1,31 @@
 ﻿#if ENABLE_TESTS
+using System;
 using UnityEngine;
 using UnityEditor;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace UniPix
 {
     public static class UniPixMisc
     {
-        public static UniPix.Image CreateDummyImg()
+        public static PixImage CreateDummyImg()
         {
-            var img = ScriptableObject.CreateInstance<UniPix.Image>();
+            var img = ScriptableObject.CreateInstance<PixImage>();
             img.Height = 12;
             img.Width = 12;
 
             {
-                var l = new UniPix.Layer();
+                var f = img.AddFrame();
+                var l = f.AddLayer();
                 l.Name = "Background";
                 l.Opacity = 0.3f;
                 l.Pixels = new Color[16];
                 l.Pixels[0] = Color.black;
                 l.Pixels[1] = Color.green;
-                img.Frames[0].Layers.Add(l);
 
                 l = new UniPix.Layer();
                 l.Name = "L1";
@@ -30,7 +33,6 @@ namespace UniPix
                 l.Pixels = new Color[16];
                 l.Pixels[0] = Color.blue;
                 l.Pixels[1] = Color.red;
-                img.Frames[0].Layers.Add(l);
             }
 
             {
@@ -57,7 +59,7 @@ namespace UniPix
         [MenuItem("Tools/Create Mods")]
         static void CreateAndMods()
         {
-            var img = AssetDatabase.LoadAssetAtPath<UniPix.Image>("Assets/Dummy.asset");
+            var img = AssetDatabase.LoadAssetAtPath<PixImage>("Assets/Dummy.asset");
             Undo.RecordObject(img, "Img width");
             img.Width = 7;
             Undo.FlushUndoRecordObjects();
@@ -66,6 +68,45 @@ namespace UniPix
 
     public class EngineTests
     {
+        [Test]
+        public void TestBoundaries()
+        {
+            var rect = new RectInt(0, 0, 2, 2);
+            Debug.Log($"r: xMin:{rect.xMin} yMin:{rect.yMin} xMax:{rect.xMax} yMin:{rect.yMax}");
+        }
+
+        static void LogProjectPathInfo(string path)
+        {
+            var projectPath = PixUtils.GetProjectPath(path);
+            var fi = new FileInfo(projectPath);
+            Debug.Log($"{path} - IsProject: {PixUtils.IsProjectPath(path)} ProjectPath: {projectPath} fi: {fi.FullName} exists: {fi.Exists}");
+        }
+
+        static void LogPathResolvedInfo(string path)
+        {
+            var fi = new FileInfo(path);
+            Debug.Log($"{path} - {fi.FullName} - exists: {fi.Exists}");
+        }
+
+        [Test]
+        public void TestWorkspaceRoots()
+        {
+            LogProjectPathInfo("D:\\work\\code\\UniPix\\Assets\\sprite_sheet.png");
+            LogProjectPathInfo("D:\\work\\projects\\PixelArt_2020\\Assets\\Pix\\Tiny.meta");
+            LogProjectPathInfo("D:\\work\\projects\\PixelArt_2020\\Assets\\Pix\\Tiny\\td_monsters_bat_u2.png");
+            LogProjectPathInfo("D:\\work\\projects\\PixelArt_2020\\Tiny.meta");
+
+            LogPathResolvedInfo("Assets\\sprite_sheet.png");
+            LogPathResolvedInfo("Workspaces/Pix/sprite_sheet.png");
+            LogPathResolvedInfo("Packages/UniPix/package.json");
+            LogPathResolvedInfo("Packages/com.unity.unipix/package.json");
+
+            foreach (var root in PixUtils.s_ProjectRoots)
+            {
+                Debug.Log($"root: {root.rootPath}  absPath: {root.absPath}");
+            }
+        }
+
         [Test]
         public void TestUndoModifyImg()
         {
@@ -168,5 +209,4 @@ namespace UniPix
         }
     }
 }
-
 #endif

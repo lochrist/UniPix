@@ -22,6 +22,13 @@ namespace UniPix
             Frames = new List<Frame>();
         }
 
+        string m_Path;
+        public string Path
+        {
+            get => PixIO.GetImagePath(this, m_Path);
+            internal set => m_Path = value;
+        }
+
         public Frame AddFrame(int insertionPoint = -1)
         {
             var frame = new Frame(Width, Height);
@@ -138,18 +145,18 @@ namespace UniPix
 
         private static void UpdateTextureFromFrame(Frame frame)
         {
-            PixUtils.SetLayerColor(frame.BlendedLayer, Color.clear);
+            PixCore.SetLayerColor(frame.BlendedLayer, Color.clear);
             for (var layerIndex = 0; layerIndex < frame.Layers.Count; ++layerIndex)
             {
                 if (frame.Layers[layerIndex].Visible)
                 {
-                    PixUtils.Blend(frame.Layers[layerIndex], frame.BlendedLayer, frame.BlendedLayer);
+                    PixCore.BlendLayer(frame.Layers[layerIndex], frame.BlendedLayer, frame.BlendedLayer);
                 }
             }
 
             if (!frame.m_Texture || frame.m_Texture == null)
             {
-                frame.m_Texture = PixUtils.CreateTexture(frame.Width, frame.Height);
+                frame.m_Texture = PixCore.CreateTexture(frame.Width, frame.Height);
             }
 
             frame.m_Texture.SetPixels(frame.BlendedLayer.Pixels);

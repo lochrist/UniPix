@@ -32,8 +32,8 @@ namespace UniPix
 
         void OnGUI()
         {
-            using (new PixUtils.FieldWidthScope(45, 45))
-            using (new GUILayout.VerticalScope(PixEditor.Styles.pixBox))
+            using (new PixUI.FieldWidthScope(45, 45))
+            using (new GUILayout.VerticalScope(Styles.pixBox))
             {
                 GUILayout.Label("Grid");
                 EditorGUI.BeginChangeCheck();

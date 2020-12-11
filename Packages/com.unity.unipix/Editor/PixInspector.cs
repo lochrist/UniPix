@@ -24,15 +24,14 @@ namespace UniPix
             }
             if (GUILayout.Button("Edit (isolated)"))
             {
-                PixRoleProvider.StartUniPixIsolated(AssetDatabase.GetAssetPath(img));
+                PixRoleProvider.StartUniPixIsolated(img.Path);
             }
             GUILayout.EndHorizontal();
             
-
             EditorGUILayout.IntField("Width", img.Width);
             EditorGUILayout.IntField("Height", img.Height);
 
-            using (new PixUtils.FieldWidthScope(15, 45))
+            using (new PixUI.FieldWidthScope(15, 45))
             {
                 int frameIndex = 0;
                 foreach (var frame in img.Frames)
@@ -41,7 +40,7 @@ namespace UniPix
                     {
                         GUILayout.BeginHorizontal();
                         EditorGUILayout.ObjectField(new GUIContent($"{frameIndex}"), frame.SourceSprite, typeof(Sprite), false);
-                        PixUtils.LayoutFrameTile(frame);
+                        PixUI.LayoutFrameTile(frame);
                         GUILayout.FlexibleSpace();
                         GUILayout.EndHorizontal();
                     }
@@ -49,7 +48,7 @@ namespace UniPix
                     {
                         GUILayout.BeginHorizontal();
                         GUILayout.Label($"{frameIndex}");
-                        PixUtils.LayoutFrameTile(frame);
+                        PixUI.LayoutFrameTile(frame);
                         GUILayout.FlexibleSpace();
                         GUILayout.EndHorizontal();
                     }

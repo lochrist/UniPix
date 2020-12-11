@@ -1,3 +1,4 @@
+#define UNITY_APP
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,8 +10,9 @@ using UnityEditor;
 using UnityEditor.Search;
 using UnityEngine;
 
+#if UNITY_APP
 [InitializeOnLoad]
-static class UnityApp
+public static class UnityApp
 {
     struct WorkspaceInfo
     {
@@ -35,6 +37,11 @@ static class UnityApp
         WindowLayout.onLayoutLoaded += SetupLayout;
         AssetDatabase.beforeRefresh += RegisterWorkspaces;
         EditorApplication.updateMainWindowTitle += UpdateUnityAppTitle;
+    }
+
+    public static string[] GetAllRoots()
+    {
+        return AssetDatabase.GetRoots();
     }
 
     private static void LoadWorkspaces()
@@ -94,12 +101,12 @@ static class UnityApp
     {
         UpdateWorkspaces();
     }
-
+    
     private static void UpdateUnityAppTitle(ApplicationTitleDescriptor desc)
     {
         desc.title = $"{(string)ModeService.GetModeDataSection("label")} {(string)ModeService.GetModeDataSection("version")}";
     }
-
+    
     private static WorkspaceInfo AddWorkspace(string workspacePath)
     {
         return AddWorkspace(Path.GetFileName(workspacePath), workspacePath);
@@ -272,3 +279,4 @@ static class UnityApp
         UpdateWorkspaces();
     }
 }
+#endif

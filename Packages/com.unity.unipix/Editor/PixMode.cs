@@ -13,44 +13,45 @@ namespace UniPix
         private static void NewImage(CommandExecuteContext context)
         {
             // TODO: allow selection of image size
-            PixCommands.CreatePix(s_Session, 32, 32, false);
+            PixCommands.NewImage(s_Session, 32, 32);
         }
 
         [CommandHandler("UniPix/Open")]
         private static void Open(CommandExecuteContext context)
         {
-            PixCommands.LoadPix(s_Session);
+            PixCommands.OpenImage(s_Session);
         }
 
         [CommandHandler("UniPix/Save")]
         private static void Save(CommandExecuteContext context)
         {
-            PixCommands.SavePix(s_Session);
+            PixCommands.SaveImage(s_Session);
         }
 
-        [CommandHandler("UniPix/Sync")]
+        // Project specific
+        // [CommandHandler("UniPix/Sync")]
         private static void Sync(CommandExecuteContext context)
         {
             // TODO with a validator
-            PixCommands.SaveImageSources(s_Session);
+            PixIO.UpdateImageSourceSprites(s_Session);
         }
 
         [CommandHandler("UniPix/ExportCurrentFrame")]
         private static void ExportCurrentFrame(CommandExecuteContext context)
         {
-            PixCommands.ExportFrames(s_Session, new[] { s_Session.CurrentFrame });
+            PixIO.ExportFrames(s_Session, new[] { s_Session.CurrentFrame });
         }
 
         [CommandHandler("UniPix/ExportFrames")]
         private static void ExportFrames(CommandExecuteContext context)
         {
-            PixCommands.ExportFrames(s_Session);
+            PixIO.ExportFrames(s_Session);
         }
 
         [CommandHandler("UniPix/ExportSpriteSheet")]
         private static void ExportSpriteSheet(CommandExecuteContext context)
         {
-            PixCommands.ExportFramesToSpriteSheet(s_Session);
+            PixIO.ExportFramesToSpriteSheet(s_Session);
         }
 
         [CommandHandler("UniPix/GotoDefaultMode")]
@@ -241,19 +242,19 @@ namespace UniPix
         [CommandHandler("UniPix/Layout/Pix")]
         internal static void LayoutPix(CommandExecuteContext context)
         {
-            PixUtils.LoadWindowLayout("Packages/com.unity.UniPix/Editor/Layouts/Pix.wlt");
+            PixUtils.LoadWindowLayout("Packages/com.unity.unipix/Editor/Layouts/Pix.wlt");
         }
 
         [CommandHandler("UniPix/Layout/PixBrowse")]
         internal static void LayoutPixBrowse(CommandExecuteContext context)
         {
-            PixUtils.LoadWindowLayout("Packages/com.unity.UniPix/Editor/Layouts/Browse.wlt");
+            PixUtils.LoadWindowLayout("Packages/com.unity.unipix/Editor/Layouts/Browse.wlt");
         }
 
         [CommandHandler("UniPix/Layout/PixDebug")]
         internal static void LayoutPixDebug(CommandExecuteContext context)
         {
-            PixUtils.LoadWindowLayout("Packages/com.unity.UniPix/Editor/Layouts/Debug.wlt");
+            PixUtils.LoadWindowLayout("Packages/com.unity.unipix/Editor/Layouts/Debug.wlt");
         }
 
         [CommandHandler("UniPix/Layout/Dyn_Lyt_Pix")]

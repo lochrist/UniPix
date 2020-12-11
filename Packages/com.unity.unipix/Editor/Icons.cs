@@ -25,6 +25,7 @@ namespace UniPix
         public static Texture2D pencil = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/Pencil.png");
         public static Texture2D stroke = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/Stroke.png");
         public static Texture2D rectangle = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/Rectangle.png");
+        public static Texture2D rectSelect = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/RectSelect.png");
         public static Texture2D plus = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/Plus.png");
         public static Texture2D dithering = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/Dithering.png");
         public static Texture2D x = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/X.png");

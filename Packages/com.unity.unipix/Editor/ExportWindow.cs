@@ -31,9 +31,9 @@ namespace UniPix
 
         void OnGUI()
         {
-            using (new GUILayout.VerticalScope(PixEditor.Styles.pixBox))
+            using (new GUILayout.VerticalScope(Styles.pixBox))
             {
-                GUILayout.Label("Export", PixEditor.Styles.layerHeader);
+                GUILayout.Label("Export", Styles.layerHeader);
 
                 var exportMode = -1;
                 if (GUILayout.Button("Export current frame"))
@@ -64,17 +64,17 @@ namespace UniPix
             var exportedFile = "";
             if (mode == 0)
             {
-                var frames = PixCommands.ExportFrames(s_Editor.Session, new[] { s_Editor.Session.CurrentFrame });
+                var frames = PixIO.ExportFrames(s_Editor.Session, new[] { s_Editor.Session.CurrentFrame });
                 exportedFile = frames != null && frames.Length > 0 ? frames[0] : null;
             }
             else if (mode == 1)
             {
-                var frames = PixCommands.ExportFrames(s_Editor.Session);
+                var frames = PixIO.ExportFrames(s_Editor.Session);
                 exportedFile = frames != null && frames.Length > 0 ? frames[0] : null;
             }
             else
             {
-                exportedFile = PixCommands.ExportFramesToSpriteSheet(s_Editor.Session);
+                exportedFile = PixIO.ExportFramesToSpriteSheet(s_Editor.Session);
             }
 
             if (!string.IsNullOrEmpty(exportedFile))

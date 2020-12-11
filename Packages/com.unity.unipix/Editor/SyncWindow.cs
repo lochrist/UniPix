@@ -31,9 +31,9 @@ namespace UniPix
 
         void OnGUI()
         {
-            using (new GUILayout.VerticalScope(PixEditor.Styles.pixBox))
+            using (new GUILayout.VerticalScope(Styles.pixBox))
             {
-                GUILayout.Label("Sync", PixEditor.Styles.layerHeader);
+                GUILayout.Label("Sync", Styles.layerHeader);
 
                 GUILayout.Label("Some frames do not have a Source Sprite assigned. How do you want to save all those frames?", EditorStyles.helpBox);
 
@@ -41,7 +41,7 @@ namespace UniPix
                 {
                     EditorApplication.delayCall += () =>
                     {
-                        PixCommands.SaveImageSources(s_Editor.Session);
+                        PixIO.UpdateImageSourceSprites(s_Editor.Session);
                         Close();
                     };
                 }
@@ -50,7 +50,7 @@ namespace UniPix
                 {
                     EditorApplication.delayCall += () =>
                     {
-                        PixCommands.SaveImageSources(s_Editor.Session, true);
+                        PixIO.UpdateImageSourceSprites(s_Editor.Session, true);
                         Close();
                     };
                 }

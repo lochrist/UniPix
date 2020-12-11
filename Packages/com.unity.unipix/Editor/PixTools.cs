@@ -5,7 +5,7 @@ namespace UniPix
 {
     public class PixTool
     {
-        readonly Color kCursorColor = new Color(1, 1, 1, 0.5f);
+        public static readonly Color kCursorColor = new Color(1, 1, 1, 0.5f);
         public string Name;
         public Texture2D Icon;
         public GUIContent Content;
@@ -19,6 +19,15 @@ namespace UniPix
         {
             return Event.current.isMouse &&
                 (Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseDrag);
+        }
+
+        public virtual void OnEnable(PixSession session)
+        {
+        }
+
+        public virtual void OnDisable(PixSession session)
+        {
+
         }
 
         public virtual void DrawCursor(PixSession session)
@@ -107,16 +116,17 @@ namespace UniPix
                     m_Start = session.CursorImgCoord;
                 }
                 else if (Event.current.type == EventType.MouseDrag)
-                {                    session.ClearOverlay();
+                {
+                    session.ClearOverlay();
                     var pixels = session.Overlay.GetPixels();
                     var strokeColor = StrokeColor(session);
                     if (Event.current.control)
                     {
-                        PixUtils.DrawFilledRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, pixels);
+                        PixCore.DrawFilledRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, pixels);
                     }
                     else
                     {
-                        PixUtils.DrawRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
+                        PixCore.DrawRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
                     }
                     session.Overlay.SetPixels(pixels);
                     session.Overlay.Apply();
@@ -130,11 +140,11 @@ namespace UniPix
                         var strokeColor = StrokeColor(session);
                         if (Event.current.control)
                         {
-                            PixUtils.DrawFilledRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, pixels);
+                            PixCore.DrawFilledRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, pixels);
                         }
                         else
                         {
-                            PixUtils.DrawRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
+                            PixCore.DrawRectangle(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
                         }
                     }
 
@@ -145,6 +155,7 @@ namespace UniPix
             return false;
         }
     }
+
 
     public class LineTool : PixTool
     {
@@ -172,7 +183,7 @@ namespace UniPix
                     var pixels = session.Overlay.GetPixels();
                     var strokeColor = StrokeColor(session);
 
-                    PixUtils.DrawLine(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
+                    PixCore.DrawLine(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
 
                     session.Overlay.SetPixels(pixels);
                     session.Overlay.Apply();
@@ -184,12 +195,164 @@ namespace UniPix
                     {
                         var pixels = session.CurrentLayer.Pixels;
                         var strokeColor = StrokeColor(session);
-                        PixUtils.DrawLine(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
+                        PixCore.DrawLine(session.Image, m_Start, session.CursorImgCoord, strokeColor, session.BrushSize, pixels);
                     }
                 }
                 return true;
             }
             return false;
+        }
+    }
+
+    public class RectangleSelection : PixTool
+    {
+        enum Mode
+        {
+            Selection,
+            Move
+        }
+
+        public static string kName = "Selection";
+        Vector2Int m_ClickDownCoord;
+        RectInt m_RectSelection;
+        Mode m_Mode;
+        PixCore.Region m_Region;
+
+        public RectangleSelection()
+        {
+            Name = kName;
+            Content = new GUIContent(Icons.rectSelect, "Rectangle Selection");
+            Clear();
+        }
+
+        public override bool OnEvent(Event current, PixSession session)
+        {
+            if (Event.current.type == EventType.Repaint)
+            {
+                if (!HasSelection())
+                {
+                    DrawCursor(session);
+                }
+            }
+            
+            if (Event.current.isMouse &&
+                (Event.current.button == 0 || Event.current.button == 1))
+            {
+                if (Event.current.type == EventType.MouseDown)
+                {
+                    m_ClickDownCoord = session.CursorImgCoord;
+                    if (HasSelection() && m_RectSelection.Contains(session.CursorImgCoord))
+                    {
+                        // Prepare to move selection
+                        if (m_Mode != Mode.Move)
+                        {
+                            m_Mode = Mode.Move;
+                            m_Region = PixCore.GetRegion(session.Image, m_RectSelection, session.CurrentLayer.Pixels);
+
+                            using (new PixCommands.SessionChangeScope(session, "Rect Select"))
+                            {
+                                // Remove our region from the current layer.
+                                PixCore.DrawFilledRectangle(session.Image, m_RectSelection, new Color(0, 0, 0, 0), session.CurrentLayer.Pixels);
+                            }
+
+                            UpdateRegionOverlay(session);
+                        }
+                    }
+                    else
+                    {
+                        ApplyRegion(session);
+                        m_Mode = Mode.Selection;
+                        UpdateSelection(session, m_ClickDownCoord);
+                    }
+                }
+                else if (Event.current.type == EventType.MouseDrag)
+                {
+                    if (m_Mode == Mode.Selection)
+                    {
+                        UpdateSelection(session, session.CursorImgCoord);
+                    }
+                    else
+                    {
+                        MoveSelection(session, session.CursorImgCoord);
+                    }
+                }
+                else if (Event.current.type == EventType.MouseUp)
+                {
+                    if (m_Mode == Mode.Selection)
+                    {
+                        m_ClickDownCoord = new Vector2Int(-1, -1);
+                    }
+                    else
+                    {
+                        MoveSelection(session, session.CursorImgCoord);
+                    }
+                }
+
+                return true;
+            }
+            return false;
+        }
+
+        public override void OnDisable(PixSession session)
+        {
+            ApplyRegion(session);
+            Clear();
+            session.ClearOverlay();
+        }
+
+        void ApplyRegion(PixSession session)
+        {
+            if (m_Mode == Mode.Move && m_Region != null)
+            {
+                using (new PixCommands.SessionChangeScope(session, "Rect Move"))
+                {
+                    PixCore.DrawRegion(session.Image, m_RectSelection.position, m_Region, session.CurrentLayer.Pixels);
+                }
+            }
+        }
+
+        void MoveSelection(PixSession session, Vector2Int newPos)
+        {
+            // Center Selection around the newPos:
+            m_RectSelection.x = newPos.x - m_RectSelection.width / 2;
+            m_RectSelection.y = newPos.y - m_RectSelection.height / 2;
+            UpdateRegionOverlay(session);
+        }
+
+        void UpdateSelection(PixSession session, Vector2Int newPos)
+        {
+            m_RectSelection = PixCore.GetRect(m_ClickDownCoord, newPos);
+            session.ClearOverlay();
+            var pixels = session.Overlay.GetPixels();
+            PixCore.DrawFilledRectangle(session.Image, m_ClickDownCoord, newPos, PixTool.kCursorColor, pixels);
+            session.Overlay.SetPixels(pixels);
+            session.Overlay.Apply();
+        }
+
+        void UpdateRegionOverlay(PixSession session)
+        {
+            session.ClearOverlay();
+            var overLayPixels = session.Overlay.GetPixels();
+            PixCore.DrawRegion(session.Image, m_RectSelection.position, m_Region, overLayPixels);
+            PixCore.IterateImgRect(session.Image, m_RectSelection, (x, y, pixelIndex) =>
+            {
+                overLayPixels[pixelIndex] = PixCore.BlendPixel(PixTool.kCursorColor, overLayPixels[pixelIndex]);
+            });
+            session.Overlay.SetPixels(overLayPixels);
+            session.Overlay.Apply();
+        }
+
+        void Clear()
+        {
+            m_ClickDownCoord = new Vector2Int(-1, -1);
+            m_RectSelection = new RectInt(-1, -1, 0, 0);
+            m_Mode = Mode.Selection;
+            m_Region = null;
+        }
+
+        bool HasSelection()
+        {
+            return m_RectSelection.x != -1 && m_RectSelection.y != -1 && m_RectSelection.width > 0 && m_RectSelection.height > 0;
         }
     }
 
@@ -215,7 +378,7 @@ namespace UniPix
                     var strokeColor = StrokeColor(session);
                     var pixelIndex = session.CursorPixelIndex;
                     var currentCursorColor = pixels[pixelIndex];
-                    PixUtils.FloodFill(session.Image, session.CursorImgCoord, currentCursorColor, strokeColor, pixels);
+                    PixCore.FloodFill(session.Image, session.CursorImgCoord, currentCursorColor, strokeColor, pixels);
                 }
                 return true;
             }
