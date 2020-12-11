@@ -209,6 +209,7 @@ unipix = {
         "^RadeonRays.dll"
         "^tbbmalloc.dll"
         "^RadeonRays.dll"
+        "optix_denoiser.6.0.0.dll"
         "usymtool.exe"
         "bee_backend.exe"
     ]
