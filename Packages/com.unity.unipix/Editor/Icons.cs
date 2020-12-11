@@ -23,6 +23,7 @@ namespace UniPix
         public static Texture2D garbage = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/Garbage.png");
         public static Texture2D mergeLayer = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/MergeLayer.png");
         public static Texture2D pencil = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/Pencil.png");
+        public static Texture2D mirrorPen = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/MirrorPen.png");
         public static Texture2D stroke = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/Stroke.png");
         public static Texture2D rectangle = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/Rectangle.png");
         public static Texture2D rectSelect = (Texture2D)EditorGUIUtility.Load($"{iconFolder}/RectSelect.png");

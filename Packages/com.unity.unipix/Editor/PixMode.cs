@@ -11,7 +11,7 @@ namespace UniPix
         private static void NewImage(CommandExecuteContext context)
         {
             // TODO: allow selection of image size
-            PixCommands.NewImage(s_Session, 32, 32);
+            PixCommands.NewImage(s_Session);
         }
 
         [CommandHandler("UniPix/Open")]

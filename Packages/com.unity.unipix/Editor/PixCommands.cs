@@ -46,7 +46,9 @@ namespace UniPix
             return OpenImage(session, PixIO.LoadContents(path) );
         }
 
-        public static void NewImage(PixSession session, int w, int h)
+        public const int k_DefaultNewImageSize = 32;
+
+        public static void NewImage(PixSession session, int w = k_DefaultNewImageSize, int h = k_DefaultNewImageSize)
         {
             var img = PixCore.CreateImage(w, h, Color.clear);
             OpenImage(session, new [] { img });
@@ -379,19 +381,25 @@ namespace UniPix
             DirtyImage(session);
         }
 
-        public static void SetPixelsUnderBrush(PixSession session, Color color)
+        public static void SetPixelsUnderBrush(PixSession session, Color color, bool recordUndo)
         {
-            RecordUndo(session, "Pixels change");
-            var brushRect = session.BrushRect;
-            for (var y = brushRect.y; y < brushRect.yMax; ++y)
+            SetRegionPixels(session, color, session.BrushRect, recordUndo);
+        }
+
+        public static void SetRegionPixels(PixSession session, Color color, RectInt region, bool recordUndo)
+        {
+            if (recordUndo)
+                RecordUndo(session, "Pixels change");
+            for (var y = region.y; y < region.yMax; ++y)
             {
-                for (var x = brushRect.x; x < brushRect.xMax; ++x)
+                for (var x = region.x; x < region.xMax; ++x)
                 {
                     var pixelIndex = session.ImgCoordToPixelIndex(x, y);
                     session.CurrentLayer.Pixels[pixelIndex] = color;
                 }
             }
-            DirtyImage(session);
+            if (recordUndo)
+                DirtyImage(session);
         }
         #endregion
 

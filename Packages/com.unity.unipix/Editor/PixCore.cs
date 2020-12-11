@@ -306,6 +306,20 @@ public static class PixCore
         if (imgCoord.x + 1 < img.Width)
             FloodFill(img, new Vector2Int(imgCoord.x + 1, imgCoord.y), targetColor, newColor, output);
     }
-
     #endregion
+
+    public static RectInt GetBrushRect(PixImage image, Vector2Int centerPos, int brushSize)
+    {
+        var halfBrush = brushSize / 2;
+        var cursorCoordX = Mathf.Max(centerPos.x - halfBrush, 0);
+        var cursorCoordY = Mathf.Max(centerPos.y - halfBrush, 0);
+        var cursorSize = brushSize;
+        var brushRect = new RectInt(
+            cursorCoordX,
+            cursorCoordY,
+            cursorSize, cursorSize);
+        brushRect.xMax = Mathf.Min(brushRect.xMax, image.Width);
+        brushRect.yMax = Mathf.Min(brushRect.yMax, image.Height);
+        return brushRect;
+    }
 }

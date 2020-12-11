@@ -60,6 +60,7 @@ namespace UniPix
 
             Tools = new PixTool[] {
                 new BrushTool(),
+                new MirrorBrushTool(),
                 new EraseTool(),
                 new BucketTool(), 
                 new BucketFullTool(), 
@@ -75,7 +76,7 @@ namespace UniPix
             var initialImage = EditorPrefs.GetString(Prefs.kCurrentImg, null);
             if (string.IsNullOrEmpty(initialImage))
             {
-                PixCommands.NewImage(Session, 32, 32);
+                PixCommands.NewImage(Session);
             }
             else
             {
@@ -779,7 +780,7 @@ namespace UniPix
             
             if (GUILayout.Button(Styles.newContent, EditorStyles.toolbarButton))
             {
-                PixCommands.NewImage(Session, 32, 32);
+                PixCommands.NewImage(Session);
                 Repaint();
             }
 

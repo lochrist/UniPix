@@ -63,7 +63,7 @@ namespace UniPix
                 {
                     PixCommands.AddPaletteColor(session, strokeColor);
                 }
-                PixCommands.SetPixelsUnderBrush(session, strokeColor);
+                PixCommands.SetPixelsUnderBrush(session, strokeColor, true);
                 return true;
             }
             return false;
@@ -76,7 +76,7 @@ namespace UniPix
         public MirrorBrushTool()
         {
             Name = kName;
-            Content = new GUIContent(Icons.pencil, "Mirrored Brush");
+            Content = new GUIContent(Icons.mirrorPen, "Mirrored Brush");
         }
 
         public override bool OnEvent(Event current, PixSession session)
@@ -85,15 +85,39 @@ namespace UniPix
             if (IsBrushStroke() &&
                 (Event.current.button == 0 || Event.current.button == 1))
             {
-                var strokeColor = StrokeColor(session);
-                if (!session.Palette.Colors.Contains(strokeColor))
+                using (new PixCommands.SessionChangeScope(session, "Mirror"))
                 {
-                    PixCommands.AddPaletteColor(session, strokeColor);
+                    var strokeColor = StrokeColor(session);
+                    if (!session.Palette.Colors.Contains(strokeColor))
+                    {
+                        PixCommands.AddPaletteColor(session, strokeColor);
+                    }
+
+                    PixCommands.SetPixelsUnderBrush(session, strokeColor, false);
+
+                    var mirrorRegion = current.control ? GetHorizontalMirrorRegion(session) : GetVerticalMirrorRegion(session);
+                    PixCommands.SetRegionPixels(session, strokeColor, mirrorRegion, false);
                 }
-                PixCommands.SetPixelsUnderBrush(session, strokeColor);
+
                 return true;
             }
             return false;
+        }
+
+        static RectInt GetVerticalMirrorRegion(PixSession session)
+        {
+            var cursorCoord = session.CursorImgCoord;
+            var mirrorCoord = new Vector2Int( session.Image.Width - cursorCoord.x - 1, cursorCoord.y);
+            var mirrorBrush = PixCore.GetBrushRect(session.Image, mirrorCoord, session.BrushSize);
+            return mirrorBrush;
+        }
+
+        static RectInt GetHorizontalMirrorRegion(PixSession session)
+        {
+            var cursorCoord = session.CursorImgCoord;
+            var mirrorCoord = new Vector2Int(cursorCoord.x, session.Image.Height - cursorCoord.y - 1);
+            var mirrorBrush = PixCore.GetBrushRect(session.Image, mirrorCoord, session.BrushSize);
+            return mirrorBrush;
         }
     }
 
@@ -112,7 +136,7 @@ namespace UniPix
             if (IsBrushStroke() &&
                 Event.current.button == 0)
             {
-                PixCommands.SetPixelsUnderBrush(session, Color.clear);
+                PixCommands.SetPixelsUnderBrush(session, Color.clear, true);
                 return true;
             }
             return false;

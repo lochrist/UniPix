@@ -92,23 +92,7 @@ namespace UniPix
         public Vector2 CursorPos;
         public int CursorPixelIndex => ImgCoordToPixelIndex(CursorImgCoord.x, CursorImgCoord.y);
 
-        public RectInt BrushRect
-        {
-            get
-            {
-                var halfBrush = BrushSize / 2;
-                var cursorCoordX = Mathf.Max(CursorImgCoord.x - halfBrush, 0);
-                var cursorCoordY = Mathf.Max(CursorImgCoord.y - halfBrush, 0);
-                var cursorSize = BrushSize;
-                var brushRect = new RectInt(
-                    cursorCoordX,
-                    cursorCoordY,
-                    cursorSize, cursorSize);
-                brushRect.xMax = Mathf.Min(brushRect.xMax, Image.Width);
-                brushRect.yMax = Mathf.Min(brushRect.yMax, Image.Height);
-                return brushRect;
-            }
-        }
+        public RectInt BrushRect => PixCore.GetBrushRect(Image, CursorImgCoord, BrushSize);
 
         public const int k_MinBrushSize = 1;
         public const int k_MaxBrushSize = 6;
