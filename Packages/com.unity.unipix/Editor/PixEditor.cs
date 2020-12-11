@@ -802,10 +802,9 @@ namespace UniPix
             {
                 var syncRect = GUILayoutUtility.GetRect(Styles.syncContent, EditorStyles.toolbarButton);
                 var areAllSourcesSet = Session.Image.Frames.All(f => f.SourceSprite != null);
-                if (!areAllSourcesSet && EditorGUI.DropdownButton(syncRect, Styles.syncContent, FocusType.Passive, EditorStyles.toolbarButton) && SyncWindow.canShow)
+                if (!areAllSourcesSet)
                 {
-                    if (SyncWindow.ShowAtPosition(this, syncRect))
-                        GUIUtility.ExitGUI();
+                    PixDropDownWindow.DropDownButton(syncRect, Styles.syncContent, EditorStyles.toolbarButton, SyncWindow.winSize, SyncWindow.OnGUI, this);
                 }
                 else if (GUI.Button(syncRect, Styles.syncContent, EditorStyles.toolbarButton))
                 {
@@ -814,19 +813,11 @@ namespace UniPix
             }
             
             var settingsRect = GUILayoutUtility.GetRect(Styles.gridSettingsContent, EditorStyles.toolbarButton);
-            if (EditorGUI.DropdownButton(settingsRect, Styles.gridSettingsContent, FocusType.Passive, EditorStyles.toolbarButton) && GridSettingsWindow.canShow)
-            {
-                if (GridSettingsWindow.ShowAtPosition(this, settingsRect))
-                    GUIUtility.ExitGUI();
-            }
-
-            var exportRect = GUILayoutUtility.GetRect(Styles.exportContent, EditorStyles.toolbarButton);
-            if (EditorGUI.DropdownButton(exportRect, Styles.exportContent, FocusType.Passive, EditorStyles.toolbarButton) && ExportWindow.canShow)
-            {
-                if (ExportWindow.ShowAtPosition(this, exportRect))
-                    GUIUtility.ExitGUI();
-            }
+            PixDropDownWindow.DropDownButton(settingsRect, Styles.gridSettingsContent, EditorStyles.toolbarButton, GridSettingsWindow.winSize, GridSettingsWindow.OnGUI, this);
             
+            var exportRect = GUILayoutUtility.GetRect(Styles.exportContent, EditorStyles.toolbarButton);
+            PixDropDownWindow.DropDownButton(exportRect, Styles.exportContent, EditorStyles.toolbarButton, ExportWindow.winSize, ExportWindow.OnGUI, this);
+
             GUILayout.Label(Session.ImageTitle, EditorStyles.toolbarTextField, GUILayout.MinWidth(250));
 
             GUILayout.FlexibleSpace();
