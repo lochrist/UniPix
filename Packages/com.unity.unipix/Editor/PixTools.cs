@@ -70,6 +70,33 @@ namespace UniPix
         }
     }
 
+    public class MirrorBrushTool : PixTool
+    {
+        public static string kName = "MirrorBrush";
+        public MirrorBrushTool()
+        {
+            Name = kName;
+            Content = new GUIContent(Icons.pencil, "Mirrored Brush");
+        }
+
+        public override bool OnEvent(Event current, PixSession session)
+        {
+            DrawCursor(session);
+            if (IsBrushStroke() &&
+                (Event.current.button == 0 || Event.current.button == 1))
+            {
+                var strokeColor = StrokeColor(session);
+                if (!session.Palette.Colors.Contains(strokeColor))
+                {
+                    PixCommands.AddPaletteColor(session, strokeColor);
+                }
+                PixCommands.SetPixelsUnderBrush(session, strokeColor);
+                return true;
+            }
+            return false;
+        }
+    }
+
     public class EraseTool : PixTool
     {
         public static string kName = "Eraser";
