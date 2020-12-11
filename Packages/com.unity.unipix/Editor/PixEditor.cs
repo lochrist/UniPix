@@ -777,12 +777,8 @@ namespace UniPix
             GUILayout.BeginArea(m_ToolbarRect, EditorStyles.toolbar);
             GUILayout.BeginHorizontal();
 
-            
-            if (GUILayout.Button(Styles.newContent, EditorStyles.toolbarButton))
-            {
-                PixCommands.NewImage(Session);
-                Repaint();
-            }
+            var newRect = GUILayoutUtility.GetRect(Styles.newContent, EditorStyles.toolbarButton);
+            PixDropDownWindow.DropDownButton(newRect, Styles.newContent, EditorStyles.toolbarButton, NewImagesWindow.winSize, NewImagesWindow.OnGUI, this);
 
             if (GUILayout.Button(Styles.loadContent, EditorStyles.toolbarButton))
             {
