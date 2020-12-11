@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if ENABLE_TESTS
+using System;
 using UnityEngine;
 using UnityEditor;
 using NUnit.Framework;
@@ -208,3 +209,4 @@ namespace UniPix
         }
     }
 }
+#endif

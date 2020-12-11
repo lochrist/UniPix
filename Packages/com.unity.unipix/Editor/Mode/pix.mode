@@ -14,7 +14,7 @@ unipix = {
                 {name = "New..." command_id = "UniPix/NewImage" shortcut="%n"}
                 {name = "Open..." command_id = "UniPix/Open" shortcut="%o"}
                 null
-                { name = "Save" command_id = "UniPix/Save" shortcut="%s"}
+                { name = "Save" command_id = "UniPix/Save" shortcut="%s"} // Fix me cannot override menu
                 { name = "Sync" command_id = "UniPix/Sync" shortcut="%&s"}
                 null
                 { name = "Export Current Frame" command_id = "UniPix/ExportCurrentFrame" }
@@ -38,14 +38,16 @@ unipix = {
 
                 null, // This is a separator
 
-                {name="Shortcuts..."}
-                {name="Project Settings..."}
+                { name="Shortcuts..." }
+                { name="Preferences..." }
+                { name="Project Settings..." }
+                { name = "Open C# Project" original_name = "Assets/Open C# Project" } // Doesn't seem to work anymore
             ]
         }
-        { name = "Assets" children = "*" } // for debugging
+        //{ name = "Assets" children = "*" }
         { name = "Workspaces" children = "*" }
         {
-            name = "Frame"
+            name = "Frames"
             children = [
                 // Find the proper shortcut
                 { name = "Go to previous" command_id = "UniPix/GotoPreviousFrame" shortcut="_UP"}
@@ -57,7 +59,7 @@ unipix = {
             ]
         }
         {
-            name = "Layer"
+            name = "Layers"
             children = [
                 { name = "Go to previous" command_id = "UniPix/GotoPreviousLayer" shortcut="&t"}
                 { name = "Go to next" command_id = "UniPix/GotoNextLayer" shortcut="%t" }
@@ -86,7 +88,7 @@ unipix = {
             ]
         }
         {
-            name = "Tool"
+            name = "Tools"
             children = [
                 { name = "Brush" command_id = "UniPix/ActivateBrush" shortcut="_b"}
                 { name = "Eraser" command_id = "UniPix/ActivateEraser" shortcut="_e"}
@@ -97,6 +99,21 @@ unipix = {
                 { name = "Next Color" command_id = "UniPix/IncreaseColor" shortcut="_."}
                 { name = "Previous Color" command_id = "UniPix/DecreaseColor" shortcut="_,"}
                 { name = "Swap Color" command_id = "UniPix/SwapColor" shortcut="_x"}
+
+                null
+                {
+                    name = "Debug"
+                    children = [
+                        { name = "Default Mode" command_id = "UniPix/GotoDefaultMode" }
+			            { name = "Dynamic Pix Layout" command_id = "UniPix/Layout/Dyn_Lyt_Pix"}
+                        { name = "Dynamic Pix Browse Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixBrowse"}
+                        { name = "Dynamic Pix Debug Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixDebug"}
+
+                        null
+                        { name = "Build App" command_id = "BuildApp" }
+                        { name = "Reload App" command_id = "ReloadMode" shortcut="&r" }
+                    ]
+                }
             ]
         }
         {
@@ -113,17 +130,6 @@ unipix = {
                 {name = "Pix Layout" command_id = "UniPix/Layout/Pix" shortcut="%#1"}
                 {name = "Pix Browse Layout" command_id = "UniPix/Layout/PixBrowse" shortcut="%#2"}
                 {name = "Pix Debug Layout" command_id = "UniPix/Layout/PixDebug" shortcut="%#3"}
-                null
-                {
-                    name = "Debug"
-                    children = [
-                        { name = "Refresh Modes" command_id = "ModeService/Refresh" shortcut="&r" }
-                        { name = "Default Mode" command_id = "UniPix/GotoDefaultMode" }
-                        {name = "Dynamic Pix Layout" command_id = "UniPix/Layout/Dyn_Lyt_Pix"}
-                        {name = "Dynamic Pix Browse Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixBrowse"}
-                        {name = "Dynamic Pix Debug Layout" command_id = "UniPix/Layout/Dyn_Lyt_PixDebug"}
-                    ]
-                }
             ]
         }
 
@@ -153,10 +159,67 @@ unipix = {
     ]
 
     capabilities = {
+        // Never save this mode as the current
+        remember = false
+
+        // Update the layout when switching to safe mode.
         layout_switching = true
+        layout_window_menu = false
+        status_bar_extra_features = false
+        allow_asset_creation = true
     }
 
     shortcuts = [
         "Packages/com.unity.unipix/Editor/Mode/Default.shortcut",
+    ]
+    
+    build_exclude_patterns = [
+        "\\.pdb$"
+        "\\.dwlt$"
+        "\\.log$"
+        "\\.(hg|git|vs)/"
+        "Temp/"
+        "(il2cpp|obj|Logs)/"
+        "Data/MonoBleedingEdge/bin"
+        "Data/MonoBleedingEdge/lib/(?!.+(4\\.7\\.1\\-api|unity|unityjit)/)"
+        "Data/NetCore"
+        "Data/Resources/GI"
+        "Data/Resources/Licensing"
+        "Data/Resources/Collab"
+        "Data/Resources/OpenCL"
+        "Data/Resources/OpenRL"
+        "Data/Resources/Collab"
+        "Data/Resources/PackageManager/Editor/.+tgz$"
+        "Data/Resources/PackageManager/Diagnostics"
+        "Data/Resources/PackageManager/PackageTemplates"
+        "Data/Resources/PackageManager/ProjectTemplates"
+        "Data/Resources/PackageManager/BuiltInPackages/(?!.+(imgui|jsonserialize)/)"
+        "Data/Tools/BuildPlayerDataGenerator"
+        "Data/Tools/CacheServer"
+        "Data/Tools/FSBTool"
+        "Data/Tools/ILPostProcessorRunner"
+        "Data/Tools/InternalCallRegistrationWriter"
+        "Data/Tools/macosx"
+        "Data/Tools/MapFileParser"
+        "Data/Tools/nodejs"
+        "Data/Tools/netcorerun"
+        "Data/Tools/Roslyn"
+        "Data/Tools/ScriptUpdater"
+        "Data/Tools/VersionControl"
+        "Data/UnityETWProvider"
+        "Data/ScriptCompilationBuildProgram/"
+        "^Calc.dll"
+        "^cudart64_90.dll"
+        "^cudnn64_7.dll"
+        "^libmp3lame.dll"
+        "^MIOpen.dll"
+        "^RadeonML-DirectML.dll"
+        "^RadeonML-MIOpen.dll"
+        "^RadeonRays.dll"
+        "^tbbmalloc.dll"
+        "^RadeonRays.dll"
+        "optix_denoiser.6.0.0.dll"
+        "usymtool.exe"
+        "bee_backend.exe"
     ]
 }

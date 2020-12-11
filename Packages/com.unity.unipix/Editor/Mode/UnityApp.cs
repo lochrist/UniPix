@@ -1,9 +1,11 @@
 #define UNITY_APP
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditor.Search;
 using UnityEngine;
@@ -23,6 +25,7 @@ public static class UnityApp
 
     const string workspaceConfigPaths = "UserSettings/workspaces.paths";
     const string lastWorkspaceFolderKey = "last_workspace_folder";
+    const string lastBuildAppFolderKey = "last_build_app_folder";
 
     static bool workspaceRegistered = false;
     static List<WorkspaceInfo> workspaces = new List<WorkspaceInfo>();
@@ -57,6 +60,7 @@ public static class UnityApp
                     continue;
                 AddWorkspace(parts[0], parts[1]);
             }
+            UpdateWorkspaces();
         }
     }
 
@@ -131,14 +135,99 @@ public static class UnityApp
     {
         ModeService.Refresh(c);
         AssetDatabase.Refresh();
-        EditorUtility.RequestScriptReload();
         EditorUtility.RebuildAllMenus();
     }
 
     [CommandHandler(nameof(BuildApp), CommandHint.Menu)]
     internal static void BuildApp(CommandExecuteContext c)
     {
-        Debug.Log("BuildApp");
+        var excludes = new string[0];
+        if (ModeService.GetModeDataSection("build_exclude_patterns") is IList<object> l)
+            excludes = l.Cast<string>().ToArray();
+
+        var outputDir = Path.Combine(Path.GetDirectoryName(EditorApplication.applicationPath), "..");
+        outputDir = EditorPrefs.GetString(lastBuildAppFolderKey, outputDir);
+        outputDir = EditorUtility.SaveFolderPanel("Select build output folder...", outputDir, string.Empty);
+        if (string.IsNullOrEmpty(outputDir))
+            return;
+        EditorPrefs.SetString(lastBuildAppFolderKey, outputDir);
+
+        outputDir = outputDir.Replace("\\", "/").Trim('/');
+        var unityDir = Path.GetDirectoryName(EditorApplication.applicationPath).Replace("\\", "/").Trim('/');
+        var appDir = Application.dataPath.Replace("/Assets", "").Replace("\\", "/").Trim('/');
+        System.Threading.Tasks.Task.Run(() => BuildThread(unityDir, appDir, outputDir, excludes));
+    }
+
+    private static void BuildThread(string unityDir, string appDir, string buildDir, string[] excludes)
+    {
+        var progressId = Progress.Start("Unity App");
+        Progress.SetPriority(progressId, Progress.Priority.Low);       
+
+        try
+        {
+            var fileCount = 0;
+            var totalBytes = 0L;
+            var rgx = excludes.Select(e => new Regex(e, RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled)).ToArray();
+
+            CopyFiles(progressId, unityDir, buildDir, rgx, ref fileCount, ref totalBytes);
+            CopyFiles(progressId, appDir, $"{buildDir}/UnityApp", rgx, ref fileCount, ref totalBytes);
+
+            Debug.Log($"Build App Report: Updated {fileCount} files and copied {totalBytes / (1024L * 1024L)} mb");
+            Progress.Finish(progressId);
+        }
+        catch (Exception ex)
+        {
+            Progress.SetDescription(progressId, ex.Message);
+            Progress.Finish(progressId, Progress.Status.Failed);
+            Debug.LogException(ex);
+        }
+    }
+
+    private static void CopyFiles(int progressId, string sourceDir, string outputDir, Regex[] rgx, ref int fileCount, ref long totalBytes)
+    {
+        //Debug.Log($"Copying files {sourceDir} to {outputDir}");
+        Progress.Report(progressId, -1f, "Gathering files...");
+        var files = Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories);
+
+        Progress.Report(progressId, 0f, "Copying files...");
+        for (int i = 0; i < files.Length; ++i)
+        {
+            Progress.Report(progressId, (i+1) / (float)files.Length, files[i]);
+            if (!CopyFile(sourceDir, files[i], outputDir, rgx, out var fileSize))
+                continue;
+            fileCount++;
+            totalBytes += fileSize;
+        }
+    }
+
+    private static bool CopyFile(string sourceDir, string source, string outputDir, Regex[] rgx, out long fileSize)
+    {
+        var absPath = source.Replace("\\", "/").Trim('/');
+        var relPath = absPath.Replace(sourceDir, "").Replace("\\", "/").Trim('/');
+        var destPath = $"{outputDir}/{relPath}";
+
+        var sfi = new FileInfo(absPath);
+        var dfi = new FileInfo(destPath);
+
+        fileSize = sfi.Length;
+
+        if (dfi.Exists && sfi.LastWriteTime <= dfi.LastWriteTime)
+            return false;
+
+        foreach (var r in rgx)
+        {
+            if (r.IsMatch(relPath))
+            {
+                //Debug.Log($"Exclude[{r}] {relPath}");
+                return false;
+            }
+        }
+
+        if (!dfi.Directory.Exists)
+            dfi.Directory.Create();
+        sfi.CopyTo(dfi.FullName, true);
+        dfi.LastWriteTime = sfi.LastWriteTime;
+        return true;
     }
 
     [MenuItem("Workspaces/Add...")]

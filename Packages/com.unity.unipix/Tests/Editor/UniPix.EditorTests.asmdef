@@ -1,9 +1,11 @@
 {
     "name": "UniPix.EditorTests",
     "references": [
-        "UniPix",
-        "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UniPix"
+    ],
+    "optionalUnityReferences": [
+		"TestAssemblies",
+        "com.unity.ext.nunit"
     ],
     "includePlatforms": [
         "Editor"
@@ -12,13 +14,17 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll"
     ],
-    "autoReferenced": true,
+    "autoReferenced": false,
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
     "versionDefines": [
+        {
+            "name": "com.unity.ext.nunit",
+            "expression": "1.0.6",
+            "define": "ENABLE_TESTS"
+        }
     ],
     "noEngineReferences": false
 }
