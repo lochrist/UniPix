@@ -242,19 +242,19 @@ namespace UniPix
         [CommandHandler("UniPix/Layout/Pix")]
         internal static void LayoutPix(CommandExecuteContext context)
         {
-            PixUtils.LoadWindowLayout("Packages/com.unity.unipix/Editor/Layouts/Pix.wlt");
+            PixUtils.LoadWindowLayout($"{PixEditor.packageFolderName}/Editor/Layouts/Pix.wlt");
         }
 
         [CommandHandler("UniPix/Layout/PixBrowse")]
         internal static void LayoutPixBrowse(CommandExecuteContext context)
         {
-            PixUtils.LoadWindowLayout("Packages/com.unity.unipix/Editor/Layouts/Browse.wlt");
+            PixUtils.LoadWindowLayout($"{PixEditor.packageFolderName}/Editor/Layouts/Browse.wlt");
         }
 
         [CommandHandler("UniPix/Layout/PixDebug")]
         internal static void LayoutPixDebug(CommandExecuteContext context)
         {
-            PixUtils.LoadWindowLayout("Packages/com.unity.unipix/Editor/Layouts/Debug.wlt");
+            PixUtils.LoadWindowLayout($"{PixEditor.packageFolderName}/Editor/Layouts/Debug.wlt");
         }
 
         [CommandHandler("UniPix/Layout/Dyn_Lyt_Pix")]

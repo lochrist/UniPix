@@ -99,7 +99,7 @@ namespace UniPix
             LogPathResolvedInfo("Assets\\sprite_sheet.png");
             LogPathResolvedInfo("Workspaces/Pix/sprite_sheet.png");
             LogPathResolvedInfo("Packages/UniPix/package.json");
-            LogPathResolvedInfo("Packages/com.unity.unipix/package.json");
+            LogPathResolvedInfo($"{PixEditor.packageFolderName}/package.json");
 
             foreach (var root in PixUtils.s_ProjectRoots)
             {

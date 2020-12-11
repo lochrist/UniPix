@@ -1,9 +1,0 @@
-{
-	"name": "com.unity.unipix",
-	"displayName":"UniPix",
-	"version": "0.1.0",
-	"unity": "2018.3",
-	"description": "Pixel Editor for Unity",
-	"dependencies": {
-	}
-}

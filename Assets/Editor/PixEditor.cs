@@ -15,7 +15,8 @@ namespace UniPix
     public class PixEditor : EditorWindow
     {
         public static string packageName = "com.unity.unipix";
-        public static string packageFolderName = $"Packages/{packageName}";
+        //public static string packageFolderName = $"Packages/{packageName}";
+        public static string packageFolderName = $"Assets";
         public PixSession Session;
 
         public static class Prefs

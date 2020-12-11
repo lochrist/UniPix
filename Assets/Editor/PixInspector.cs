@@ -7,12 +7,6 @@ namespace UniPix
     [CanEditMultipleObjects]
     public class ImageInspector : Editor
     {
-
-        void OnEnable()
-        {
-
-        }
-
         public override void OnInspectorGUI()
         {
             PixImage img = (PixImage)target;
@@ -21,10 +15,6 @@ namespace UniPix
             if (GUILayout.Button("Edit"))
             {
                 PixCommands.EditInPix(new Object[] { img });
-            }
-            if (GUILayout.Button("Edit (isolated)"))
-            {
-                PixRoleProvider.StartUniPixIsolated(img.Path);
             }
             GUILayout.EndHorizontal();
             

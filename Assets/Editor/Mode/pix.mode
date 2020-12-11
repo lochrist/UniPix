@@ -1,10 +1,8 @@
-/*
-    shortcut = "&t" // Alt + T
-    shortcut = "%t" // Ctrl + T
-    shortcut = "#t" // Shift + T
-*/
 unipix = {
+    // Indicates that the mode will be used at startup
     startup = true
+
+    // Basic app info.
     label = "UniPix"
     version = "1.0"
 
@@ -158,11 +156,9 @@ unipix = {
         allow_asset_creation = true
     }
 
-    /*
     shortcuts = [
-        "Packages/com.unity.unipix/Editor/Mode/Default.shortcut",
+        "Assets/Editor/Mode/Default.shortcut",
     ]
-    */
 
     build_exclude_patterns = [
         "\\.pdb$"
@@ -180,11 +176,7 @@ unipix = {
         "Data/Resources/OpenCL"
         "Data/Resources/OpenRL"
         "Data/Resources/Collab"
-        "Data/Resources/PackageManager/Editor/.+tgz$"
-        "Data/Resources/PackageManager/Diagnostics"
-        "Data/Resources/PackageManager/PackageTemplates"
-        "Data/Resources/PackageManager/ProjectTemplates"
-        "Data/Resources/PackageManager/BuiltInPackages/(?!.+(imgui|jsonserialize)/)"
+        "Data/Resources/PackageManager/"
         "Data/Tools/BuildPlayerDataGenerator"
         "Data/Tools/CacheServer"
         "Data/Tools/FSBTool"
@@ -212,5 +204,12 @@ unipix = {
         "optix_denoiser.6.0.0.dll"
         "usymtool.exe"
         "bee_backend.exe"
+        "Data/Tools/dxcompiler.dll"
+        "Data/Tools/JobProcess.exe"
+        "Data/Tools/PVRTexTool.exe"
+        "Data/Tools/7z.exe"
+        "Data/Tools/umbraoptimizer64.dll"
+        "Data/Tools/JobProcess.exe"
+        
     ]
 }

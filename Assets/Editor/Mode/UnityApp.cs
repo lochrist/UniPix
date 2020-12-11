@@ -1,6 +1,7 @@
 #define UNITY_APP
+#if UNITY_APP
+
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,7 +11,6 @@ using UnityEditor;
 using UnityEditor.Search;
 using UnityEngine;
 
-#if UNITY_APP
 [InitializeOnLoad]
 public static class UnityApp
 {
@@ -27,6 +27,8 @@ public static class UnityApp
     const string lastWorkspaceFolderKey = "last_workspace_folder";
     const string lastBuildAppFolderKey = "last_build_app_folder";
 
+    static bool allowImporting => EditorApplication.IsConfigEnabled("importing-enabled", true);
+
     static bool workspaceRegistered = false;
     static List<WorkspaceInfo> workspaces = new List<WorkspaceInfo>();
 
@@ -35,8 +37,8 @@ public static class UnityApp
         LoadWorkspaces();
 
         WindowLayout.onLayoutLoaded += SetupLayout;
-        AssetDatabase.beforeRefresh += RegisterWorkspaces;
-        EditorApplication.updateMainWindowTitle += UpdateUnityAppTitle;
+        if (ModeService.GetCurrentModeId() != "default")
+            EditorApplication.updateMainWindowTitle += UpdateUnityAppTitle;
     }
 
     public static string[] GetAllRoots()
@@ -46,6 +48,8 @@ public static class UnityApp
 
     private static void LoadWorkspaces()
     {
+        if (!allowImporting)
+            return;
         var workspacesRoots = AssetDatabase.GetRoots().Where(r => r.StartsWith("Workspaces"));
         foreach (var r in workspacesRoots)
             AddWorkspace(r);
@@ -62,6 +66,8 @@ public static class UnityApp
             }
             UpdateWorkspaces();
         }
+
+        AssetDatabase.beforeRefresh += RegisterWorkspaces;
     }
 
     private static string GetUniqueName(string name, int digit = 0)
@@ -230,7 +236,7 @@ public static class UnityApp
         return true;
     }
 
-    [MenuItem("Workspaces/Add...")]
+    //[MenuItem("Workspaces/Add...")]
     internal static void AddWorkspace()
     {
         var workspaceFolder = EditorPrefs.GetString(lastWorkspaceFolderKey, Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
@@ -245,6 +251,9 @@ public static class UnityApp
 
     private static void UpdateWorkspaces()
     {
+        if (!allowImporting)
+            return;
+
         AssetDatabase.Refresh();
         Menu.RemoveMenuItem("Workspaces");
 

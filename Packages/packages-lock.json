@@ -6,12 +6,6 @@
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
-    },
-    "com.unity.unipix": {
-      "version": "file:com.unity.unipix",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
     }
   }
 }
