@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Net;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace UniPix

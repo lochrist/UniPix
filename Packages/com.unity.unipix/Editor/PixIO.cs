@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UniPix;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace UniPix
 {

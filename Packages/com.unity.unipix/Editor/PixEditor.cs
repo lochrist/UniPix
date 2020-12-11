@@ -1,14 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
-using UnityEngine.Profiling;
 using Debug = UnityEngine.Debug;
-using Object = UnityEngine.Object;
 
 namespace UniPix
 {

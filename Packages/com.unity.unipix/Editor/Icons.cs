@@ -36,7 +36,7 @@ namespace UniPix
 
         private static Texture2D LightenTexture(Texture2D texture)
         {
-            Texture2D outTexture = new Texture2D(texture.width, texture.height);
+            var outTexture = new Texture2D(texture.width, texture.height);
             var outColorArray = outTexture.GetPixels();
 
             var colorArray = texture.GetPixels();
